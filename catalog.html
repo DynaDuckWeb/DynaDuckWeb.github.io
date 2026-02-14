@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Catalog - DynaDuck</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="index.html">
+      <img src="logo.png" class="logo" alt="Logo" />
+    </a>
+    <nav>
+      <a href="catalog.html">Catalog</a>
+      <a href="ideas.html">Ideas</a>
+      <a href="create.html">Create</a>
+      <a href="dynamites.html">Dynamites</a>
+    </nav>
+  </div>
+
+  <div class="search-container">
+    <input type="text" class="search-bar" placeholder="Search...">
+  </div>
+
+  <div id="authButtons">
+    <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+    <a href="login.html"><button class="green-btn">Log In</button></a>
+  </div>
+</header>
+
+<main>
+  <h1>Catalog</h1>
+  <p>No items yet.</p>
+</main>
+
+</body>
+</html>
+<script>
+function updateHeader() {
+  const authDiv = document.getElementById('authButtons');
+  const loggedInUser = localStorage.getItem('loggedInUser');
+
+  if(loggedInUser){
+    authDiv.innerHTML = `
+      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+      <a href="settings.html"><button class="green-btn">Settings</button></a>
+      <button class="green-btn" onclick="logout()">Logout</button>
+    `;
+  } else {
+    authDiv.innerHTML = `
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+      <a href="login.html"><button class="green-btn">Log In</button></a>
+    `;
+  }
+}
+
+function logout(){
+  localStorage.removeItem('loggedInUser');
+  updateHeader();
+}
+
+window.addEventListener('DOMContentLoaded', updateHeader);
+</script>

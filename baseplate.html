@@ -1,0 +1,50 @@
+<main>
+
+  <section>
+    <h1>Welcome to DynaDuck</h1>
+    <p>Play simple games and have fun with friends.</p>
+  </section>
+
+  <section style="margin-top:40px;">
+    <h2>Games</h2>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px; margin-top:20px;">
+      
+      <div style="background:#eee; padding:20px; border-radius:12px; text-align:center;">
+        <h3>Baseplate and Friends</h3>
+        <p>A simple hangout game where you explore and chill.</p>
+        <a href="baseplate.html">
+          <button class="green-btn" style="margin-top:10px;">Play</button>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+<script>
+function updateHeader() {
+  const authDiv = document.getElementById('authButtons');
+  const loggedInUser = localStorage.getItem('loggedInUser');
+
+  if(loggedInUser){
+    authDiv.innerHTML = `
+      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+      <a href="settings.html"><button class="green-btn">Settings</button></a>
+      <button class="green-btn" onclick="logout()">Logout</button>
+    `;
+  } else {
+    authDiv.innerHTML = `
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+      <a href="login.html"><button class="green-btn">Log In</button></a>
+    `;
+  }
+}
+
+function logout(){
+  localStorage.removeItem('loggedInUser');
+  updateHeader();
+}
+
+window.addEventListener('DOMContentLoaded', updateHeader);
+</script>

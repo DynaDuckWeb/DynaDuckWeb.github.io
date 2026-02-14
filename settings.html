@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="logo.png" class="logo" alt="Logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="catalog.html">Catalog</a>
+    </nav>
+  </div>
+</header>
+
+<div class="auth-container">
+  <div class="auth-box">
+    <h1>Settings</h1>
+    <form id="settingsForm">
+      <input type="text" id="displayName" placeholder="Display Name">
+      <input type="password" id="newPassword" placeholder="New Password">
+      <input type="email" id="confirmEmail" placeholder="Confirm Email">
+      <button type="submit" class="green-btn">Save Changes</button>
+    </form>
+    <button class="green-btn" onclick="deleteAccount()" style="margin-top:15px;background:#E74C3C;">Delete Account</button>
+    <br><br>
+    <a href="index.html" class="green-btn" style="text-decoration:none;">Back to Home</a>
+  </div>
+</div>
+
+<script>
+const loggedInUser = localStorage.getItem('loggedInUser');
+if(!loggedInUser){
+  alert('Please log in to access settings.');
+  window.location.href = 'login.html';
+}
+
+const settingsForm = document.getElementById('settingsForm');
+settingsForm.addEventListener('submit', function(e){
+  e.preventDefault();
+  const displayName = document.getElementById('displayName').value.trim();
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmEmail = document.getElementById('confirmEmail').value.trim();
+
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+  const userData = users[loggedInUser];
+
+  if(displayName) userData.displayName = displayName;
+  if(newPassword) userData.password = newPassword;
+  if(confirmEmail) userData.email = confirmEmail;
+
+  users[loggedInUser] = userData;
+  localStorage.setItem('users', JSON.stringify(users));
+
+  alert('Settings updated!');
+  document.getElementById('displayName').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmEmail').value = '';
+});
+
+function deleteAccount(){
+  if(confirm(`Are you sure you want to delete your account "${loggedInUser}"?`)){
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    delete users[loggedInUser];
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.removeItem('loggedInUser');
+    alert('Your account has been deleted.');
+    window.location.href = 'index.html';
+  }
+}
+</script>
+
+</body>
+</html>

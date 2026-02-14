@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DynaDuck - Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="logo.png" class="logo" alt="DynaDuck Logo" />
+    <nav>
+      <a href="catalog.html">Catalog</a>
+      <a href="ideas.html">Ideas</a>
+      <a href="create.html">Create</a>
+      <a href="dynamites.html">Dynamites</a>
+    </nav>
+  </div>
+
+  <div class="search-container">
+    <input type="text" class="search-bar" placeholder="Search...">
+  </div>
+
+  <div id="authButtons">
+    <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+    <a href="login.html"><button class="green-btn">Log In</button></a>
+  </div>
+</header>
+
+<!-- LOGIN PROMPT -->
+<div class="login-prompt">
+  Please <a href="signup.html">Sign Up</a> / <a href="login.html">Log In</a> to play games! :D
+</div>
+
+<main>
+  <h2>Your Friends</h2>
+  <div id="friendsList" style="padding: 0 40px; display:flex; gap:10px; flex-wrap: wrap;"></div>
+
+  <h2>Friend Requests</h2>
+  <div id="friendRequests" style="padding: 0 40px; display:flex; gap:10px; flex-wrap: wrap;"></div>
+
+  <div style="padding: 0 40px; margin-top: 10px; margin-bottom: 30px;">
+    <input type="text" id="friendInput" placeholder="Add friend by username" style="padding:8px; border-radius:8px; border:1px solid #ccc;">
+    <button class="green-btn" onclick="sendFriendRequest()">Send Request</button>
+  </div>
+
+  <h1>Games</h1>
+  <div class="games-grid">
+
+    <div class="game-card">
+      <img src="photo.png" alt="Baseplate Thumbnail" class="game-thumb">
+      <div class="game-info">
+        <h2>Baseplate <span class="first-game">(FIRST GAME)</span></h2>
+        <p>First game on this platform yay :D</p>
+        <p class="creator">Creator: Admin (TestAccountX134)</p>
+        <button class="green-btn play-btn" onclick="playGame('Baseplate')">▶ Play</button>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <img src="photo.png" alt="CrossRoads Thumbnail" class="game-thumb">
+      <div class="game-info">
+        <h2>CrossRoads</h2>
+        <p>Yay fighting game :D</p>
+        <p class="creator">Creator: Admin (TestAccountX134)</p>
+        <button class="green-btn play-btn" onclick="playGame('CrossRoads')">▶ Play</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+
+<script>
+// ------------------------
+// Header & Login State
+// ------------------------
+function updateHeader() {
+  const authDiv = document.getElementById('authButtons');
+  const loggedInUser = localStorage.getItem('loggedInUser');
+
+  if(loggedInUser){
+    authDiv.innerHTML = `
+      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+      <a href="settings.html"><button class="green-btn">Settings</button></a>
+      <button class="green-btn" onclick="logout()">Logout</button>
+    `;
+    document.querySelector('.login-prompt').style.display = 'none';
+    loadFriends();
+    loadFriendRequests();
+  } else {
+    authDiv.innerHTML = `
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+      <a href="login.html"><button class="green-btn">Log In</button></a>
+    `;
+    document.querySelector('.login-prompt').style.display = 'block';
+    document.getElementById('friendsList').innerHTML = '';
+    document.getElementById('friendRequests').innerHTML = '';
+  }
+}
+
+function logout(){
+  localStorage.removeItem('loggedInUser');
+  updateHeader();
+}
+
+// ------------------------
+// Play Button
+// ------------------------
+function playGame(gameName){
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser){
+    alert('Please log in to play games!');
+    return;
+  }
+  alert(`Now playing ${gameName}!`);
+}
+
+// ------------------------
+// Friends System
+// ------------------------
+function loadFriends(){
+  const friendsList = document.getElementById('friendsList');
+  friendsList.innerHTML = '';
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser) return;
+
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+  const friends = users[loggedInUser].friends || [];
+
+  friends.forEach(friend => {
+    const div = document.createElement('div');
+    div.style.border = '1px solid #ccc';
+    div.style.padding = '8px';
+    div.style.borderRadius = '8px';
+    div.style.background = '#fff';
+    div.style.minWidth = '120px';
+    div.style.textAlign = 'center';
+    div.innerHTML = `
+      <strong>${friend}</strong><br>
+      <button class="green-btn" style="font-size:0.8em;padding:4px 8px;margin-top:5px;" onclick="removeFriend('${friend}')">Remove</button>
+    `;
+    friendsList.appendChild(div);
+  });
+}
+
+function removeFriend(friendName){
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+  let friends = users[loggedInUser].friends || [];
+  friends = friends.filter(f => f !== friendName);
+  users[loggedInUser].friends = friends;
+  localStorage.setItem('users', JSON.stringify(users));
+  loadFriends();
+}
+
+// ------------------------
+// Friend Requests
+// ------------------------
+function sendFriendRequest(){
+  const input = document.getElementById('friendInput');
+  const friendName = input.value.trim();
+  if(!friendName) return alert('Enter a username.');
+
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser) return alert('Please log in first.');
+
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+  if(!users[friendName]) return alert('User not found.');
+  if(friendName === loggedInUser) return alert("You can't friend yourself.");
+
+  // Already friends?
+  const currentFriends = users[loggedInUser].friends || [];
+  if(currentFriends.includes(friendName)) return alert('Already friends.');
+
+  // Add request to recipient
+  users[friendName].requests = users[friendName].requests || [];
+  if(users[friendName].requests.includes(loggedInUser)) return alert('Request already sent.');
+  users[friendName].requests.push(loggedInUser);
+
+  localStorage.setItem('users', JSON.stringify(users));
+  input.value = '';
+  alert('Friend request sent!');
+}
+
+function loadFriendRequests(){
+  const requestsDiv = document.getElementById('friendRequests');
+  requestsDiv.innerHTML = '';
+
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser) return;
+
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+  const requests = users[loggedInUser].requests || [];
+
+  requests.forEach(req => {
+    const div = document.createElement('div');
+    div.style.border = '1px solid #ccc';
+    div.style.padding = '8px';
+    div.style.borderRadius = '8px';
+    div.style.background = '#fff';
+    div.style.minWidth = '150px';
+    div.style.textAlign = 'center';
+    div.innerHTML = `
+      <strong>${req}</strong><br>
+      <button class="green-btn" style="font-size:0.8em;padding:4px 8px;margin-top:5px;" onclick="acceptRequest('${req}')">Accept</button>
+      <button class="green-btn" style="background:#ccc;font-size:0.8em;padding:4px 8px;margin-top:5px;" onclick="declineRequest('${req}')">Decline</button>
+    `;
+    requestsDiv.appendChild(div);
+  });
+}
+
+function acceptRequest(friendName){
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+  // Add each other as friends
+  users[loggedInUser].friends = users[loggedInUser].friends || [];
+  if(!users[loggedInUser].friends.includes(friendName)) users[loggedInUser].friends.push(friendName);
+
+  users[friendName].friends = users[friendName].friends || [];
+  if(!users[friendName].friends.includes(loggedInUser)) users[friendName].friends.push(loggedInUser);
+
+  // Remove request
+  users[loggedInUser].requests = users[loggedInUser].requests.filter(r => r !== friendName);
+
+  localStorage.setItem('users', JSON.stringify(users));
+  loadFriends();
+  loadFriendRequests();
+}
+
+function declineRequest(friendName){
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+  users[loggedInUser].requests = users[loggedInUser].requests.filter(r => r !== friendName);
+
+  localStorage.setItem('users', JSON.stringify(users));
+  loadFriendRequests();
+}
+
+// ------------------------
+// Initialize
+// ------------------------
+window.addEventListener('DOMContentLoaded', updateHeader);
+</script>
+
+</body>
+</html>
