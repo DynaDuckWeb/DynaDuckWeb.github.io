@@ -157,6 +157,9 @@ function updateHeader() {
       <a href="login.html"><button class="green-btn">Log In</button></a>
     `;
     document.querySelector('.login-prompt').style.display = 'block';
+    // clear friends/requests view when not logged in
+    document.getElementById('friendsList').innerHTML = '';
+    document.getElementById('friendRequests').innerHTML = '';
   }
 }
 
@@ -172,7 +175,8 @@ function loadFriends(){
   const loggedInUser = localStorage.getItem('loggedInUser');
   if(!loggedInUser) return;
   const users = JSON.parse(localStorage.getItem('users') || '{}');
-  const friends = users[loggedInUser]?.friends || [];
+  const userObj = users[loggedInUser] || {};
+  const friends = userObj.friends || [];
   friends.forEach(friend => {
     const div = document.createElement('div');
     div.style.border = '1px solid #ccc';
@@ -188,8 +192,15 @@ function loadFriends(){
 }
 function removeFriend(friendName){
   const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser) return;
   const users = JSON.parse(localStorage.getItem('users') || '{}');
+  users[loggedInUser] = users[loggedInUser] || {};
+  users[loggedInUser].friends = users[loggedInUser].friends || [];
   users[loggedInUser].friends = users[loggedInUser].friends.filter(f => f !== friendName);
+  // also remove reciprocal friendship if exists
+  if(users[friendName] && Array.isArray(users[friendName].friends)){
+    users[friendName].friends = users[friendName].friends.filter(f => f !== loggedInUser);
+  }
   localStorage.setItem('users', JSON.stringify(users));
   loadFriends();
 }
@@ -201,23 +212,29 @@ function sendFriendRequest(){
   if(!friendName) return alert('Enter a username.');
   const loggedInUser = localStorage.getItem('loggedInUser');
   if(!loggedInUser) return alert('Please log in.');
+  if(friendName === loggedInUser) return alert("You can't friend yourself.");
   const users = JSON.parse(localStorage.getItem('users') || '{}');
   if(!users[friendName]) return alert('User not found.');
-  if(friendName === loggedInUser) return alert("You can't friend yourself.");
+  // if already friends
+  users[friendName].friends = users[friendName].friends || [];
+  if(users[friendName].friends.includes(loggedInUser)) return alert('You are already friends.');
   users[friendName].requests = users[friendName].requests || [];
   if(users[friendName].requests.includes(loggedInUser)) return alert('Request already sent.');
   users[friendName].requests.push(loggedInUser);
   localStorage.setItem('users', JSON.stringify(users));
   input.value = '';
   alert('Friend request sent!');
+  // If recipient is the same logged-in user on this tab (unlikely), refresh requests
+  loadFriendRequests();
 }
+
 function loadFriendRequests(){
   const requestsDiv = document.getElementById('friendRequests');
   requestsDiv.innerHTML = '';
   const loggedInUser = localStorage.getItem('loggedInUser');
   if(!loggedInUser) return;
   const users = JSON.parse(localStorage.getItem('users') || '{}');
-  const requests = users[loggedInUser]?.requests || [];
+  const requests = (users[loggedInUser] && users[loggedInUser].requests) ? users[loggedInUser].requests : [];
   requests.forEach(req => {
     const div = document.createElement('div');
     div.style.border = '1px solid #ccc';
@@ -233,22 +250,29 @@ function loadFriendRequests(){
     requestsDiv.appendChild(div);
   });
 }
+
 function acceptRequest(friendName){
   const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser) return;
   const users = JSON.parse(localStorage.getItem('users') || '{}');
+  users[loggedInUser] = users[loggedInUser] || {};
   users[loggedInUser].friends = users[loggedInUser].friends || [];
   if(!users[loggedInUser].friends.includes(friendName)) users[loggedInUser].friends.push(friendName);
+  users[friendName] = users[friendName] || {};
   users[friendName].friends = users[friendName].friends || [];
   if(!users[friendName].friends.includes(loggedInUser)) users[friendName].friends.push(loggedInUser);
-  users[loggedInUser].requests = users[loggedInUser].requests.filter(r=>r!==friendName);
+  users[loggedInUser].requests = (users[loggedInUser].requests || []).filter(r=>r!==friendName);
   localStorage.setItem('users', JSON.stringify(users));
   loadFriends();
   loadFriendRequests();
 }
+
 function declineRequest(friendName){
   const loggedInUser = localStorage.getItem('loggedInUser');
+  if(!loggedInUser) return;
   const users = JSON.parse(localStorage.getItem('users') || '{}');
-  users[loggedInUser].requests = users[loggedInUser].requests.filter(r=>r!==friendName);
+  users[loggedInUser] = users[loggedInUser] || {};
+  users[loggedInUser].requests = (users[loggedInUser].requests || []).filter(r=>r!==friendName);
   localStorage.setItem('users', JSON.stringify(users));
   loadFriendRequests();
 }
@@ -270,6 +294,27 @@ function openGameView(gameName){
 function closeGameView(){
   document.getElementById('gameView').style.display = 'none';
 }
+
+/* ------------------- Storage sync across tabs ------------------- */
+/*
+  This listens for changes to localStorage made in other tabs/windows.
+  When users/requests/ideas change in another tab, this tab will refresh
+  the relevant UI so the user sees updates without reloading.
+*/
+window.addEventListener('storage', (e) => {
+  if(e.key === 'users'){
+    // If users data changed, refresh header/friend lists if logged in
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if(loggedInUser) {
+      loadFriends();
+      loadFriendRequests();
+    }
+  }
+  if(e.key === 'ideas'){
+    // pages that care about ideas should listen too (ideas.html also handles this)
+    try { if(typeof loadIdeas === 'function') loadIdeas(); } catch(err){}
+  }
+});
 
 /* ------------------- Init ------------------- */
 window.addEventListener('DOMContentLoaded', updateHeader);

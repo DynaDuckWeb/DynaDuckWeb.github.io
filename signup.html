@@ -59,8 +59,8 @@ signupForm.addEventListener('submit', function(e) {
     return;
   }
 
-  // Save user
-  users[username] = { email: email, password: password };
+  // Save user — initialize friends/requests arrays to avoid undefined later
+  users[username] = { email: email, password: password, friends: [], requests: [] };
   localStorage.setItem('users', JSON.stringify(users));
 
   alert('Account created successfully! You can now log in.');
