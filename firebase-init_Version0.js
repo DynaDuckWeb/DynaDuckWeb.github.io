@@ -1,5 +1,5 @@
 // Minimal Firebase initialization and helper auth/profile functions.
-// Uses your provided firebaseConfig. Add this file to your site and ensure other modules import from './firebase-init.js'.
+// Uses your firebaseConfig. Add this file to your repo root.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import {
@@ -43,7 +43,6 @@ export const db = getFirestore(app);
 /* Sign up and create a profile document using the chosen username as doc id.
    Uses a transaction to ensure username uniqueness. */
 export async function signUpWithUsername(email, password, username){
-  // create auth user
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   const uid = cred.user.uid;
   const profileRef = doc(db, "profiles", username);
@@ -56,14 +55,11 @@ export async function signUpWithUsername(email, password, username){
   return cred;
 }
 
-/* Sign in by username OR email.
-   If input contains '@' we'll treat it as email; otherwise look up the profile and sign in with the stored email. */
+/* Sign in by username OR email. */
 export async function signInByUsernameOrEmail(loginInput, password){
   if (loginInput.includes('@')) {
-    // email path
     return signInWithEmailAndPassword(auth, loginInput, password);
   } else {
-    // username path: find profile doc to get uid -> users/{uid} to get email
     const profileRef = doc(db, "profiles", loginInput);
     const profileSnap = await getDoc(profileRef);
     if(!profileSnap.exists()) throw new Error("Username not found");
@@ -76,11 +72,9 @@ export async function signInByUsernameOrEmail(loginInput, password){
 }
 
 export async function signOutUser(){ return signOut(auth); }
-
 export function onAuthStateChanged(cb){ fuOnAuthStateChanged(auth, cb); }
 
 export async function getProfileByUid(uid){
-  // find profile doc where uid == uid (profiles keyed by username)
   const profilesCol = collection(db, "profiles");
   const q = query(profilesCol, where("uid", "==", uid), limit(1));
   const snaps = await getDocs(q);
@@ -109,16 +103,14 @@ export async function changePassword(newPassword){
   await updatePassword(user, newPassword);
 }
 
-/* Delete account (reauth required). currentPassword must be provided. */
 export async function deleteAccountWithReauth(currentPassword){
   const user = auth.currentUser;
   if(!user) throw new Error("Not authenticated");
   const credential = EmailAuthProvider.credential(user.email, currentPassword);
   await reauthenticateWithCredential(user, credential);
-  // remove profile doc
   const profile = await getProfileByUid(user.uid);
   if(profile){
-    // NOTE: setDoc with empty object here — you may prefer to delete the doc using deleteDoc in production
     await setDoc(doc(db, "profiles", profile.username), {}, { merge: false });
   }
-  //*
+  await deleteUser(user);
+}
