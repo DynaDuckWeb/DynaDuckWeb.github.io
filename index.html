@@ -1,275 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DynaDuck - Home</title>
-<link rel="stylesheet" href="style.css">
-<style>
-/* Overlay Game View */
-#gameView {
-  display: none;
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background: rgba(0,0,0,0.7);
-  z-index:1000;
-  justify-content: center;
-  align-items: center;
-}
-
-#gameView > div {
-  display: flex;
-  background:white;
-  border-radius:12px;
-  overflow:hidden;
-  max-width:900px;
-  width:90%;
-  box-shadow:0 5px 25px rgba(0,0,0,0.5);
-}
-
-#gameView img {
-  width:50%;
-  object-fit:cover;
-}
-
-#gameView .game-info-panel {
-  padding:20px;
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.back-btn {
-  background: #ccc;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.back-btn:hover { background: #aaa; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
   <div class="header-left">
-    <img src="logo.png" class="logo" alt="DynaDuck Logo" />
+    <img src="logo.png" class="logo" alt="Logo">
     <nav>
+      <a href="index.html">Home</a>
       <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
     </nav>
-  </div>
-
-  <div class="search-container">
-    <input type="text" class="search-bar" placeholder="Search...">
-  </div>
-
-  <div id="authButtons">
-    <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-    <a href="login.html"><button class="green-btn">Log In</button></a>
   </div>
 </header>
 
-<div class="login-prompt">
-  Please <a href="signup.html">Sign Up</a> / <a href="login.html">Log In</a> to play games! :D
-</div>
-
-<main>
-  <!-- FRIENDS SECTION -->
-  <h2>Your Friends</h2>
-  <div id="friendsList" style="padding: 0 40px; display:flex; gap:10px; flex-wrap: wrap;"></div>
-
-  <h2>Friend Requests</h2>
-  <div id="friendRequests" style="padding: 0 40px; display:flex; gap:10px; flex-wrap: wrap;"></div>
-
-  <div style="padding: 0 40px; margin-top: 10px; margin-bottom: 30px;">
-    <input type="text" id="friendInput" placeholder="Add friend by username" style="padding:8px; border-radius:8px; border:1px solid #ccc;">
-    <button class="green-btn" id="sendFriendBtn">Send Request</button>
-  </div>
-
-  <!-- GAMES GRID -->
-  <h1>Games</h1>
-  <div class="games-grid">
-    <div class="game-card" onclick="openGameView('Baseplate')">
-      <img src="photo.png" alt="Baseplate Thumbnail" class="game-thumb">
-      <div class="game-info">
-        <h2>Baseplate</h2>
-        <p>First game on this platform yay :D</p>
-        <p class="creator">Creator: Admin</p>
-      </div>
-    </div>
-
-    <div class="game-card" onclick="openGameView('CrossRoads')">
-      <img src="photo.png" alt="CrossRoads Thumbnail" class="game-thumb">
-      <div class="game-info">
-        <h2>CrossRoads</h2>
-        <p>Yay fighting game :D</p>
-        <p class="creator">Creator: Admin</p>
-      </div>
-    </div>
-  </div>
-</main>
-
-<!-- GAME VIEW OVERLAY -->
-<div id="gameView">
-  <div>
-    <img id="gameViewThumb" src="" alt="Game Thumbnail">
-    <div class="game-info-panel">
-      <h1 id="gameViewName"></h1>
-      <p id="gameViewCreator" style="color:#11AD36;font-weight:600;"></p>
-      <p id="gameViewDesc"></p>
-      <button class="green-btn big-play" id="playBtn" style="font-size:1.2em; padding:12px;">▶ Play</button>
-      <div class="private-server" style="margin-top:10px;">
-        <h3>Private Server</h3>
-        <p>Create a private server to play with friends!</p>
-        <button class="green-btn">Create Server</button>
-      </div>
-      <button class="back-btn" onclick="closeGameView()">← Back</button>
-    </div>
+<div class="auth-container">
+  <div class="auth-box">
+    <h1>Settings</h1>
+    <form id="settingsForm">
+      <input type="text" id="displayName" placeholder="Display Name">
+      <input type="password" id="currentPassword" placeholder="Current Password (required to delete)">
+      <input type="password" id="newPassword" placeholder="New Password">
+      <input type="email" id="confirmEmail" placeholder="Confirm Email">
+      <button type="submit" class="green-btn">Save Changes</button>
+    </form>
+    <button class="green-btn" id="deleteAccountBtn" style="margin-top:15px;background:#E74C3C;">Delete Account</button>
+    <br><br>
+    <a href="index.html" class="green-btn" style="text-decoration:none;">Back to Home</a>
   </div>
 </div>
 
-<!-- Firebase & app scripts -->
 <script type="module">
-import { auth, onAuthStateChanged, signOutUser, getProfileByUid } from './firebase-init.js';
-import { sendFriendRequestByUsername, listenIncomingRequests, acceptRequest, listenFriends, migrateLocalFriends } from './friends-firestore.js';
+import { auth, getProfileByUid, updateProfileDisplayName, changePassword, deleteAccountWithReauth } from './firebase-init.js';
 
-function updateHeader(userProfile) {
-  const authDiv = document.getElementById('authButtons');
-
-  if(userProfile){
-    authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${escapeHtml(userProfile.username)}!</span>
-      <a href="settings.html"><button class="green-btn">Settings</button></a>
-      <button class="green-btn" id="logoutBtn">Logout</button>
-    `;
-    document.querySelector('.login-prompt').style.display = 'none';
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOutUser();
-    });
-    startListeners();
-  } else {
-    authDiv.innerHTML = `
-      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-      <a href="login.html"><button class="green-btn">Log In</button></a>
-    `;
-    document.querySelector('.login-prompt').style.display = 'block';
-    // clear friends/requests view when not logged in
-    document.getElementById('friendsList').innerHTML = '';
-    document.getElementById('friendRequests').innerHTML = '';
+(async function init(){
+  const user = auth.currentUser;
+  if(!user){
+    alert('Please log in to access settings.');
+    window.location.href = 'login.html';
+    return;
   }
-}
+})();
 
-let incomingUnsub = null;
-let friendsUnsub = null;
-let myProfile = null;
+const settingsForm = document.getElementById('settingsForm');
+settingsForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+  const displayName = document.getElementById('displayName').value.trim();
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmEmail = document.getElementById('confirmEmail').value.trim();
 
-function startListeners(){
-  // migrate any localStorage friends to Firestore (one-time)
-  migrateLocalFriends().catch(()=>{});
-  // listen incoming requests
-  if(incomingUnsub) incomingUnsub();
-  incomingUnsub = listenIncomingRequests(async (requests) => {
-    // requests are objects with id, from, to, status
-    const requestsDiv = document.getElementById('friendRequests');
-    requestsDiv.innerHTML = '';
-    requests.forEach(async r => {
-      const fromProfile = await getProfileByUid(r.from);
-      const fromName = fromProfile ? fromProfile.username : r.from;
-      const div = document.createElement('div');
-      div.style.border = '1px solid #ccc';
-      div.style.padding = '8px';
-      div.style.borderRadius = '8px';
-      div.style.background = '#fff';
-      div.style.minWidth = '150px';
-      div.style.textAlign = 'center';
-      div.innerHTML = `
-        <strong>${escapeHtml(fromName)}</strong><br>
-        <button class="green-btn" style="font-size:0.8em;padding:4px 8px;margin-top:5px;" data-id="${r.id}" data-from="${r.from}">Accept</button>
-        <button class="green-btn" style="background:#ccc;font-size:0.8em;padding:4px 8px;margin-top:5px;" data-id="${r.id}" data-from="${r.from}">Decline</button>`;
-      const acceptBtn = div.querySelector('button');
-      acceptBtn.addEventListener('click', async () => {
-        await acceptRequest(r.id);
-      });
-      requestsDiv.appendChild(div);
-    });
-  });
-
-  // listen friends
-  if(friendsUnsub) friendsUnsub();
-  friendsUnsub = listenFriends((friends) => {
-    const friendsList = document.getElementById('friendsList');
-    friendsList.innerHTML = '';
-    friends.forEach(async f => {
-      const profile = await getProfileByUid(f.otherUserId);
-      const display = profile ? profile.username : f.otherUserId;
-      const div = document.createElement('div');
-      div.style.border = '1px solid #ccc';
-      div.style.padding = '8px';
-      div.style.borderRadius = '8px';
-      div.style.background = '#fff';
-      div.style.minWidth = '120px';
-      div.style.textAlign = 'center';
-      div.innerHTML = `<strong>${escapeHtml(display)}</strong><br>`;
-      friendsList.appendChild(div);
-    });
-  });
-}
-
-// send friend request
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('sendFriendBtn').addEventListener('click', async () => {
-    const friendName = document.getElementById('friendInput').value.trim();
-    if(!friendName) return alert('Enter a username.');
-    try {
-      await sendFriendRequestByUsername(friendName);
-      alert('Friend request sent!');
-      document.getElementById('friendInput').value = '';
-    } catch (e) {
-      alert('Failed to send request: ' + e.message);
+  try {
+    if(displayName) await updateProfileDisplayName(displayName);
+    if(newPassword) await changePassword(newPassword);
+    if(confirmEmail) {
+      // update email -> requires reauth in production (not handled here)
+      // optional: implement updateEmail with reauth
+      alert('Email change is not fully implemented in this example. Update email in Firebase console or implement reauth flow.');
     }
-  });
-});
-
-// auth state
-onAuthStateChanged(async (user) => {
-  if(user){
-    // fetch profile for username display
-    myProfile = await getProfileByUid(user.uid);
-    updateHeader(myProfile);
-  } else {
-    myProfile = null;
-    updateHeader(null);
+    alert('Settings updated!');
+    document.getElementById('displayName').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmEmail').value = '';
+  } catch (err) {
+    alert('Failed to update settings: ' + err.message);
   }
 });
 
-/* ------------------- Game View Overlay ------------------- */
-const gamesData = {
-  "Baseplate": { thumb: "photo.png", name:"Baseplate", creator:"Admin", desc:"First game on this platform yay :D" },
-  "CrossRoads": { thumb: "photo.png", name:"CrossRoads", creator:"Admin", desc:"Yay fighting game :D" }
-};
-function openGameView(gameName){
-  const game = gamesData[gameName];
-  document.getElementById('gameViewThumb').src = game.thumb;
-  document.getElementById('gameViewName').innerText = game.name;
-  document.getElementById('gameViewCreator').innerText = "Creator: " + game.creator;
-  document.getElementById('gameViewDesc').innerText = game.desc;
-  document.getElementById('playBtn').onclick = () => alert(`Now playing ${game.name}!`);
-  document.getElementById('gameView').style.display = 'flex';
-}
-function closeGameView(){
-  document.getElementById('gameView').style.display = 'none';
-}
-
-/* small helper */
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>'&#'+c.charCodeAt(0)+';'); }
+document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+  const currentPassword = document.getElementById('currentPassword').value;
+  if(!currentPassword) return alert('Enter your current password to delete account.');
+  if(!confirm('Are you sure you want to delete your account? This is permanent.')) return;
+  try {
+    await deleteAccountWithReauth(currentPassword);
+    alert('Your account has been deleted.');
+    window.location.href = 'index.html';
+  } catch (err) {
+    alert('Failed to delete account: ' + err.message);
+  }
+});
 </script>
+
 </body>
 </html>
