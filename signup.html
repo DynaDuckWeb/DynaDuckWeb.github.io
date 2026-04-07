@@ -56,9 +56,6 @@
   }
   const db = firebase.database();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
   document.getElementById('signupForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const user = document.getElementById('username').value.trim();
