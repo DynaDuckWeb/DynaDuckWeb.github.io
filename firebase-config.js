@@ -1,12 +1,12 @@
 // firebase-config.js
 const firebaseConfig = {
-    apiKey: "AIzaSyDM3_vpaeh6e8ODIQGAwM1nmg3xsI6wPvI",
-    authDomain: "dynaduck-305ae.firebaseapp.com",
-    projectId: "dynaduck-305ae",
-    databaseURL: "https://dynaduck-305ae-default-rtdb.firebaseio.com/",
-    storageBucket: "dynaduck-305ae.firebasestorage.app",
-    messagingSenderId: "1095752853036",
-    appId: "1:1095752853036:web:bd47e8e3858417a0429389"
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
 };
 
 // Initialize Firebase
