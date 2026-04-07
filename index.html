@@ -2,8 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Extra layout for the Home Page */
+    .home-layout {
+      display: flex;
+      max-width: 1100px;
+      margin: 40px auto;
+      gap: 30px;
+      padding: 0 20px;
+    }
+
+    .main-feed { flex: 3; }
+    
+    .sidebar { 
+      flex: 1; 
+      background: white; 
+      border-radius: 12px; 
+      padding: 20px; 
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      height: fit-content;
+    }
+
+    .friend-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .online-dot {
+      width: 10px;
+      height: 10px;
+      background: #11AD36;
+      border-radius: 50%;
+    }
+
+    .search-friend-box {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+
+    .search-friend-box input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,68 +70,89 @@
   </div>
 
   <div class="search-container">
-    <input type="text" placeholder="Search games..." class="search-bar">
+    <input type="text" placeholder="Search DynaDuck..." class="search-bar">
   </div>
 
   <div id="authButtons">
     </div>
 </header>
 
-<main class="main-container" style="max-width:1000px; margin: 40px auto; padding: 0 20px;">
-  <section>
-    <h1 style="font-size: 2.5em; color: #333;">Welcome to DynaDuck</h1>
-    <p style="font-size: 1.2em; color: #666;">The ultimate place to build, play, and chill with friends.</p>
-  </section>
+<div class="home-layout">
+  
+  <main class="main-feed">
+    <h1 id="welcomeText">Welcome to DynaDuck</h1>
+    <p style="color: #666;">Experience the classic era of building and battling.</p>
 
-  <section style="margin-top: 50px;">
-    <h2 style="border-bottom: 2px solid #11AD36; padding-bottom: 10px;">Featured Games</h2>
-    
-    <div class="games-grid">
-      <div class="game-card" onclick="location.href='baseplate.html'">
-        <div style="background: #ddd; height: 140px; display: flex; align-items: center; justify-content: center;">
-             <span style="color: #999;">Game Preview</span>
+    <div style="margin-top: 40px;">
+      <h2 style="border-bottom: 2px solid #11AD36; padding-bottom: 10px;">Popular Games</h2>
+      <div class="games-grid" style="padding: 20px 0;">
+        
+        <div class="game-card" onclick="location.href='baseplate.html'">
+          <div style="background: #339933; height: 140px; display: flex; align-items: center; justify-content: center; background-image: radial-gradient(#2a882a 15%, transparent 15%); background-size: 20px 20px;">
+             <span style="color: white; font-weight: bold; text-shadow: 1px 1px #000;">BASEPLATE</span>
+          </div>
+          <div class="game-info">
+            <h2>Baseplate</h2>
+            <p class="creator">by DynaDuck</p>
+            <p>The original building ground.</p>
+          </div>
         </div>
-        <div class="game-info">
-          <h2>Baseplate and Friends</h2>
-          <p class="creator">by DynaDuck Team</p>
-          <p>The classic hangout.</p>
-        </div>
+
       </div>
     </div>
-  </section>
-</main>
+  </main>
+
+  <aside class="sidebar">
+    <h3 style="margin-top: 0;">Friends</h3>
+    
+    <div class="search-friend-box">
+      <input type="text" id="friendInput" placeholder="User...">
+      <button class="green-btn" style="padding: 5px 10px;" onclick="addFriend()">Add</button>
+    </div>
+
+    <div id="friendsList">
+      <p style="color: #999; font-size: 0.9em;">Log in to see friends.</p>
+    </div>
+  </aside>
+
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // 1. YOUR FIREBASE CONFIG
+  // 1. THE CLOUD CONFIG (NEW PROJECT)
   const firebaseConfig = {
-    apiKey: "AIzaSyDM3_vpaeh6e8ODIQGAwM1nmg3xsI6wPvI",
-    authDomain: "dynaduck-305ae.firebaseapp.com",
-    projectId: "dynaduck-305ae",
-    databaseURL: "https://dynaduck-305ae-default-rtdb.firebaseio.com/",
-    storageBucket: "dynaduck-305ae.firebasestorage.app",
-    messagingSenderId: "1095752853036",
-    appId: "1:1095752853036:web:bd47e8e3858417a0429389"
+    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+    authDomain: "dynaduck-19dbb.firebaseapp.com",
+    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dynaduck-19dbb",
+    storageBucket: "dynaduck-19dbb.firebasestorage.app",
+    messagingSenderId: "777148453502",
+    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  // Initialize
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const db = firebase.database();
 
-  // 2. HEADER LOGIC (Who are we?)
-  function updateHeader() {
-    const authDiv = document.getElementById('authButtons');
-    const loggedInUser = localStorage.getItem('loggedInUser');
+  // 2. AUTH & HEADER LOGIC
+  const currentUser = localStorage.getItem('loggedInUser');
 
-    if (loggedInUser) {
-      // If logged in, show username and Logout button
+  function updateUI() {
+    const authDiv = document.getElementById('authButtons');
+    const welcome = document.getElementById('welcomeText');
+
+    if (currentUser) {
+      welcome.innerText = "Welcome back, " + currentUser + "!";
       authDiv.innerHTML = `
-        <span style="font-weight:bold; color:white; margin-right:15px;">Hi, ${loggedInUser}!</span>
+        <span style="color:white; font-weight:bold; margin-right:15px;">${currentUser}</span>
         <button class="green-btn" onclick="logout()">Logout</button>
       `;
+      loadFriends();
     } else {
-      // If not logged in, show Sign Up / Log In
       authDiv.innerHTML = `
         <a href="signup.html"><button class="green-btn">Sign Up</button></a>
         <a href="login.html" style="margin-left:10px;"><button class="green-btn">Log In</button></a>
@@ -93,8 +165,47 @@
     location.reload();
   }
 
-  // Run header check on load
-  window.addEventListener('DOMContentLoaded', updateHeader);
+  // 3. FRIENDS LOGIC
+  function addFriend() {
+    const friendName = document.getElementById('friendInput').value.trim();
+    if (!currentUser) return alert("Log in first!");
+    if (!friendName) return;
+
+    // Check if user exists
+    db.ref('users/' + friendName).get().then((snap) => {
+      if (snap.exists()) {
+        db.ref('users/' + currentUser + '/friends/' + friendName).set(true);
+        db.ref('users/' + friendName + '/friends/' + currentUser).set(true);
+        alert("Friend added!");
+        document.getElementById('friendInput').value = "";
+      } else {
+        alert("User not found!");
+      }
+    });
+  }
+
+  function loadFriends() {
+    const listDiv = document.getElementById('friendsList');
+    db.ref('users/' + currentUser + '/friends').on('value', (snap) => {
+      listDiv.innerHTML = "";
+      const friends = snap.val();
+      if (!friends) {
+        listDiv.innerHTML = "<p style='color:#999;'>No friends yet.</p>";
+        return;
+      }
+      for (let name in friends) {
+        listDiv.innerHTML += `
+          <div class="friend-card">
+            <div class="online-dot"></div>
+            <strong>${name}</strong>
+          </div>
+        `;
+      }
+    });
+  }
+
+  // RUN ON START
+  window.onload = updateUI;
 </script>
 
 </body>
