@@ -93,7 +93,29 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // (Paste your firebaseConfig here)
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // 2. Your NEW Firebase Config (Corrected for Europe)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+    authDomain: "dynaduck-19dbb.firebaseapp.com",
+    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dynaduck-19dbb",
+    storageBucket: "dynaduck-19dbb.firebasestorage.app",
+    messagingSenderId: "777148453502",
+    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+  };
+
+  // 3. Initialize Firebase
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+
+  // NOW your Login/Signup/Ideas code goes below here...
+</script>
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
