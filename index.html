@@ -5,21 +5,91 @@
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .home-layout { display: flex; max-width: 1100px; margin: 40px auto; gap: 30px; padding: 0 20px; }
-    .main-feed { flex: 3; }
-    .sidebar { 
-      flex: 1; background: white; border-radius: 12px; padding: 20px; 
-      border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: fit-content; 
+    /* Clean, Structured Layout */
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      display: grid;
+      grid-template-columns: 1fr 300px; /* Big main, small sidebar */
+      gap: 25px;
+      padding: 0 20px;
     }
-    .friend-card { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .online-dot { width: 10px; height: 10px; border-radius: 50%; transition: 0.3s; }
-    .search-friend-box { display: flex; gap: 5px; margin-bottom: 15px; }
-    .search-friend-box input { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
-    
-    /* Request Box Styling */
+
+    /* Main Content Styling */
+    .main-section {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    /* Social Sidebar Styling */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .social-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .social-box h3 {
+      margin-top: 0;
+      font-size: 1.1em;
+      border-bottom: 2px solid #11AD36;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+
+    /* Friend Card Styling */
+    .friend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+    .friend-item:hover { background: #f9f9f9; }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px #ddd;
+    }
+
+    /* Request Banner */
     #pendingSection {
-      background: #fffbe6; padding: 12px; border-radius: 8px; 
-      margin-bottom: 20px; border: 1px solid #ffe58f; display: none;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 0.8em;
+      border-radius: 4px;
+    }
+
+    /* User Profile Mini */
+    .user-profile-card {
+      background: #333;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      text-align: center;
     }
   </style>
 </head>
@@ -35,41 +105,55 @@
     </nav>
   </div>
   <div class="search-container">
-    <input type="text" placeholder="Search games..." class="search-bar">
+    <input type="text" placeholder="Search for games..." class="search-bar">
   </div>
   <div id="authButtons"></div>
 </header>
 
-<div class="home-layout">
-  <main class="main-feed">
-    <h1 id="welcomeText">Welcome to DynaDuck</h1>
+<div class="container">
+  
+  <div class="main-section">
+    <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
+    <p style="color: #666;">Explore worlds, build dreams, and hang out with friends.</p>
+    
+    <h2 style="margin-top: 40px; font-size: 1.2em;">Featured Games</h2>
     <div class="games-grid">
       <div class="game-card" onclick="location.href='baseplate.html'">
-        <div style="background: #339933; height: 140px; background-image: radial-gradient(#2a882a 15%, transparent 15%); background-size: 20px 20px;"></div>
+        <div style="background: #339933; height: 130px; background-image: radial-gradient(#2a882a 15%, transparent 15%); background-size: 20px 20px;"></div>
         <div class="game-info">
           <h2>Baseplate</h2>
-          <p class="creator">by DynaDuck</p>
+          <p class="creator">by DynaDuck Team</p>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <aside class="sidebar">
-    <h3>Social</h3>
-    <div class="search-friend-box">
-      <input type="text" id="friendInput" placeholder="Username...">
-      <button class="green-btn" onclick="sendRequest()">Add</button>
+  <div class="sidebar">
+    
+    <div id="userCard" class="user-profile-card" style="display:none;">
+       <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
+       <div style="font-size: 0.8em; color: #11AD36;">● Online</div>
     </div>
 
-    <div id="pendingSection">
-      <strong style="font-size: 0.8em; color: #856404;">FRIEND REQUESTS</strong>
+    <div id="pendingSection" class="social-box">
+      <h3 style="border-color: #fadb14;">Requests</h3>
       <div id="requestList"></div>
     </div>
 
-    <div id="friendsList">
-      <p style="color: #999; font-size: 0.8em;">Log in to see friends.</p>
+    <div class="social-box">
+      <h3>Friends</h3>
+      
+      <div class="search-friend-box" style="display:flex; gap:5px; margin-bottom:15px;">
+        <input type="text" id="friendInput" placeholder="Add User..." style="width:100%; padding:6px; border-radius:4px; border:1px solid #ddd;">
+        <button class="green-btn" onclick="sendRequest()" style="padding:0 10px;">+</button>
+      </div>
+
+      <div id="friendsList">
+        <p style="color:#999; font-size:0.9em; text-align:center;">Log in to see friends.</p>
+      </div>
     </div>
-  </aside>
+
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -90,14 +174,13 @@
   const db = firebase.database();
   const currentUser = localStorage.getItem('loggedInUser');
 
-  // --- UI & AUTH ---
-  function initPage() {
+  function init() {
     const authDiv = document.getElementById('authButtons');
     if (currentUser) {
-      document.getElementById('welcomeText').innerText = "Hi, " + currentUser + "!";
+      document.getElementById('userCard').style.display = "block";
+      document.getElementById('displayUsername').innerText = currentUser;
       authDiv.innerHTML = `<button class="green-btn" onclick="logout()">Logout</button>`;
       
-      // Set Online Status
       db.ref('users/' + currentUser + '/presence').set("online");
       db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
       
@@ -114,70 +197,65 @@
     });
   }
 
-  // --- FRIENDING SYSTEM ---
   function sendRequest() {
     const target = document.getElementById('friendInput').value.trim();
     if (!currentUser || !target || target === currentUser) return;
-
-    db.ref('users/' + target).get().then((snap) => {
-      if (snap.exists()) {
+    db.ref('users/' + target).get().then(s => {
+      if (s.exists()) {
         db.ref('users/' + target + '/requests/' + currentUser).set(true);
-        alert("Request sent!");
-      } else { alert("User not found!"); }
+        alert("Sent!");
+      } else { alert("Not found"); }
     });
   }
 
   function loadSocial() {
-    // Listen for Requests
-    db.ref('users/' + currentUser + '/requests').on('value', (snap) => {
-      const reqs = snap.val();
-      const section = document.getElementById('pendingSection');
+    // Requests
+    db.ref('users/' + currentUser + '/requests').on('value', snap => {
       const list = document.getElementById('requestList');
-      if (reqs) {
-        section.style.display = "block";
+      const box = document.getElementById('pendingSection');
+      if (snap.exists()) {
+        box.style.display = "block";
         list.innerHTML = "";
-        Object.keys(reqs).forEach(sender => {
-          list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-top:5px;">
-            <span>${sender}</span>
-            <button class="green-btn" style="padding:2px 5px; font-size:0.7em;" onclick="acceptFriend('${sender}')">Accept</button>
+        Object.keys(snap.val()).forEach(name => {
+          list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:0.9em;">${name}</span>
+            <button class="green-btn btn-small" onclick="accept('${name}')">Accept</button>
           </div>`;
         });
-      } else { section.style.display = "none"; }
+      } else { box.style.display = "none"; }
     });
 
-    // Listen for Friends and their LIVE Status
-    db.ref('users/' + currentUser + '/friends').on('value', (snap) => {
-      const friends = snap.val();
+    // Friends List
+    db.ref('users/' + currentUser + '/friends').on('value', snap => {
       const listDiv = document.getElementById('friendsList');
-      listDiv.innerHTML = friends ? "" : "<p style='color:#999;'>No friends yet.</p>";
-      
-      if (friends) {
-        Object.keys(friends).forEach(fName => {
-          db.ref('users/' + fName + '/presence').on('value', (statusSnap) => {
-            const status = statusSnap.val() || "offline";
+      listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#999; text-align:center;'>No friends.</p>";
+      if (snap.exists()) {
+        Object.keys(snap.val()).forEach(fName => {
+          db.ref('users/' + fName + '/presence').on('value', sSnap => {
+            const status = sSnap.val() || "offline";
             const color = status === "online" ? "#11AD36" : "#888";
             let el = document.getElementById('f-' + fName);
             if (!el) {
               el = document.createElement('div');
               el.id = 'f-' + fName;
-              el.className = 'friend-card';
+              el.className = 'friend-item';
               listDiv.appendChild(el);
             }
-            el.innerHTML = `<div class="online-dot" style="background:${color}"></div>
-                            <strong>${fName}</strong> <small style="color:#999">(${status})</small>`;
+            el.innerHTML = `<div class="status-dot" style="background:${color}"></div>
+                            <strong style="font-size:0.9em;">${fName}</strong>`;
           });
         });
       }
     });
   }
 
-  function acceptFriend(sender) {
-    db.ref('users/' + currentUser + '/friends/' + sender).set(true);
-    db.ref('users/' + sender + '/friends/' + currentUser).set(true);
-    db.ref('users/' + currentUser + '/requests/' + sender).remove();
+  function accept(n) {
+    db.ref('users/' + currentUser + '/friends/' + n).set(true);
+    db.ref('users/' + n + '/friends/' + currentUser).set(true);
+    db.ref('users/' + currentUser + '/requests/' + n).remove();
   }
 
-  window.onload = initPage;
+  window.onload = init;
 </script>
 </body>
 </html>
