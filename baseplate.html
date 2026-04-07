@@ -2,50 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Baseplate and Friends - DynaDuck</title>
+  <title>Baseplate - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .game-container {
-        max-width: 900px;
-        margin: 40px auto;
-        display: flex;
-        gap: 30px;
-        background: white;
-        padding: 20px;
-        border: 1px solid #ccc;
+    /* Specific styles for the Game Page */
+    .game-main {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 40px;
+      align-items: center;
     }
-    .game-main-img {
-        width: 500px;
-        height: 350px;
-        background: #000;
-        border: 5px solid #006699;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
+
+    .game-preview-box {
+      width: 450px;
+      height: 300px;
+      background-color: #339933; /* Classic Green */
+      /* This CSS trick creates the "Studs" look */
+      background-image: radial-gradient(#2a882a 15%, transparent 15%);
+      background-size: 30px 30px;
+      border: 5px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    /* The "Studs" Texture Simulation */
-    .baseplate-preview {
-        width: 100%;
-        height: 100%;
-        background-color: #339933; /* Classic Green */
-        background-image: radial-gradient(#227722 10%, transparent 10%);
-        background-size: 20px 20px; /* Makes it look like studs */
+
+    .game-preview-box h2 {
+      color: white;
+      font-family: 'Verdana', sans-serif;
+      text-shadow: 2px 2px #000;
+      font-size: 3em;
+      letter-spacing: 2px;
     }
-    .play-button-large {
-        background: #11AD36;
-        color: white;
-        font-size: 2em;
-        padding: 20px 60px;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: bold;
-        box-shadow: 0 4px 0 #0E8E2C;
+
+    .play-section {
+      text-align: center;
+      flex: 1;
     }
-    .play-button-large:active {
-        transform: translateY(2px);
-        box-shadow: 0 2px 0 #0E8E2C;
+
+    .play-section h1 {
+      margin-top: 0;
+      font-size: 2.2em;
+    }
+
+    .big-play-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 20px 80px;
+      border-radius: 12px;
+      font-size: 2em;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #0E8E2C;
+      transition: 0.1s;
+      width: 100%;
+    }
+
+    .big-play-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #0E8E2C;
     }
   </style>
 </head>
@@ -63,41 +84,26 @@
   <div id="authButtons"></div>
 </header>
 
-<div class="game-container">
-  <div class="game-main-img">
-    <div class="baseplate-preview"></div>
-    <div style="position: absolute; color: white; font-family: 'Verdana'; font-weight: bold; text-shadow: 2px 2px #000;">
-        <h1>BASEPLATE</h1>
-    </div>
+<main class="game-main">
+  <div class="game-preview-box">
+    <h2>STUDPVP</h2>
   </div>
 
-  <div class="game-right">
-    <h1>Baseplate and Friends</h1>
-    <p class="creator">By DynaDuck</p>
-    <p class="description">
-      Welcome to the original baseplate. No scripts, no lag, just studs and sunshine. 
-      Chat with friends and explore the 512x512 grid.
-    </p>
+  <div class="play-section">
+    <h1>Baseplate</h1>
+    <p style="color: #666; margin-bottom: 30px;">Created by: <b>DynaDuck</b></p>
     
-    <button class="play-button-large" onclick="launchGame()">PLAY</button>
+    <button class="big-play-btn" onclick="joinGame()">PLAY</button>
     
-    <div class="private-server">
-      <h3>Game Stats</h3>
-      <p>Active Players: <span id="playerCount">0</span></p>
-      <p>Visited: 1,337 times</p>
-    </div>
+    <p id="statusMsg" style="margin-top: 20px; font-weight: bold; color: #11AD36;"></p>
   </div>
-</div>
+</main>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-  // 2. Your NEW Firebase Config (Corrected for Europe)
+  // YOUR NEW CONFIG (Corrected for Europe West)
   const firebaseConfig = {
     apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
     authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -108,32 +114,51 @@
     appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
   };
 
-  // 3. Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.database();
 
-  // NOW your Login/Signup/Ideas code goes below here...
-</script>
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  function launchGame() {
+  // CHECK LOGIN STATUS FOR HEADER
+  function checkLogin() {
     const user = localStorage.getItem('loggedInUser');
-    if(!user) {
-        alert("You must be logged in to play!");
-        window.location.href = "login.html";
-        return;
+    const authDiv = document.getElementById('authButtons');
+    if(user) {
+      authDiv.innerHTML = `<span style="color:white; margin-right:10px;">Hi, ${user}!</span><button class="green-btn" onclick="logout()">Logout</button>`;
+    } else {
+      authDiv.innerHTML = `<a href="login.html"><button class="green-btn">Log In</button></a>`;
     }
-    alert("Joining Server as " + user + "...");
-    // This is where your C++ engine would be triggered!
   }
 
-  // Update Player Count from Cloud
-  db.ref('servers/baseplate/players').on('value', (snap) => {
-      document.getElementById('playerCount').innerText = snap.numChildren() || 0;
-  });
+  function logout() {
+    localStorage.removeItem('loggedInUser');
+    location.reload();
+  }
+
+  // PLAY BUTTON LOGIC
+  function joinGame() {
+    const user = localStorage.getItem('loggedInUser');
+    if(!user) {
+      alert("Please log in to join the Baseplate!");
+      window.location.href = "login.html";
+      return;
+    }
+
+    document.getElementById('statusMsg').innerText = "Starting DynaDuck Engine...";
+    
+    // Logic to tell Firebase you are playing
+    db.ref('active_players/' + user).set({
+      location: "Baseplate",
+      last_seen: Date.now()
+    });
+
+    // In a real setup, this would trigger your C++ URI scheme (dynaduck://join/1)
+    setTimeout(() => {
+        alert("Connecting to Server...");
+    }, 1000);
+  }
+
+  window.onload = checkLogin;
 </script>
 
 </body>
