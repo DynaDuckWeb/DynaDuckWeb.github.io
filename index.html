@@ -1,108 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>DynaDuck - Classic Social</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <style>
-        body { font-family: Verdana; margin: 0; background: #f2f2f2; }
-        header { background: #006699; padding: 10px; display: flex; justify-content: space-between; color: white; border-bottom: 3px solid #004466; }
-        .container { display: flex; max-width: 1000px; margin: 20px auto; gap: 20px; }
-        main { flex: 3; background: white; border: 1px solid #ccc; padding: 20px; }
-        aside { flex: 1; background: #e5e5e5; border: 1px solid #ccc; padding: 15px; }
-        .green-btn { background: #339933; color: white; border: 1px solid #115511; padding: 5px 10px; cursor: pointer; font-weight: bold; }
-        .friend-card { background: white; border: 1px solid #bbb; margin-top: 5px; padding: 8px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
-        .status { width: 10px; height: 10px; background: #339933; border-radius: 50%; }
-    </style>
+  <meta charset="UTF-8">
+  <title>DynaDuck - Home</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-    <div style="font-size:24px; font-weight:bold;">DynaDuck</div>
-    <div id="authArea"></div>
+  <div class="header-left">
+    <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
+    <nav>
+      <a href="catalog.html">Catalog</a>
+      <a href="ideas.html">Ideas</a>
+      <a href="create.html">Create</a>
+      <a href="dynamites.html">Dynamites</a>
+    </nav>
+  </div>
+
+  <div class="search-container">
+    <input type="text" placeholder="Search games..." class="search-bar">
+  </div>
+
+  <div id="authButtons">
+    </div>
 </header>
 
-<div class="container">
-    <main>
-        <h1>Welcome, <span id="usernameTag">Guest</span>!</h1>
-        <div style="border: 1px solid #ccc; padding: 15px; text-align: center;">
-            <h3>Baseplate and Friends</h3>
-            <p>Explore the thicc baseplate!</p>
-            <button class="green-btn" onclick="location.href='baseplate.html'">PLAY</button>
-        </div>
-    </main>
+<main class="main-container" style="max-width:1000px; margin: 40px auto; padding: 0 20px;">
+  <section>
+    <h1 style="font-size: 2.5em; color: #333;">Welcome to DynaDuck</h1>
+    <p style="font-size: 1.2em; color: #666;">The ultimate place to build, play, and chill with friends.</p>
+  </section>
 
-    <aside>
-        <h3>Friends List</h3>
-        <div id="friendsDisplay">Log in to see friends.</div>
-        <hr>
-        <button class="green-btn" style="width:100%" onclick="addFriend()">+ Add Friend</button>
-    </aside>
-</div>
+  <section style="margin-top: 50px;">
+    <h2 style="border-bottom: 2px solid #11AD36; padding-bottom: 10px;">Featured Games</h2>
+    
+    <div class="games-grid">
+      <div class="game-card" onclick="location.href='baseplate.html'">
+        <div style="background: #ddd; height: 140px; display: flex; align-items: center; justify-content: center;">
+             <span style="color: #999;">Game Preview</span>
+        </div>
+        <div class="game-info">
+          <h2>Baseplate and Friends</h2>
+          <p class="creator">by DynaDuck Team</p>
+          <p>The classic hangout.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // 1. YOUR FIREBASE CONFIG
-    const firebaseConfig = {
-        apiKey: "AIzaSyDM3_vpaeh6e8ODIQGAwM1nmg3xsI6wPvI",
-        authDomain: "dynaduck-305ae.firebaseapp.com",
-        projectId: "dynaduck-305ae",
-        databaseURL: "https://dynaduck-305ae-default-rtdb.firebaseio.com/", // ADDED THIS
-        storageBucket: "dynaduck-305ae.firebasestorage.app",
-        messagingSenderId: "1095752853036",
-        appId: "1:1095752853036:web:bd47e8e3858417a0429389"
-    };
+  // 1. YOUR FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyDM3_vpaeh6e8ODIQGAwM1nmg3xsI6wPvI",
+    authDomain: "dynaduck-305ae.firebaseapp.com",
+    projectId: "dynaduck-305ae",
+    databaseURL: "https://dynaduck-305ae-default-rtdb.firebaseio.com/",
+    storageBucket: "dynaduck-305ae.firebasestorage.app",
+    messagingSenderId: "1095752853036",
+    appId: "1:1095752853036:web:bd47e8e3858417a0429389"
+  };
 
-    // 2. INITIALIZE
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    // 3. AUTH LOGIC
-    const user = localStorage.getItem('loggedInUser');
-    const authArea = document.getElementById('authArea');
-    const usernameTag = document.getElementById('usernameTag');
+  // 2. HEADER LOGIC (Who are we?)
+  function updateHeader() {
+    const authDiv = document.getElementById('authButtons');
+    const loggedInUser = localStorage.getItem('loggedInUser');
 
-    if(user) {
-        usernameTag.innerText = user;
-        authArea.innerHTML = `<button class="green-btn" onclick="logout()">Logout</button>`;
-        renderFriends(user);
+    if (loggedInUser) {
+      // If logged in, show username and Logout button
+      authDiv.innerHTML = `
+        <span style="font-weight:bold; color:white; margin-right:15px;">Hi, ${loggedInUser}!</span>
+        <button class="green-btn" onclick="logout()">Logout</button>
+      `;
     } else {
-        authArea.innerHTML = `<button class="green-btn" onclick="location.href='login.html'">Login</button>`;
+      // If not logged in, show Sign Up / Log In
+      authDiv.innerHTML = `
+        <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+        <a href="login.html" style="margin-left:10px;"><button class="green-btn">Log In</button></a>
+      `;
     }
+  }
 
-    // 4. STORAGE FUNCTIONS
-    function addFriend() {
-        if(!user) return alert("Please log in first!");
-        const friend = prompt("Friend's Username:");
-        if(friend) {
-            // Save to Firebase under your username
-            db.ref('users/' + user + '/friends').push(friend);
-            location.reload(); 
-        }
-    }
+  function logout() {
+    localStorage.removeItem('loggedInUser');
+    location.reload();
+  }
 
-    function renderFriends(currentUserName) {
-        const display = document.getElementById('friendsDisplay');
-        db.ref('users/' + currentUserName + '/friends').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if(!data) {
-                display.innerHTML = "No friends yet.";
-                return;
-            }
-            display.innerHTML = "";
-            Object.values(data).forEach(name => {
-                display.innerHTML += `
-                    <div class="friend-card">
-                        <div class="status"></div>
-                        <strong>${name}</strong>
-                    </div>`;
-            });
-        });
-    }
-
-    function logout() {
-        localStorage.removeItem('loggedInUser');
-        location.reload();
-    }
+  // Run header check on load
+  window.addEventListener('DOMContentLoaded', updateHeader);
 </script>
+
 </body>
 </html>
