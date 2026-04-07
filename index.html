@@ -1,88 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings</title>
-  <link rel="stylesheet" href="style.css">
+    <title>DynaDuck - Classic Social</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: Verdana; margin: 0; background: #f2f2f2; }
+        header { background: #006699; padding: 10px; display: flex; justify-content: space-between; color: white; border-bottom: 3px solid #004466; }
+        .container { display: flex; max-width: 1000px; margin: 20px auto; gap: 20px; }
+        main { flex: 3; background: white; border: 1px solid #ccc; padding: 20px; }
+        aside { flex: 1; background: #e5e5e5; border: 1px solid #ccc; padding: 15px; }
+        .green-btn { background: #339933; color: white; border: 1px solid #115511; padding: 5px 10px; cursor: pointer; font-weight: bold; }
+        .friend-card { background: white; border: 1px solid #bbb; margin-top: 5px; padding: 8px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
+        .status { width: 10px; height: 10px; background: #339933; border-radius: 50%; }
+    </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <img src="logo.png" class="logo" alt="Logo">
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="catalog.html">Catalog</a>
-    </nav>
-  </div>
+    <div style="font-size:24px; font-weight:bold;">DynaDuck</div>
+    <div id="authArea"></div>
 </header>
 
-<div class="auth-container">
-  <div class="auth-box">
-    <h1>Settings</h1>
-    <form id="settingsForm">
-      <input type="text" id="displayName" placeholder="Display Name">
-      <input type="password" id="currentPassword" placeholder="Current Password (required to delete)">
-      <input type="password" id="newPassword" placeholder="New Password">
-      <input type="email" id="confirmEmail" placeholder="Confirm Email">
-      <button type="submit" class="green-btn">Save Changes</button>
-    </form>
-    <button class="green-btn" id="deleteAccountBtn" style="margin-top:15px;background:#E74C3C;">Delete Account</button>
-    <br><br>
-    <a href="index.html" class="green-btn" style="text-decoration:none;">Back to Home</a>
-  </div>
+<div class="container">
+    <main>
+        <h1>Welcome, <span id="usernameTag">Guest</span>!</h1>
+        <div style="border: 1px solid #ccc; padding: 15px; text-align: center;">
+            <h3>Baseplate and Friends</h3>
+            <p>Explore the thicc baseplate!</p>
+            <button class="green-btn" onclick="location.href='baseplate.html'">PLAY</button>
+        </div>
+    </main>
+
+    <aside>
+        <h3>Friends List</h3>
+        <div id="friendsDisplay">Log in to see friends.</div>
+        <hr>
+        <button class="green-btn" style="width:100%" onclick="addFriend()">+ Add Friend</button>
+    </aside>
 </div>
 
-<script type="module">
-import { auth, getProfileByUid, updateProfileDisplayName, changePassword, deleteAccountWithReauth } from './firebase-init.js';
+<script>
+    // 1. YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+        apiKey: "AIzaSyDM3_vpaeh6e8ODIQGAwM1nmg3xsI6wPvI",
+        authDomain: "dynaduck-305ae.firebaseapp.com",
+        projectId: "dynaduck-305ae",
+        databaseURL: "https://dynaduck-305ae-default-rtdb.firebaseio.com/", // ADDED THIS
+        storageBucket: "dynaduck-305ae.firebasestorage.app",
+        messagingSenderId: "1095752853036",
+        appId: "1:1095752853036:web:bd47e8e3858417a0429389"
+    };
 
-(async function init(){
-  const user = auth.currentUser;
-  if(!user){
-    alert('Please log in to access settings.');
-    window.location.href = 'login.html';
-    return;
-  }
-})();
+    // 2. INITIALIZE
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-const settingsForm = document.getElementById('settingsForm');
-settingsForm.addEventListener('submit', async function(e){
-  e.preventDefault();
-  const displayName = document.getElementById('displayName').value.trim();
-  const newPassword = document.getElementById('newPassword').value;
-  const confirmEmail = document.getElementById('confirmEmail').value.trim();
+    // 3. AUTH LOGIC
+    const user = localStorage.getItem('loggedInUser');
+    const authArea = document.getElementById('authArea');
+    const usernameTag = document.getElementById('usernameTag');
 
-  try {
-    if(displayName) await updateProfileDisplayName(displayName);
-    if(newPassword) await changePassword(newPassword);
-    if(confirmEmail) {
-      // update email -> requires reauth in production (not handled here)
-      // optional: implement updateEmail with reauth
-      alert('Email change is not fully implemented in this example. Update email in Firebase console or implement reauth flow.');
+    if(user) {
+        usernameTag.innerText = user;
+        authArea.innerHTML = `<button class="green-btn" onclick="logout()">Logout</button>`;
+        renderFriends(user);
+    } else {
+        authArea.innerHTML = `<button class="green-btn" onclick="location.href='login.html'">Login</button>`;
     }
-    alert('Settings updated!');
-    document.getElementById('displayName').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmEmail').value = '';
-  } catch (err) {
-    alert('Failed to update settings: ' + err.message);
-  }
-});
 
-document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
-  const currentPassword = document.getElementById('currentPassword').value;
-  if(!currentPassword) return alert('Enter your current password to delete account.');
-  if(!confirm('Are you sure you want to delete your account? This is permanent.')) return;
-  try {
-    await deleteAccountWithReauth(currentPassword);
-    alert('Your account has been deleted.');
-    window.location.href = 'index.html';
-  } catch (err) {
-    alert('Failed to delete account: ' + err.message);
-  }
-});
+    // 4. STORAGE FUNCTIONS
+    function addFriend() {
+        if(!user) return alert("Please log in first!");
+        const friend = prompt("Friend's Username:");
+        if(friend) {
+            // Save to Firebase under your username
+            db.ref('users/' + user + '/friends').push(friend);
+            location.reload(); 
+        }
+    }
+
+    function renderFriends(currentUserName) {
+        const display = document.getElementById('friendsDisplay');
+        db.ref('users/' + currentUserName + '/friends').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(!data) {
+                display.innerHTML = "No friends yet.";
+                return;
+            }
+            display.innerHTML = "";
+            Object.values(data).forEach(name => {
+                display.innerHTML += `
+                    <div class="friend-card">
+                        <div class="status"></div>
+                        <strong>${name}</strong>
+                    </div>`;
+            });
+        });
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedInUser');
+        location.reload();
+    }
 </script>
-
 </body>
 </html>
