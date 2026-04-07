@@ -2,32 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up</title>
+  <title>Sign Up - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<header>
-  <div class="header-left">
-    <img src="logo.png" class="logo" alt="Logo">
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
-    </nav>
-  </div>
-
-  <div class="search-container">
-    <input type="text" placeholder="Search..." class="search-bar">
-  </div>
-
-  <div id="authButtons">
-    <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-    <a href="login.html"><button class="green-btn">Log In</button></a>
-  </div>
-</header>
 
 <div class="auth-container">
   <div class="auth-box">
@@ -42,31 +20,52 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
-const signupForm = document.getElementById('signupForm');
+  // YOUR CONFIG (The ID Card for your project)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDM3_vpaeh6e8ODIQGAwM1nmg3xsI6wPvI",
+    authDomain: "dynaduck-305ae.firebaseapp.com",
+    projectId: "dynaduck-305ae",
+    databaseURL: "https://dynaduck-305ae-default-rtdb.firebaseio.com/",
+    storageBucket: "dynaduck-305ae.firebasestorage.app",
+    messagingSenderId: "1095752853036",
+    appId: "1:1095752853036:web:bd47e8e3858417a0429389"
+  };
 
-signupForm.addEventListener('submit', function(e) {
-  e.preventDefault();
+  // INITIALIZE
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-  const username = document.getElementById('username').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  // SIGN UP LOGIC
+  const signupForm = document.getElementById('signupForm');
 
-  let users = JSON.parse(localStorage.getItem('users') || '{}');
+  signupForm.addEventListener('submit', function(e) {
+    e.preventDefault();
 
-  if(users[username]){
-    alert('Username already exists!');
-    return;
-  }
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
 
-  // Save user — initialize friends/requests arrays to avoid undefined later
-  users[username] = { email: email, password: password, friends: [], requests: [] };
-  localStorage.setItem('users', JSON.stringify(users));
-
-  alert('Account created successfully! You can now log in.');
-  window.location.href = 'login.html';
-});
+    // CHECK IF USER EXISTS IN THE CLOUD
+    db.ref('users/' + username).get().then((snapshot) => {
+      if (snapshot.exists()) {
+        alert('That username is taken in the cloud!');
+      } else {
+        // SAVE TO THE CLOUD
+        db.ref('users/' + username).set({
+          email: email,
+          password: password,
+          friends: "" // Empty for now
+        }).then(() => {
+          alert('Account created in the cloud! You can now log in.');
+          window.location.href = 'login.html';
+        });
+      }
+    });
+  });
 </script>
-
 </body>
 </html>
