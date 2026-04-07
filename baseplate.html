@@ -2,71 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Baseplate - DynaDuck</title>
+  <title>Baseplate - DynaDuck Launcher</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Specific styles for the Game Page */
-    .game-main {
-      max-width: 900px;
+    /* Classic 2007 Game Page Layout */
+    .game-container {
+      max-width: 1000px;
       margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      display: flex;
-      gap: 40px;
-      align-items: center;
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 20px;
+      padding: 0 20px;
     }
 
-    .game-preview-box {
-      width: 450px;
-      height: 300px;
-      background-color: #339933; /* Classic Green */
-      /* This CSS trick creates the "Studs" look */
+    .game-viewport {
+      background: #339933;
+      height: 400px;
+      border: 6px solid #333;
+      border-radius: 12px;
+      position: relative;
       background-image: radial-gradient(#2a882a 15%, transparent 15%);
       background-size: 30px 30px;
-      border: 5px solid #333;
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .game-preview-box h2 {
+    .viewport-overlay {
       color: white;
-      font-family: 'Verdana', sans-serif;
-      text-shadow: 2px 2px #000;
-      font-size: 3em;
-      letter-spacing: 2px;
-    }
-
-    .play-section {
       text-align: center;
-      flex: 1;
+      font-family: 'Verdana', sans-serif;
+      text-shadow: 3px 3px 0px #000;
     }
 
-    .play-section h1 {
-      margin-top: 0;
-      font-size: 2.2em;
+    .play-panel {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
     }
 
     .big-play-btn {
       background: #11AD36;
       color: white;
-      border: none;
-      padding: 20px 80px;
-      border-radius: 12px;
-      font-size: 2em;
+      width: 100%;
+      padding: 20px;
+      font-size: 2.5em;
       font-weight: bold;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 6px 0 #0E8E2C;
-      transition: 0.1s;
-      width: 100%;
+      margin-bottom: 20px;
     }
 
     .big-play-btn:active {
       transform: translateY(4px);
       box-shadow: 0 2px 0 #0E8E2C;
+    }
+
+    .player-list-preview {
+      margin-top: 20px;
+      text-align: left;
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .status-tag {
+      font-size: 0.7em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -84,26 +94,33 @@
   <div id="authButtons"></div>
 </header>
 
-<main class="game-main">
-  <div class="game-preview-box">
-    <h2>STUDPVP</h2>
+<div class="game-container">
+  <div class="game-viewport">
+    <div class="viewport-overlay">
+      <h1 style="font-size: 4em; margin: 0;">BASEPLATE</h1>
+      <p>Multiplayer Enabled</p>
+    </div>
   </div>
 
-  <div class="play-section">
-    <h1>Baseplate</h1>
-    <p style="color: #666; margin-bottom: 30px;">Created by: <b>DynaDuck</b></p>
+  <div class="play-panel">
+    <button class="big-play-btn" onclick="launchMultiplayer()">PLAY</button>
     
-    <button class="big-play-btn" onclick="joinGame()">PLAY</button>
+    <div class="player-list-preview">
+      <strong style="color: #666; font-size: 0.8em;">PLAYERS IN-GAME</strong>
+      <hr>
+      <div id="activePlayerList">
+        <p style="color:#999; font-size: 0.9em;">Looking for players...</p>
+      </div>
+    </div>
     
-    <p id="statusMsg" style="margin-top: 20px; font-weight: bold; color: #11AD36;"></p>
+    <p id="launchStatus" style="margin-top:15px; font-weight:bold; color:#11AD36;"></p>
   </div>
-</main>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // YOUR NEW CONFIG (Corrected for Europe West)
   const firebaseConfig = {
     apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
     authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -114,51 +131,83 @@
     appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
   };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
+  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const db = firebase.database();
+  const user = localStorage.getItem('loggedInUser');
 
-  // CHECK LOGIN STATUS FOR HEADER
-  function checkLogin() {
-    const user = localStorage.getItem('loggedInUser');
+  // 1. UPDATE HEADER
+  function updateHeader() {
     const authDiv = document.getElementById('authButtons');
     if(user) {
-      authDiv.innerHTML = `<span style="color:white; margin-right:10px;">Hi, ${user}!</span><button class="green-btn" onclick="logout()">Logout</button>`;
+      authDiv.innerHTML = `<span style="color:white;margin-right:10px;">${user}</span><button class="green-btn" onclick="localStorage.removeItem('loggedInUser');location.reload();">Logout</button>`;
     } else {
       authDiv.innerHTML = `<a href="login.html"><button class="green-btn">Log In</button></a>`;
     }
   }
 
-  function logout() {
-    localStorage.removeItem('loggedInUser');
-    location.reload();
+  // 2. LIVE PLAYERLIST LOGIC (For Website and C++ Sync)
+  function syncPlayerList() {
+    const listDiv = document.getElementById('activePlayerList');
+    
+    // Listen to the WORLD folder
+    db.ref('worlds/baseplate_01/players').on('value', (snapshot) => {
+      listDiv.innerHTML = "";
+      const players = snapshot.val();
+      
+      if (!players) {
+        listDiv.innerHTML = "<p style='color:#999;'>Baseplate is empty.</p>";
+        return;
+      }
+
+      Object.keys(players).forEach(name => {
+        const pData = players[name];
+        listDiv.innerHTML += `
+          <div style="margin-bottom:5px; display:flex; align-items:center;">
+            <div style="width:8px; height:8px; background:#11AD36; border-radius:50%; margin-right:8px;"></div>
+            <strong>${name}</strong>
+            <span class="status-tag">${pData.status || 'In-Game'}</span>
+          </div>
+        `;
+      });
+    });
   }
 
-  // PLAY BUTTON LOGIC
-  function joinGame() {
-    const user = localStorage.getItem('loggedInUser');
-    if(!user) {
-      alert("Please log in to join the Baseplate!");
+  // 3. THE LAUNCHER HANDSHAKE
+  function launchMultiplayer() {
+    if (!user) {
+      alert("Please log in to join multiplayer!");
       window.location.href = "login.html";
       return;
     }
 
-    document.getElementById('statusMsg').innerText = "Starting DynaDuck Engine...";
-    
-    // Logic to tell Firebase you are playing
-    db.ref('active_players/' + user).set({
-      location: "Baseplate",
-      last_seen: Date.now()
-    });
+    const statusMsg = document.getElementById('launchStatus');
+    statusMsg.innerText = "Connecting to Cloud...";
 
-    // In a real setup, this would trigger your C++ URI scheme (dynaduck://join/1)
-    setTimeout(() => {
-        alert("Connecting to Server...");
-    }, 1000);
+    // STEP A: Register in the Cloud Playerlist
+    // Your C++ engine will look for this exact folder!
+    const playerRef = db.ref('worlds/baseplate_01/players/' + user);
+    
+    playerRef.set({
+      status: "Connecting...",
+      x: 0, 
+      y: 4, 
+      z: 0,
+      r: 0,
+      lastUpdate: Date.now()
+    }).then(() => {
+      // STEP B: Set up "Auto-Delete" if they crash or leave
+      playerRef.onDisconnect().remove();
+
+      // STEP C: Call the C++ Protocol
+      statusMsg.innerText = "Launching DynaDuck Engine...";
+      window.location.href = `dynaduck://user=${user}&place=baseplate_01`;
+    });
   }
 
-  window.onload = checkLogin;
+  window.onload = () => {
+    updateHeader();
+    syncPlayerList();
+  };
 </script>
 
 </body>
