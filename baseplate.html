@@ -1,214 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Baseplate - DynaDuck Launcher</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* Classic 2007 Game Page Layout */
-    .game-container {
-      max-width: 1000px;
-      margin: 40px auto;
-      display: grid;
-      grid-template-columns: 1fr 350px;
-      gap: 20px;
-      padding: 0 20px;
-    }
-
-    .game-viewport {
-      background: #339933;
-      height: 400px;
-      border: 6px solid #333;
-      border-radius: 12px;
-      position: relative;
-      background-image: radial-gradient(#2a882a 15%, transparent 15%);
-      background-size: 30px 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .viewport-overlay {
-      color: white;
-      text-align: center;
-      font-family: 'Verdana', sans-serif;
-      text-shadow: 3px 3px 0px #000;
-    }
-
-    .play-panel {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .big-play-btn {
-      background: #11AD36;
-      color: white;
-      width: 100%;
-      padding: 20px;
-      font-size: 2.5em;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 6px 0 #0E8E2C;
-      margin-bottom: 20px;
-    }
-
-    .big-play-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 2px 0 #0E8E2C;
-    }
-
-    .player-list-preview {
-      margin-top: 20px;
-      text-align: left;
-      background: #f4f4f4;
-      padding: 15px;
-      border-radius: 8px;
-    }
-
-    .status-tag {
-      font-size: 0.7em;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #e0e0e0;
-      margin-left: 10px;
-    }
-  </style>
+    <title>BoomBoom Client</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        canvas { border: 2px solid white; background: #222; cursor: none; }
+        body { background: #111; color: white; display: flex; flex-direction: column; align-items: center; }
+    </style>
 </head>
 <body>
+    <h1>BoomBoom.exe Online</h1>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-<header>
-  <div class="header-left">
-    <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-    </nav>
-  </div>
-  <div id="authButtons"></div>
-</header>
+    <script>
+        const config = { databaseURL: "https://dynaduck-305ae-default-rtdb.europe-west1.firebasedatabase.app" };
+        firebase.initializeApp(config);
+        const db = firebase.database();
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-<div class="game-container">
-  <div class="game-viewport">
-    <div class="viewport-overlay">
-      <h1 style="font-size: 4em; margin: 0;">BASEPLATE</h1>
-      <p>Multiplayer Enabled</p>
-    </div>
-  </div>
+        // Identify this player
+        const myName = "Player_" + Math.floor(Math.random() * 1000);
+        const playerRef = db.ref('worlds/baseplate01/players/' + myName);
 
-  <div class="play-panel">
-    <button class="big-play-btn" onclick="launchMultiplayer()">PLAY</button>
-    
-    <div class="player-list-preview">
-      <strong style="color: #666; font-size: 0.8em;">PLAYERS IN-GAME</strong>
-      <hr>
-      <div id="activePlayerList">
-        <p style="color:#999; font-size: 0.9em;">Looking for players...</p>
-      </div>
-    </div>
-    
-    <p id="launchStatus" style="margin-top:15px; font-weight:bold; color:#11AD36;"></p>
-  </div>
-</div>
+        // 1. Send RAW input to server
+        window.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            playerRef.update({
+                raw_x: e.clientX - rect.left,
+                raw_y: e.clientY - rect.top,
+                status: "Moving"
+            });
+        });
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+        playerRef.onDisconnect().remove();
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-    authDomain: "dynaduck-19dbb.firebaseapp.com",
-    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dynaduck-19dbb",
-    storageBucket: "dynaduck-19dbb.firebasestorage.app",
-    messagingSenderId: "777148453502",
-    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-  };
-
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-  const db = firebase.database();
-  const user = localStorage.getItem('loggedInUser');
-
-  // 1. UPDATE HEADER
-  function updateHeader() {
-    const authDiv = document.getElementById('authButtons');
-    if(user) {
-      authDiv.innerHTML = `<span style="color:white;margin-right:10px;">${user}</span><button class="green-btn" onclick="localStorage.removeItem('loggedInUser');location.reload();">Logout</button>`;
-    } else {
-      authDiv.innerHTML = `<a href="login.html"><button class="green-btn">Log In</button></a>`;
-    }
-  }
-
-  // 2. LIVE PLAYERLIST LOGIC (For Website and C++ Sync)
-  function syncPlayerList() {
-    const listDiv = document.getElementById('activePlayerList');
-    
-    // Listen to the WORLD folder
-    db.ref('worlds/baseplate_01/players').on('value', (snapshot) => {
-      listDiv.innerHTML = "";
-      const players = snapshot.val();
-      
-      if (!players) {
-        listDiv.innerHTML = "<p style='color:#999;'>Baseplate is empty.</p>";
-        return;
-      }
-
-      Object.keys(players).forEach(name => {
-        const pData = players[name];
-        listDiv.innerHTML += `
-          <div style="margin-bottom:5px; display:flex; align-items:center;">
-            <div style="width:8px; height:8px; background:#11AD36; border-radius:50%; margin-right:8px;"></div>
-            <strong>${name}</strong>
-            <span class="status-tag">${pData.status || 'In-Game'}</span>
-          </div>
-        `;
-      });
-    });
-  }
-
-  // 3. THE LAUNCHER HANDSHAKE
-  function launchMultiplayer() {
-    if (!user) {
-      alert("Please log in to join multiplayer!");
-      window.location.href = "login.html";
-      return;
-    }
-
-    const statusMsg = document.getElementById('launchStatus');
-    statusMsg.innerText = "Connecting to Cloud...";
-
-    // STEP A: Register in the Cloud Playerlist
-    // Your C++ engine will look for this exact folder!
-    const playerRef = db.ref('worlds/baseplate_01/players/' + user);
-    
-    playerRef.set({
-      status: "Connecting...",
-      x: 0, 
-      y: 4, 
-      z: 0,
-      r: 0,
-      lastUpdate: Date.now()
-    }).then(() => {
-      // STEP B: Set up "Auto-Delete" if they crash or leave
-      playerRef.onDisconnect().remove();
-
-      // STEP C: Call the C++ Protocol
-      statusMsg.innerText = "Launching DynaDuck Engine...";
-      window.location.href = `dynaduck://user=${user}&place=baseplate_01`;
-    });
-  }
-
-  window.onload = () => {
-    updateHeader();
-    syncPlayerList();
-  };
-</script>
-
+        // 2. Draw EVERYONE based on the Server's official data
+        db.ref('worlds/baseplate01/players').on('value', (snapshot) => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            snapshot.forEach((child) => {
+                const data = child.val();
+                
+                // Draw character
+                ctx.fillStyle = (child.key === myName) ? "#00FF00" : "#FF0000";
+                ctx.fillRect(data.x - 10, data.y - 10, 20, 20);
+                
+                // Draw name tag
+                ctx.fillStyle = "white";
+                ctx.fillText(child.key, data.x - 15, data.y - 15);
+            });
+        });
+    </script>
 </body>
 </html>
