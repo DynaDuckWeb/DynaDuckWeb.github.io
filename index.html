@@ -1,620 +1,776 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <title>DynaDuck - Home</title>
+
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* RETRO ROBLOX BODY & FONTS */
-    body {
-      background-color: #f2f2f2;
-      font-family: Arial, Helvetica, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
 
-    /* BLOCKY HEADER (Classic Blue/Slate Theme) */
-    header {
-      background: #194775;
-      border-bottom: 3px solid #0d2847;
-      padding: 8px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: white;
-    }
+<style>
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+.container {
 
-    .logo {
-      height: 32px;
-      image-rendering: pixelated;
-    }
+  max-width: 1100px;
 
-    header nav {
-      display: flex;
-      gap: 5px;
-    }
+  margin: 30px auto;
 
-    header nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.9em;
-      padding: 6px 12px;
-      border: 1px solid transparent;
-    }
+  display: grid;
 
-    header nav a:hover {
-      background: #256199;
-      border: 1px solid #ffffff33;
-    }
+  grid-template-columns: 1fr 320px; /* main + sidebar */
 
-    .search-bar {
-      padding: 4px 8px;
-      border: 1px solid #a7a7a7;
-      font-size: 0.85em;
-      width: 220px;
-    }
+  gap: 25px;
 
-    /* AUTH BUTTONS */
-    .green-btn {
-      background: #00cc00;
-      color: white;
-      font-weight: bold;
-      border: 2px solid #009900;
-      border-bottom: 3px solid #006600;
-      padding: 5px 14px;
-      cursor: pointer;
-      font-size: 0.9em;
-    }
+  padding: 0 20px;
 
-    .green-btn:active {
-      border-bottom: 2px solid #009900;
-      transform: translateY(1px);
-    }
+  align-items: start;
 
-    /* TWO COLUMN MAIN CONTENT LAYOUT */
-    .container {
-      max-width: 1100px;
-      margin: 20px auto;
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 20px;
-      padding: 0 20px;
-      align-items: start;
-    }
+}
 
-    .main-section, .social-box {
-      background: white;
-      padding: 20px;
-      border: 1px solid #a7a7a7;
-      box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
-    }
 
-    h1, h2, h3 {
-      color: #222;
-      margin-top: 0;
-    }
 
-    /* STRIPPED GAME CARD (No Text, No Background Box) */
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
+/* MAIN CONTENT */
 
-    .game-card {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      width: 100%;
-    }
+.main-section {
 
-    /* Brick Grid Pattern Stud Thumbnail */
-    .game-thumb {
-      width: 100%;
-      height: 140px;
-      background-color: #2e7d32; /* Grass Green */
-      background-image: 
-        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-      background-size: 12px 12px;
-      border: 2px solid #b5b5b5;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.1s ease, border-color 0.1s ease;
-    }
+  background: white;
 
-    .game-card:hover .game-thumb {
-      transform: scale(1.02);
-      border-color: #194775;
-    }
+  padding: 25px;
 
-    .play-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.2);
-      color: #fff;
-      font-weight: bold;
-      font-size: 1.1em;
-      text-shadow: 1px 1px 3px #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-    }
+  border-radius: 12px;
 
-    .game-card:hover .play-overlay {
-      opacity: 1;
-    }
+  border: 1px solid #ddd;
 
-    /* SIDEBAR SYSTEM */
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 
-    .social-box h3 {
-      font-size: 1em;
-      border-bottom: 1px solid #c3c3c3;
-      padding-bottom: 4px;
-      color: #194775;
-    }
+  min-height: 400px;
 
-    .friend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 4px;
-      border-bottom: 1px dashed #e1e1e1;
-    }
+}
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
 
-    #pendingSection {
-      background: #fff9e6;
-      border: 1px solid #e6dbb8;
-      padding: 12px;
-      display: none;
-    }
 
-    .btn-small {
-      padding: 2px 6px;
-      font-size: 0.75em;
-    }
+/* SIDEBAR */
 
-    .user-profile-card {
-      background: #eaf2f8;
-      color: #333;
-      padding: 12px;
-      border: 1px solid #b2c9d9;
-      text-align: center;
-      display: none;
-    }
+.sidebar {
 
-    /* ROBLOX GAME PAGE MODAL */
-    #gamePanel {
-      display: none; 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: rgba(0,0,0,0.6); 
-      z-index: 1000;
-    }
+  display: flex;
 
-    .modal-content {
-      background: white; 
-      width: 760px; 
-      margin: 70px auto; 
-      padding: 25px; 
-      border: 1px solid #a5a5a5; 
-      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+  flex-direction: column;
 
-    /* Better Close Button (X Asset) */
-    .close-x {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 30px;
-      font-weight: bold;
-      color: #999;
-      cursor: pointer;
-      line-height: 20px;
-      transition: color 0.1s;
-    }
+  gap: 15px;
 
-    .close-x:hover {
-      color: #000;
-    }
+}
 
-    .modal-header h1 {
-      margin: 0;
-      font-size: 1.8em;
-      color: #333;
-    }
 
-    .modal-creator {
-      font-size: 0.85em;
-      color: #666;
-      margin: 3px 0 0 0;
-    }
 
-    .modal-creator b {
-      color: #0033aa;
-      cursor: pointer;
-    }
+/* BOXES */
 
-    .modal-creator b:hover {
-      text-decoration: underline;
-    }
+.social-box {
 
-    .modal-body {
-      display: grid;
-      grid-template-columns: 440px 1fr;
-      gap: 20px;
-      align-items: start;
-    }
+  background: white;
 
-    .modal-showcase {
-      width: 100%;
-      height: 250px;
-      background-color: #2e7d32;
-      background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-      background-size: 15px 15px;
-      border: 1px solid #999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      font-size: 1.5em;
-      text-shadow: 1px 1px 3px #000;
-    }
+  padding: 15px;
 
-    .modal-actions {
-      background: #f6f6f6;
-      border: 1px solid #dcdcdc;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+  border-radius: 12px;
 
-    /* MASSIVE ROBLOX GREEN PLAY BUTTON */
-    .roblox-play-btn {
-      background: #00b06f; /* Authentic Roblox Green */
-      color: white;
-      border: none;
-      border-bottom: 5px solid #008252; /* 3D Bevel look */
-      width: 100%;
-      padding: 14px 0;
-      font-size: 24px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
-    }
+  border: 1px solid #ddd;
 
-    .roblox-play-btn:hover {
-      background: #00c47c;
-    }
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 
-    .roblox-play-btn:active {
-      border-bottom: 1px solid #008252;
-      transform: translateY(4px);
-    }
+}
 
-    /* Play Button Arrow Icon */
-    .play-arrow {
-      width: 0;
-      height: 0;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-      border-left: 16px solid white;
-      display: inline-block;
-    }
 
-    /* Game Stats Block */
-    .game-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      font-size: 0.8em;
-      color: #666;
-      border-top: 1px solid #e1e1e1;
-      padding-top: 12px;
-    }
 
-    .stat-row b {
-      color: #333;
-    }
+/* TITLES */
+
+.social-box h3 {
+
+  margin: 0 0 10px 0;
+
+  font-size: 1.05em;
+
+  border-bottom: 2px solid #11AD36;
+
+  padding-bottom: 6px;
+
+}
+
+
+
+/* FRIEND ITEM */
+
+.friend-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 8px;
+
+  border-radius: 8px;
+
+  transition: 0.2s;
+
+}
+
+
+
+.friend-item:hover {
+
+  background: #f5f5f5;
+
+}
+
+
+
+/* ONLINE DOT */
+
+.status-dot {
+
+  width: 10px;
+
+  height: 10px;
+
+  border-radius: 50%;
+
+  border: 2px solid white;
+
+  box-shadow: 0 0 0 1px #ddd;
+
+}
+
+
+
+/* REQUEST BOX */
+
+#pendingSection {
+
+  background: #fffbe6;
+
+  border: 1px solid #ffe58f;
+
+  padding: 10px;
+
+  border-radius: 8px;
+
+  margin-bottom: 10px;
+
+  display: none;
+
+}
+
+
+
+/* SMALL BUTTON */
+
+.btn-small {
+
+  padding: 4px 8px;
+
+  font-size: 0.8em;
+
+  border-radius: 4px;
+
+}
+
+
+
+/* PROFILE CARD */
+
+.user-profile-card {
+
+  background: #333;
+
+  color: white;
+
+  padding: 15px;
+
+  border-radius: 12px;
+
+  text-align: center;
+
+}
+
   </style>
+
 </head>
-<body>
 
-  <!-- ROBLOX GAME DETAIL PAGE POPUP MODAL -->
-  <div id="gamePanel">
-    <div class="modal-content">
-      
-      <!-- Better Close Button -->
-      <span class="close-x" onclick="closeGame()">&times;</span>
+  <div id="gamePanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7);">
 
-      <!-- Modal Header Info -->
-      <div class="modal-header">
-        <h1 id="modalGameTitle">Baseplate</h1>
-        <p class="modal-creator">By <b>DynaDuck Team</b></p>
-      </div>
+  
 
-      <!-- Main Game Profile Details -->
-      <div class="modal-body">
-        
-        <!-- Left Showcase Media Asset -->
-        <div class="modal-showcase">
-          BASEPLATE
-        </div>
+  <div style="
 
-        <!-- Right Side Execution Content Box -->
-        <div class="modal-actions">
-          
-          <!-- Large Play Button Action Execution -->
-          <button class="roblox-play-btn" onclick="launchGame()">
-            <span class="play-arrow"></span> PLAY
-          </button>
+    background:white;
 
-          <p style="color:#333; font-size:0.85em; margin:0; line-height:1.4;">
-            A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.
-          </p>
+    width:800px;
 
-          <!-- Authentic Game Stats Profile -->
-          <div class="game-stats">
-            <div class="stat-row">Active: <b>0</b></div>
-            <div class="stat-row">Visits: <b>128</b></div>
-            <div class="stat-row">Created: <b>5/2026</b></div>
-            <div class="stat-row">Max Players: <b>12</b></div>
-          </div>
+    margin:80px auto;
 
-        </div>
+    padding:30px;
 
-      </div>
+    border-radius:12px;
+
+    display:flex;
+
+    gap:30px;
+
+  ">
+
+
+
+    <!-- Thumbnail -->
+
+    <div style="
+
+      width:300px;
+
+      height:200px;
+
+      background:#339933;
+
+      border-radius:10px;
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      color:white;
+
+      font-weight:bold;
+
+      font-size:1.5em;
+
+    ">
+
+      BASEPLATE
+
     </div>
+
+
+
+    <!-- Info -->
+
+    <div style="flex:1;">
+
+      <h1 style="margin-top:0;">Baseplate</h1>
+
+      <p style="color:#11AD36; font-weight:bold;">by DynaDuck Team</p>
+
+
+
+      <p style="color:#555;">
+
+        A simple sandbox world where you can test builds and explore mechanics with friends.
+
+      </p>
+
+
+
+      <button class="green-btn" onclick="launchGame()">
+
+        ▶ Play
+
+      </button>
+
+
+
+      <button class="back-btn" onclick="closeGame()" style="margin-left:10px;">
+
+        Close
+
+      </button>
+
+    </div>
+
+
+
   </div>
 
-  <!-- NAVIGATION HEADER -->
-  <header>
-    <div class="header-left">
-      <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
-      <nav>
-        <a href="catalog.html">Catalog</a>
-        <a href="ideas.html">Ideas</a>
-        <a href="create.html">Create</a>
-        <a href="dynamites.html">Dynamites</a>
-      </nav>
+</div>
+
+<body>
+
+
+
+<header>
+
+  <div class="header-left">
+
+    <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
+
+    <nav>
+
+      <a href="catalog.html">Catalog</a>
+
+      <a href="ideas.html">Ideas</a>
+
+      <a href="create.html">Create</a>
+
+      <a href="dynamites.html">Dynamites</a>
+
+    </nav>
+
+  </div>
+
+  <div class="search-container">
+
+    <input type="text" placeholder="Search for games..." class="search-bar">
+
+  </div>
+
+  <div id="authButtons"></div>
+
+</header>
+
+
+
+<div class="container">
+
+
+
+  <div class="main-section">
+
+
+
+    <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
+
+    <p style="color: #666;">Explore worlds, build dreams, and hang out with friends.</p>
+
+
+
+    <h2 style="margin-top: 40px; font-size: 1.2em;">Featured Games</h2>
+
+
+
+    <div class="games-grid">
+
+
+
+      <div class="game-card" onclick="openGame('baseplate')">
+
+
+
+        <div class="game-thumb">
+
+          <div class="play-overlay">▶ Play</div>
+
+        </div>
+
+
+
+        <div class="game-info">
+
+          <h2>Baseplate</h2>
+
+          <p>by DynaDuck Team</p>
+
+        </div>
+
+
+
+      </div>
+
+
+
     </div>
-    <div class="search-container">
-      <input type="text" placeholder="Search for games..." class="search-bar">
+
+
+
+  </div>
+
+
+
+  <!-- ✅ THIS MUST BE INSIDE container -->
+
+  <div class="sidebar">
+
+
+
+    <div class="social-box">
+
+      Sidebar content here
+
     </div>
-    <div id="authButtons"></div>
-  </header>
 
-  <!-- TWO COLUMN CENTRAL LAYOUT -->
-  <div class="container">
 
-    <!-- LEFT COLUMN: MAIN CONTENT -->
-    <div class="main-section">
-      <h1 id="welcomeText" style="margin-bottom: 5px; font-size: 1.8em; color: #194775;">Welcome to DynaDuck</h1>
-      <p style="color: #555; font-size: 0.9em; margin-top: 0;">Explore worlds, build dreams, and hang out with friends.</p>
 
-      <h2 style="font-size: 1.1em; font-weight: bold; border-bottom: 2px solid #194775; padding-bottom: 4px; margin-top: 30px;">Featured Games</h2>
+  </div>
+
+
+
+</div>
+
+    
+
+    <div id="userCard" class="user-profile-card" style="display:none;">
+
+       <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
+
+       <div style="font-size: 0.8em; color: #11AD36;">● Online</div>
+
+    </div>
+
+
+
+    <div id="pendingSection" class="social-box">
+
+      <h3 style="border-color: #fadb14;">Requests</h3>
+
+      <div id="requestList"></div>
+
+    </div>
+
+
+
+    <div class="social-box">
+
+      <h3>Friends</h3>
+
       
-      <div class="games-grid">
-        <!-- Clean, Stripped Down Game Card Thumbnail Asset -->
-        <div class="game-card" onclick="openGame('baseplate')">
-          <div class="game-thumb">
-            <div class="play-overlay">BASEPLATE</div>
-          </div>
-        </div>
+
+      <div class="search-friend-box" style="display:flex; gap:5px; margin-bottom:15px;">
+
+        <input type="text" id="friendInput" placeholder="Add User..." style="width:100%; padding:6px; border-radius:4px; border:1px solid #ddd;">
+
+        <button class="green-btn" onclick="sendRequest()" style="padding:0 10px;">+</button>
+
       </div>
+
+
+
+      <div id="friendsList">
+
+        <p style="color:#999; font-size:0.9em; text-align:center;">Log in to see friends.</p>
+
+      </div>
+
     </div>
 
-    <!-- RIGHT COLUMN: SIDEBAR -->
-    <div class="sidebar">
+
+
+  </div>
+
+</div>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+
+
+<script>
+
+  const firebaseConfig = {
+
+    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+
+    authDomain: "dynaduck-19dbb.firebaseapp.com",
+
+    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+
+    projectId: "dynaduck-19dbb",
+
+    storageBucket: "dynaduck-19dbb.firebasestorage.app",
+
+    messagingSenderId: "777148453502",
+
+    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+
+  };
+
+function openGame(game) {
+
+  if (game === 'baseplate') {
+
+    document.getElementById('gamePanel').style.display = 'block';
+
+  }
+
+}
+
+
+
+function closeGame() {
+
+  document.getElementById('gamePanel').style.display = 'none';
+
+}
+
+
+
+function launchGame() {
+
+  window.location.href = "baseplate.html";
+
+}
+
+  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+  const db = firebase.database();
+
+  const currentUser = localStorage.getItem('loggedInUser');
+
+
+
+  function init() {
+
+    const authDiv = document.getElementById('authButtons');
+
+    if (currentUser) {
+
+      document.getElementById('userCard').style.display = "block";
+
+      document.getElementById('displayUsername').innerText = currentUser;
+
+authDiv.innerHTML = `
+
+  <span style="color:white;font-weight:bold;margin-right:10px;">${currentUser}</span>
+
+  <a href="settings.html">
+
+    <button class="green-btn">Settings</button>
+
+  </a>
+
+  <button class="green-btn" onclick="logout()">Logout</button>
+
+`;      
+
+      db.ref('users/' + currentUser + '/presence').set("online");
+
+      db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
+
       
-      <!-- Current Active User Widget -->
-      <div id="userCard" class="user-profile-card">
-         <div style="font-size: 1em; font-weight: bold; color: #194775;" id="displayUsername">User</div>
-         <div style="font-size: 0.8em; color: #00cc00; margin-top: 2px; font-weight: bold;">● Online Status</div>
-      </div>
 
-      <!-- Actionable Incoming Requests Box -->
-      <div id="pendingSection">
-        <h3 style="margin: 0 0 8px 0;">Requests</h3>
-        <div id="requestList"></div>
-      </div>
+      loadSocial();
 
-      <!-- Main Friends Panel -->
-      <div class="social-box">
-        <h3>Friends List</h3>
-        
-        <div class="search-friend-box" style="display:flex; gap:4px; margin-bottom:12px;">
-          <input type="text" id="friendInput" placeholder="Add friend..." style="width:100%; padding:4px; border:1px solid #a7a7a7; font-size: 0.85em;">
-          <button class="green-btn" onclick="sendRequest()" style="padding: 2px 10px; font-weight: bold;">+</button>
-        </div>
+    } else {
 
-        <div id="friendsList">
-          <p id="fallbackFriendsText" style="color:#777; font-size:0.85em; text-align:center; padding: 5px 0;">Log in to see friends.</p>
-        </div>
-      </div>
+      authDiv.innerHTML = `<a href="login.html"><button class="green-btn">Log In</button></a>`;
 
-    </div> <!-- End Sidebar -->
-  </div> <!-- End Container -->
+    }
 
-  <!-- INTERACTIVITY ENGINE (Firebase Relays) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  }
+
+
+
+  function logout() {
+
+    db.ref('users/' + currentUser + '/presence').set("offline").then(() => {
+
+      localStorage.removeItem('loggedInUser');
+
+      location.reload();
+
+    });
+
+  }
+
+
+
+  function sendRequest() {
+
+    const target = document.getElementById('friendInput').value.trim();
+
+    if (!currentUser || !target || target === currentUser) return;
+
+    db.ref('users/' + target).get().then(s => {
+
+      if (s.exists()) {
+
+        db.ref('users/' + target + '/requests/' + currentUser).set(true);
+
+        alert("Sent!");
+
+      } else { alert("Not found"); }
+
+    });
+
+  }
+
+
+
+  function loadSocial() {
+
+    // Requests
+
+    db.ref('users/' + currentUser + '/requests').on('value', snap => {
+
+      const list = document.getElementById('requestList');
+
+      const box = document.getElementById('pendingSection');
+
+      if (snap.exists()) {
+
+        box.style.display = "block";
+
+        list.innerHTML = "";
+
+        Object.keys(snap.val()).forEach(name => {
+
+          list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+
+            <span style="font-size:0.9em;">${name}</span>
+
+            <button class="green-btn btn-small" onclick="accept('${name}')">Accept</button>
+
+          </div>`;
+
+        });
+
+      } else { box.style.display = "none"; }
+
+    });
+
+
+
+    // Friends List
+
+    db.ref('users/' + currentUser + '/friends').on('value', snap => {
+
+      const listDiv = document.getElementById('friendsList');
+
+      listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#999; text-align:center;'>No friends.</p>";
+
+      if (snap.exists()) {
+
+        Object.keys(snap.val()).forEach(fName => {
+
+          db.ref('users/' + fName + '/presence').on('value', sSnap => {
+
+            const status = sSnap.val() || "offline";
+
+            const color = status === "online" ? "#11AD36" : "#888";
+
+            let el = document.getElementById('f-' + fName);
+
+            if (!el) {
+
+              el = document.createElement('div');
+
+              el.id = 'f-' + fName;
+
+              el.className = 'friend-item';
+
+              listDiv.appendChild(el);
+
+            }
+
+            el.innerHTML = `<div class="status-dot" style="background:${color}"></div>
+
+                            <strong style="font-size:0.9em;">${fName}</strong>`;
+
+          });
+
+        });
+
+      }
+
+    });
+
+  }
+
+
+
+  function accept(n) {
+
+    db.ref('users/' + currentUser + '/friends/' + n).set(true);
+
+    db.ref('users/' + n + '/friends/' + currentUser).set(true);
+
+    db.ref('users/' + currentUser + '/requests/' + n).remove();
+
+  }
+
+
+
+  window.onload = init;
+
+</script>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-      authDomain: "dynaduck-19dbb.firebaseapp.com",
-      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "dynaduck-19dbb",
-      storageBucket: "dynaduck-19dbb.firebasestorage.app",
-      messagingSenderId: "777148453502",
-      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-    };
 
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const db = firebase.database();
-    const currentUser = localStorage.getItem('loggedInUser');
+function getUser() {
 
-    function openGame(game) {
-      if (game === 'baseplate') {
-        document.getElementById('gamePanel').style.display = 'block';
-      }
-    }
+  return localStorage.getItem("loggedInUser");
 
-    function closeGame() {
-      document.getElementById('gamePanel').style.display = 'none';
-    }
+}
 
-    function launchGame() {
-      window.location.href = "baseplate.html";
-    }
 
-    function initApp() {
-      const authDiv = document.getElementById('authButtons');
-      
-      if (currentUser) {
-        document.getElementById('userCard').style.display = "block";
-        document.getElementById('displayUsername').innerText = currentUser;
-        
-        authDiv.innerHTML = `
-          <span style="color:white;font-weight:bold;margin-right:10px;font-size:0.85em;">Hello, ${currentUser}</span>
-          <a href="settings.html"><button class="green-btn" style="padding:2px 8px; font-size:0.8em; margin-right:3px;">Settings</button></a>
-          <button class="green-btn" onclick="logout()" style="padding:2px 8px; font-size:0.8em;">Logout</button>
-        `;      
-        
-        db.ref('users/' + currentUser + '/presence').set("online");
-        db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
-        
-        loadSocial();
-      } else {
-        authDiv.innerHTML = `
-          <a href="signup.html"><button class="green-btn" style="padding:3px 10px; font-size:0.85em; margin-right:4px;">Sign Up</button></a>
-          <a href="login.html"><button class="green-btn" style="padding:3px 10px; font-size:0.85em;">Log In</button></a>
-        `;
-      }
-    }
 
-    function logout() {
-      if (currentUser) {
-        db.ref('users/' + currentUser + '/presence').set("offline").then(() => {
-          localStorage.removeItem('loggedInUser');
-          location.reload();
-        }).catch(() => {
-          localStorage.removeItem('loggedInUser');
-          location.reload();
-        });
-      } else {
-        localStorage.removeItem('loggedInUser');
-        location.reload();
-      }
-    }
+function updateHeader() {
 
-    function sendRequest() {
-      const target = document.getElementById('friendInput').value.trim();
-      if (!currentUser || !target || target === currentUser) return;
-      db.ref('users/' + target).get().then(s => {
-        if (s.exists()) {
-          db.ref('users/' + target + '/requests/' + currentUser).set(true);
-          alert("Friend request sent!");
-          document.getElementById('friendInput').value = "";
-        } else { 
-          alert("User not found."); 
-        }
-      });
-    }
+  const authDiv = document.getElementById("authButtons");
 
-    function loadSocial() {
-      db.ref('users/' + currentUser + '/requests').on('value', snap => {
-        const list = document.getElementById('requestList');
-        const box = document.getElementById('pendingSection');
-        if (snap.exists()) {
-          box.style.display = "block";
-          list.innerHTML = "";
-          Object.keys(snap.val()).forEach(name => {
-            list.innerHTML += `
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <span style="font-size:0.85em; font-weight:bold; color:#333;">${name}</span>
-                <button class="green-btn btn-small" onclick="accept('${name}')">Accept</button>
-              </div>`;
-          });
-        } else { 
-          box.style.display = "none"; 
-        }
-      });
+  const user = getUser();
 
-      db.ref('users/' + currentUser + '/friends').on('value', snap => {
-        const listDiv = document.getElementById('friendsList');
-        listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#777; text-align:center; font-size:0.85em; padding:5px 0;'>No friends found.</p>";
-        
-        if (snap.exists()) {
-          Object.keys(snap.val()).forEach(fName => {
-            db.ref('users/' + fName + '/presence').on('value', sSnap => {
-              const status = sSnap.val() || "offline";
-              const color = status === "online" ? "#00cc00" : "#888";
-              
-              let el = document.getElementById('f-' + fName);
-              if (!el) {
-                el = document.createElement('div');
-                el.id = 'f-' + fName;
-                el.className = 'friend-item';
-                listDiv.appendChild(el);
-              }
-              el.innerHTML = `
-                <div class="status-dot" style="background:${color}"></div>
-                <strong style="font-size:0.85em; color:#0033aa; cursor:pointer;">${fName}</strong>
-              `;
-            });
-          });
-        }
-      });
-    }
 
-    function accept(n) {
-      db.ref('users/' + currentUser + '/friends/' + n).set(true);
-      db.ref('users/' + n + '/friends/' + currentUser).set(true);
-      db.ref('users/' + currentUser + '/requests/' + n).remove();
-    }
 
-    window.onload = initApp;
-  </script>
+  if (user) {
+
+    authDiv.innerHTML = `
+
+      <span style="color:white;font-weight:bold;margin-right:12px;">
+
+        Welcome, ${user}
+
+      </span>
+
+
+
+      <a href="settings.html">
+
+        <button class="green-btn">Settings</button>
+
+      </a>
+
+
+
+      <button class="green-btn" onclick="logout()">Logout</button>
+
+    `;
+
+  } else {
+
+    authDiv.innerHTML = `
+
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+
+      <a href="login.html"><button class="green-btn">Log In</button></a>
+
+    `;
+
+  }
+
+}
+
+
+
+function logout() {
+
+  localStorage.removeItem("loggedInUser");
+
+  location.reload();
+
+}
+
+
+
+window.addEventListener("DOMContentLoaded", updateHeader);
+
+</script>
+
 </body>
-</html>
+
+</html> 
+
