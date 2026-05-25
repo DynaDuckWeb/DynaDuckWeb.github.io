@@ -145,8 +145,11 @@ nav a:hover { color:#11AD36; }
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
-/* ================= FIREBASE INIT ================= */
+/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
@@ -161,36 +164,38 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+/* ================= AUTH HELPERS ================= */
+
+function getUser() {
+  return localStorage.getItem("loggedInUser");
+}
+
 /* ================= MODERATION ================= */
 
 const bannedWords = [
   "fuck","shit","bitch","asshole",
   "nigger","fag","retard",
   "discord","instagram","snapchat","tiktok","@",
-  "my age is","i am years old","i live in","address"
+  "my age","i am years old","i live in","address"
 ];
 
 function isBlocked(text = "") {
-  return bannedWords.some(w =>
-    text.toLowerCase().includes(w)
-  );
+  const lower = text.toLowerCase();
+  return bannedWords.some(w => lower.includes(w));
 }
 
-/* ================= AUTH ================= */
-
-function getUser() {
-  return localStorage.getItem("loggedInUser");
-}
+/* ================= UI AUTH ================= */
 
 function updateHeader() {
-  const authDiv = document.getElementById("authButtons");
   const user = getUser();
+  const authDiv = document.getElementById("authButtons");
 
   if (!user) {
     authDiv.innerHTML = `
       <a href="login.html"><button class="green-btn">Log In</button></a>
       <a href="signup.html"><button class="green-btn">Sign Up</button></a>
     `;
+
     document.getElementById("notLoggedIn").style.display = "block";
     document.getElementById("ideasContent").style.display = "none";
     return;
@@ -205,6 +210,7 @@ function updateHeader() {
   document.getElementById("ideasContent").style.display = "block";
 
   loadPosts();
+
   if (user === "Admin") loadReports();
 }
 
@@ -217,7 +223,7 @@ window.addEventListener("DOMContentLoaded", updateHeader);
 
 /* ================= CREATE POST ================= */
 
-function addPost() {
+function addIdea() {
   const user = getUser();
   if (!user) return alert("Login required");
 
@@ -227,9 +233,9 @@ function addPost() {
   if (!title || !text) return alert("Fill all fields");
   if (isBlocked(title + text)) return alert("Blocked content detected");
 
-  const postRef = db.ref("posts").push();
+  const id = db.ref("posts").push().key;
 
-  postRef.set({
+  db.ref("posts/" + id).set({
     title,
     text,
     user,
@@ -240,12 +246,15 @@ function addPost() {
   document.getElementById("ideaDesc").value = "";
 }
 
-/* ================= LOAD POSTS ================= */
+/* ================= LOAD POSTS (FIXED) ================= */
+
+let postsListenerAttached = false;
 
 function loadPosts() {
-  const container = document.getElementById("ideasList");
+  if (postsListenerAttached) return;
+  postsListenerAttached = true;
 
-  db.ref("posts").off(); // prevent duplicate listeners
+  const container = document.getElementById("ideasList");
 
   db.ref("posts").on("value", snap => {
     container.innerHTML = "";
@@ -276,7 +285,6 @@ function loadPosts() {
       `;
 
       container.appendChild(div);
-
       loadReplies(id);
     });
   });
@@ -286,8 +294,7 @@ function loadPosts() {
 
 function toggleReply(id) {
   const box = document.getElementById("replyBox-" + id);
-  if (!box) return;
-  box.style.display = box.style.display === "none" ? "block" : "none";
+  if (box) box.style.display = box.style.display === "none" ? "block" : "none";
 }
 
 function addReply(postId) {
@@ -320,25 +327,22 @@ function loadReplies(postId) {
 
     snap.forEach(r => {
       const reply = r.val();
-
       const div = document.createElement("div");
-      div.style.padding = "5px";
       div.style.borderTop = "1px solid #ddd";
-
+      div.style.padding = "5px";
       div.innerHTML = `<b>${reply.user}:</b> ${reply.text}`;
-
       container.appendChild(div);
     });
   });
 }
 
-/* ================= REPORTS ================= */
+/* ================= REPORT ================= */
 
 function reportPost(postId) {
   const user = getUser();
   if (!user) return alert("Login required");
 
-  const reason = prompt("Why are you reporting?");
+  const reason = prompt("Why report?");
   if (!reason) return;
 
   db.ref("reports").push().set({
@@ -361,8 +365,6 @@ function loadReports() {
 
   const container = document.getElementById("reportsContainer");
 
-  db.ref("reports").off();
-
   db.ref("reports").on("value", snap => {
     container.innerHTML = "";
 
@@ -370,7 +372,7 @@ function loadReports() {
       const rep = repSnap.val();
       const repId = repSnap.key;
 
-      db.ref("posts/" + rep.postId).get().then(postSnap => {
+      db.ref("posts/" + rep.postId).once("value").then(postSnap => {
         if (!postSnap.exists()) return;
 
         const post = postSnap.val();
