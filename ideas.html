@@ -146,7 +146,7 @@ nav a:hover { color:#11AD36; }
 </div>
 
 <script>
-/* ---------------- FIREBASE INIT ---------------- */
+/* ================= FIREBASE INIT ================= */
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
@@ -161,11 +161,26 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* ---------------- AUTH ---------------- */
+/* ================= MODERATION FILTER ================= */
+
+const bannedWords = [
+  "fuck","shit","bitch","asshole",
+  "nigger","fag","retard",
+
+  "my age is","i am years old","i live in","my address",
+  "instagram","snapchat","discord","tiktok","@"
+];
+
+function isBlocked(text) {
+  const lower = text.toLowerCase();
+  return bannedWords.some(w => lower.includes(w));
+}
+
+/* ================= AUTH ================= */
 
 function updateHeader() {
-  const authDiv = document.getElementById('authButtons');
-  const user = localStorage.getItem('loggedInUser');
+  const authDiv = document.getElementById("authButtons");
+  const user = localStorage.getItem("loggedInUser");
 
   if (user) {
     authDiv.innerHTML = `
@@ -173,10 +188,10 @@ function updateHeader() {
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
 
-    document.getElementById('notLoggedIn').style.display = "none";
-    document.getElementById('ideasContent').style.display = "block";
+    document.getElementById("notLoggedIn").style.display = "none";
+    document.getElementById("ideasContent").style.display = "block";
 
-    loadIdeas();
+    loadPosts();
     if (user === "Admin") loadReports();
 
   } else {
@@ -188,100 +203,143 @@ function updateHeader() {
 }
 
 function logout() {
-  localStorage.removeItem('loggedInUser');
+  localStorage.removeItem("loggedInUser");
   location.reload();
 }
 
-window.addEventListener('DOMContentLoaded', updateHeader);
+window.addEventListener("DOMContentLoaded", updateHeader);
 
-/* ---------------- ADD IDEA ---------------- */
+/* ================= CREATE POST ================= */
 
-function addIdea() {
-  const title = document.getElementById('ideaTitle').value.trim();
-  const desc = document.getElementById('ideaDesc').value.trim();
-  const user = localStorage.getItem('loggedInUser');
+function addPost() {
+  const title = document.getElementById("ideaTitle").value.trim();
+  const text = document.getElementById("ideaDesc").value.trim();
+  const user = localStorage.getItem("loggedInUser");
 
   if (!user) return alert("Login required");
-  if (!title || !desc) return alert("Fill all fields");
+  if (!title || !text) return alert("Fill all fields");
 
-  const id = db.ref().child('ideas').push().key;
+  if (isBlocked(title + " " + text)) {
+    alert("Blocked content detected.");
+    return;
+  }
 
-  db.ref('ideas/' + id).set({
+  const postId = db.ref().child("posts").push().key;
+
+  db.ref("posts/" + postId).set({
     title,
-    desc,
+    text,
     user,
-    likes: 0,
-    dislikes: 0,
     timestamp: Date.now()
   });
 
-  document.getElementById('ideaTitle').value = "";
-  document.getElementById('ideaDesc').value = "";
+  document.getElementById("ideaTitle").value = "";
+  document.getElementById("ideaDesc").value = "";
 }
 
-/* ---------------- LOAD IDEAS (REALTIME) ---------------- */
+/* ================= LOAD POSTS ================= */
 
-function loadIdeas() {
-  const container = document.getElementById('ideasList');
+function loadPosts() {
+  const container = document.getElementById("ideasList");
 
-  db.ref('ideas').on('value', snap => {
+  db.ref("posts").on("value", snap => {
     container.innerHTML = "";
 
-    snap.forEach(child => {
-      const idea = child.val();
-      const id = child.key;
+    snap.forEach(postSnap => {
+      const post = postSnap.val();
+      const id = postSnap.key;
 
-      const div = document.createElement('div');
+      const div = document.createElement("div");
       div.className = "idea";
 
       div.innerHTML = `
-        <h3>${idea.title}</h3>
-        <div class="meta">By ${idea.user}</div>
-        <p>${idea.desc}</p>
+        <h3>${post.title}</h3>
+        <div class="meta">By ${post.user}</div>
+        <p>${post.text}</p>
 
         <div class="actions">
-          <button class="green-btn" onclick="vote('${id}', true)">👍 ${idea.likes}</button>
-          <button class="green-btn" onclick="vote('${id}', false)">👎 ${idea.dislikes}</button>
-          <button class="green-btn" onclick="reportIdea('${id}')">Report</button>
+          <button class="green-btn" onclick="toggleReply('${id}')">Reply</button>
+          <button class="green-btn" onclick="reportPost('${id}')">Report</button>
+        </div>
+
+        <div id="replies-${id}" style="margin-top:10px;"></div>
+
+        <div id="replyBox-${id}" style="display:none; margin-top:10px;">
+          <input id="replyInput-${id}" style="width:100%;padding:8px;" placeholder="Write reply...">
+          <button class="green-btn" onclick="addReply('${id}')">Send</button>
         </div>
       `;
+
+      container.appendChild(div);
+
+      loadReplies(id);
+    });
+  });
+}
+
+/* ================= REPLIES ================= */
+
+function toggleReply(id) {
+  const box = document.getElementById("replyBox-" + id);
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+function addReply(postId) {
+  const input = document.getElementById("replyInput-" + postId);
+  const text = input.value.trim();
+  const user = localStorage.getItem("loggedInUser");
+
+  if (!user) return alert("Login required");
+  if (!text) return;
+
+  if (isBlocked(text)) {
+    alert("Blocked content detected.");
+    return;
+  }
+
+  const replyId = db.ref().child("replies").push().key;
+
+  db.ref("replies/" + postId + "/" + replyId).set({
+    user,
+    text,
+    timestamp: Date.now()
+  });
+
+  input.value = "";
+}
+
+function loadReplies(postId) {
+  db.ref("replies/" + postId).on("value", snap => {
+    const container = document.getElementById("replies-" + postId);
+    container.innerHTML = "";
+
+    snap.forEach(r => {
+      const reply = r.val();
+
+      const div = document.createElement("div");
+      div.style.borderTop = "1px solid #ddd";
+      div.style.padding = "5px";
+
+      div.innerHTML = `<b>${reply.user}:</b> ${reply.text}`;
 
       container.appendChild(div);
     });
   });
 }
 
-/* ---------------- VOTE ---------------- */
+/* ================= REPORT SYSTEM ================= */
 
-function vote(id, up) {
-  const ref = db.ref('ideas/' + id);
-
-  ref.get().then(snap => {
-    if (!snap.exists()) return;
-
-    const data = snap.val();
-
-    if (up) {
-      ref.update({ likes: data.likes + 1 });
-    } else {
-      ref.update({ dislikes: data.dislikes + 1 });
-    }
-  });
-}
-
-/* ---------------- REPORT ---------------- */
-
-function reportIdea(id) {
-  const reason = prompt("Why are you reporting this idea?");
+function reportPost(postId) {
+  const reason = prompt("Why are you reporting?");
   if (!reason) return;
 
-  const user = localStorage.getItem('loggedInUser');
+  const user = localStorage.getItem("loggedInUser");
   if (!user) return alert("Login required");
 
-  const reportId = db.ref().child('reports').push().key;
+  const reportId = db.ref().child("reports").push().key;
 
-  db.ref('reports/' + reportId).set({
-    ideaId: id,
+  db.ref("reports/" + reportId).set({
+    postId,
     reporter: user,
     reason,
     timestamp: Date.now()
@@ -290,38 +348,38 @@ function reportIdea(id) {
   alert("Reported!");
 }
 
-/* ---------------- ADMIN REPORTS ---------------- */
+/* ================= ADMIN PANEL ================= */
 
 function loadReports() {
-  const user = localStorage.getItem('loggedInUser');
+  const user = localStorage.getItem("loggedInUser");
   if (user !== "Admin") return;
 
-  document.getElementById('adminReports').style.display = "block";
+  document.getElementById("adminReports").style.display = "block";
 
-  const container = document.getElementById('reportsContainer');
+  const container = document.getElementById("reportsContainer");
 
-  db.ref('reports').on('value', snap => {
+  db.ref("reports").on("value", snap => {
     container.innerHTML = "";
 
     snap.forEach(repSnap => {
       const rep = repSnap.val();
       const repId = repSnap.key;
 
-      db.ref('ideas/' + rep.ideaId).get().then(ideaSnap => {
-        if (!ideaSnap.exists()) return;
+      db.ref("posts/" + rep.postId).get().then(postSnap => {
+        if (!postSnap.exists()) return;
 
-        const idea = ideaSnap.val();
+        const post = postSnap.val();
 
-        const div = document.createElement('div');
+        const div = document.createElement("div");
         div.className = "report-card";
 
         div.innerHTML = `
           <p><b>Reporter:</b> ${rep.reporter}</p>
           <p><b>Reason:</b> ${rep.reason}</p>
-          <p><b>Idea:</b> ${idea.title}</p>
+          <p><b>Post:</b> ${post.title}</p>
 
           <div class="report-actions">
-            <button class="green-btn" onclick="deleteIdea('${rep.ideaId}', '${repId}')">Delete Idea</button>
+            <button class="green-btn" onclick="deletePost('${rep.postId}','${repId}')">Delete Post</button>
             <button class="green-btn" style="background:#ccc" onclick="dismissReport('${repId}')">Dismiss</button>
           </div>
         `;
@@ -332,17 +390,17 @@ function loadReports() {
   });
 }
 
-/* ---------------- DELETE / DISMISS ---------------- */
+/* ================= DELETE / DISMISS ================= */
 
-function deleteIdea(ideaId, reportId) {
-  db.ref('ideas/' + ideaId).remove();
-  db.ref('reports/' + reportId).remove();
+function deletePost(postId, reportId) {
+  db.ref("posts/" + postId).remove();
+  db.ref("replies/" + postId).remove();
+  db.ref("reports/" + reportId).remove();
 }
 
 function dismissReport(reportId) {
-  db.ref('reports/' + reportId).remove();
+  db.ref("reports/" + reportId).remove();
 }
 </script>
-
 </body>
 </html>
