@@ -13,9 +13,9 @@
       padding: 0;
     }
 
-    /* BLOCKY HEADER (Classic 2008-2011 Blue/Slate Theme) */
+    /* BLOCKY HEADER (Classic Blue/Slate Theme) */
     header {
-      background: #194775; /* Classic Roblox Slate Blue */
+      background: #194775;
       border-bottom: 3px solid #0d2847;
       padding: 8px 20px;
       display: flex;
@@ -32,7 +32,7 @@
 
     .logo {
       height: 32px;
-      image-rendering: pixelated; /* Keeps retro logo sharp */
+      image-rendering: pixelated;
     }
 
     header nav {
@@ -61,13 +61,13 @@
       width: 220px;
     }
 
-    /* VINTAGE BLOCK BUTTONS */
+    /* AUTH BUTTONS */
     .green-btn {
       background: #00cc00;
       color: white;
       font-weight: bold;
       border: 2px solid #009900;
-      border-bottom: 3px solid #006600; /* 3D bevel look */
+      border-bottom: 3px solid #006600;
       padding: 5px 14px;
       cursor: pointer;
       font-size: 0.9em;
@@ -78,17 +78,7 @@
       transform: translateY(1px);
     }
 
-    .back-btn {
-      background: #e1e1e1;
-      color: #333;
-      font-weight: bold;
-      border: 1px solid #777;
-      border-bottom: 2px solid #555;
-      padding: 5px 14px;
-      cursor: pointer;
-    }
-
-    /* TWO COLUMN MAIN CONTENT */
+    /* TWO COLUMN MAIN CONTENT LAYOUT */
     .container {
       max-width: 1100px;
       margin: 20px auto;
@@ -99,11 +89,10 @@
       align-items: start;
     }
 
-    /* CONTENT BOXES */
     .main-section, .social-box {
       background: white;
       padding: 20px;
-      border: 1px solid #a7a7a7; /* Sharp classic borders */
+      border: 1px solid #a7a7a7;
       box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
     }
 
@@ -112,41 +101,42 @@
       margin-top: 0;
     }
 
-    /* CLASSIC ROBLOX GAME CARD STYLE */
+    /* STRIPPED GAME CARD (No Text, No Background Box) */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 15px;
       margin-top: 20px;
     }
 
     .game-card {
-      background: #ffffff;
-      border: 1px solid #c3c3c3;
-      padding: 6px;
+      background: none;
+      border: none;
+      padding: 0;
       cursor: pointer;
-      text-align: left;
-    }
-
-    .game-card:hover {
-      border: 1px solid #194775;
-      background: #f7f9fb;
+      width: 100%;
     }
 
     /* Brick Grid Pattern Stud Thumbnail */
     .game-thumb {
       width: 100%;
-      height: 120px;
-      background-color: #2e7d32; /* Classic dark green grass */
+      height: 140px;
+      background-color: #2e7d32; /* Grass Green */
       background-image: 
         linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
       background-size: 12px 12px;
-      border: 1px solid #777;
+      border: 2px solid #b5b5b5;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: transform 0.1s ease, border-color 0.1s ease;
+    }
+
+    .game-card:hover .game-thumb {
+      transform: scale(1.02);
+      border-color: #194775;
     }
 
     .play-overlay {
@@ -155,10 +145,10 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
       color: #fff;
       font-weight: bold;
-      font-size: 1.2em;
+      font-size: 1.1em;
       text-shadow: 1px 1px 3px #000;
       display: flex;
       align-items: center;
@@ -168,22 +158,6 @@
 
     .game-card:hover .play-overlay {
       opacity: 1;
-    }
-
-    .game-info h2 {
-      margin: 6px 0 2px 0;
-      font-size: 0.95em;
-      color: #0033aa; /* Classic link blue text */
-    }
-
-    .game-info h2:hover {
-      text-decoration: underline;
-    }
-
-    .game-info p {
-      margin: 0;
-      font-size: 0.8em;
-      color: #555;
     }
 
     /* SIDEBAR SYSTEM */
@@ -200,7 +174,6 @@
       color: #194775;
     }
 
-    /* FRIEND LIST COMPONENT */
     .friend-item {
       display: flex;
       align-items: center;
@@ -227,7 +200,6 @@
       font-size: 0.75em;
     }
 
-    /* USER PANEL WIDGET */
     .user-profile-card {
       background: #eaf2f8;
       color: #333;
@@ -237,52 +209,204 @@
       display: none;
     }
 
-    /* RETRO POPUP MODAL */
+    /* ROBLOX GAME PAGE MODAL */
     #gamePanel {
-      display:none; 
-      position:fixed; 
-      top:0; 
-      left:0; 
-      width:100%; 
-      height:100%; 
-      background:rgba(0,0,0,0.5); 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.6); 
       z-index: 1000;
     }
 
     .modal-content {
-      background:white; 
-      width:600px; 
-      margin:120px auto; 
-      padding:20px; 
-      border: 3px solid #194775; 
-      display:flex; 
-      gap:20px;
+      background: white; 
+      width: 760px; 
+      margin: 70px auto; 
+      padding: 25px; 
+      border: 1px solid #a5a5a5; 
+      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* Better Close Button (X Asset) */
+    .close-x {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 30px;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      line-height: 20px;
+      transition: color 0.1s;
+    }
+
+    .close-x:hover {
+      color: #000;
+    }
+
+    .modal-header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: #333;
+    }
+
+    .modal-creator {
+      font-size: 0.85em;
+      color: #666;
+      margin: 3px 0 0 0;
+    }
+
+    .modal-creator b {
+      color: #0033aa;
+      cursor: pointer;
+    }
+
+    .modal-creator b:hover {
+      text-decoration: underline;
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .modal-showcase {
+      width: 100%;
+      height: 250px;
+      background-color: #2e7d32;
+      background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 15px 15px;
+      border: 1px solid #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.5em;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .modal-actions {
+      background: #f6f6f6;
+      border: 1px solid #dcdcdc;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* MASSIVE ROBLOX GREEN PLAY BUTTON */
+    .roblox-play-btn {
+      background: #00b06f; /* Authentic Roblox Green */
+      color: white;
+      border: none;
+      border-bottom: 5px solid #008252; /* 3D Bevel look */
+      width: 100%;
+      padding: 14px 0;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .roblox-play-btn:hover {
+      background: #00c47c;
+    }
+
+    .roblox-play-btn:active {
+      border-bottom: 1px solid #008252;
+      transform: translateY(4px);
+    }
+
+    /* Play Button Arrow Icon */
+    .play-arrow {
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid white;
+      display: inline-block;
+    }
+
+    /* Game Stats Block */
+    .game-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.8em;
+      color: #666;
+      border-top: 1px solid #e1e1e1;
+      padding-top: 12px;
+    }
+
+    .stat-row b {
+      color: #333;
     }
   </style>
 </head>
 <body>
 
+  <!-- ROBLOX GAME DETAIL PAGE POPUP MODAL -->
   <div id="gamePanel">
     <div class="modal-content">
-      <div style="width:240px; height:160px; background-color:#2e7d32; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 15px 15px; border: 1px solid #555; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:1.3em; text-shadow: 1px 1px 2px #000;">
-        BASEPLATE
+      
+      <!-- Better Close Button -->
+      <span class="close-x" onclick="closeGame()">&times;</span>
+
+      <!-- Modal Header Info -->
+      <div class="modal-header">
+        <h1 id="modalGameTitle">Baseplate</h1>
+        <p class="modal-creator">By <b>DynaDuck Team</b></p>
       </div>
-      <div style="flex:1; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <h1 style="margin-top:0; margin-bottom: 3px; font-size: 1.6em; color: #194775;">Baseplate</h1>
-          <p style="color:#555; font-size:0.85em; margin-top:0;">Creator: <b style="color: #0033aa;">DynaDuck Team</b></p>
-          <p style="color:#333; font-size:0.9em; line-height: 1.4; margin-top: 10px;">
+
+      <!-- Main Game Profile Details -->
+      <div class="modal-body">
+        
+        <!-- Left Showcase Media Asset -->
+        <div class="modal-showcase">
+          BASEPLATE
+        </div>
+
+        <!-- Right Side Execution Content Box -->
+        <div class="modal-actions">
+          
+          <!-- Large Play Button Action Execution -->
+          <button class="roblox-play-btn" onclick="launchGame()">
+            <span class="play-arrow"></span> PLAY
+          </button>
+
+          <p style="color:#333; font-size:0.85em; margin:0; line-height:1.4;">
             A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.
           </p>
+
+          <!-- Authentic Game Stats Profile -->
+          <div class="game-stats">
+            <div class="stat-row">Active: <b>0</b></div>
+            <div class="stat-row">Visits: <b>128</b></div>
+            <div class="stat-row">Created: <b>5/2026</b></div>
+            <div class="stat-row">Max Players: <b>12</b></div>
+          </div>
+
         </div>
-        <div>
-          <button class="green-btn" onclick="launchGame()" style="font-size: 1.1em; padding: 6px 20px;">▶ PLAY</button>
-          <button class="back-btn" onclick="closeGame()" style="margin-left:5px;">Cancel</button>
-        </div>
+
       </div>
     </div>
   </div>
 
+  <!-- NAVIGATION HEADER -->
   <header>
     <div class="header-left">
       <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
@@ -299,8 +423,10 @@
     <div id="authButtons"></div>
   </header>
 
+  <!-- TWO COLUMN CENTRAL LAYOUT -->
   <div class="container">
 
+    <!-- LEFT COLUMN: MAIN CONTENT -->
     <div class="main-section">
       <h1 id="welcomeText" style="margin-bottom: 5px; font-size: 1.8em; color: #194775;">Welcome to DynaDuck</h1>
       <p style="color: #555; font-size: 0.9em; margin-top: 0;">Explore worlds, build dreams, and hang out with friends.</p>
@@ -308,30 +434,31 @@
       <h2 style="font-size: 1.1em; font-weight: bold; border-bottom: 2px solid #194775; padding-bottom: 4px; margin-top: 30px;">Featured Games</h2>
       
       <div class="games-grid">
+        <!-- Clean, Stripped Down Game Card Thumbnail Asset -->
         <div class="game-card" onclick="openGame('baseplate')">
           <div class="game-thumb">
-            <div class="play-overlay">▶ VISIT</div>
-          </div>
-          <div class="game-info">
-            <h2>Baseplate</h2>
-            <p>Creator: DynaDuck</p>
+            <div class="play-overlay">BASEPLATE</div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- RIGHT COLUMN: SIDEBAR -->
     <div class="sidebar">
       
+      <!-- Current Active User Widget -->
       <div id="userCard" class="user-profile-card">
          <div style="font-size: 1em; font-weight: bold; color: #194775;" id="displayUsername">User</div>
          <div style="font-size: 0.8em; color: #00cc00; margin-top: 2px; font-weight: bold;">● Online Status</div>
       </div>
 
+      <!-- Actionable Incoming Requests Box -->
       <div id="pendingSection">
         <h3 style="margin: 0 0 8px 0;">Requests</h3>
         <div id="requestList"></div>
       </div>
 
+      <!-- Main Friends Panel -->
       <div class="social-box">
         <h3>Friends List</h3>
         
@@ -345,7 +472,11 @@
         </div>
       </div>
 
-    </div> </div> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    </div> <!-- End Sidebar -->
+  </div> <!-- End Container -->
+
+  <!-- INTERACTIVITY ENGINE (Firebase Relays) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
@@ -369,7 +500,6 @@
       }
     }
 
-    // Modal Closing Escape Logic
     function closeGame() {
       document.getElementById('gamePanel').style.display = 'none';
     }
