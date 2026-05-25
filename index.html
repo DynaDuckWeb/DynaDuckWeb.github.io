@@ -5,18 +5,18 @@
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* YOUR ORIGINAL MODERN CONTAINER LAYOUT */
+    /* MAIN TWO-COLUMN CONTAINER */
     .container {
       max-width: 1100px;
       margin: 30px auto;
       display: grid;
-      grid-template-columns: 1fr 320px; /* main + sidebar */
+      grid-template-columns: 1fr 320px;
       gap: 25px;
       padding: 0 20px;
       align-items: start;
     }
 
-    /* MAIN CONTENT */
+    /* LEFT MAIN SECTION */
     .main-section {
       background: white;
       padding: 25px;
@@ -26,14 +26,14 @@
       min-height: 400px;
     }
 
-    /* SIDEBAR SYSTEM */
+    /* RIGHT SIDEBAR CONTAINER */
     .sidebar {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
 
-    /* BOXES */
+    /* BOX MODULES */
     .social-box {
       background: white;
       padding: 15px;
@@ -42,29 +42,66 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
 
-    /* TITLES */
     .social-box h3 {
       margin: 0 0 10px 0;
       font-size: 1.05em;
       border-bottom: 2px solid #11AD36;
       padding-bottom: 6px;
+      color: #333;
     }
 
-    /* FRIEND ITEM */
+    /* SIDEBAR COMPACT BUTTONS */
+    .modern-auth-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: background 0.2s;
+    }
+
+    .modern-auth-btn:hover {
+      background: #0e912d;
+    }
+
+    /* HEADER SPECIFIC HEADER BUTTONS (BIG AND ROUND AS REQUESTED) */
+    .header-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 50px; /* Fully Round */
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95em; /* Bigger */
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .header-btn:hover {
+      background: #0e912d;
+    }
+    
+    .header-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* SOCIAL INTERACTION ELEMENTS */
     .friend-item {
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 8px;
       border-radius: 8px;
-      transition: 0.2s;
+      transition: background 0.2s;
     }
 
     .friend-item:hover {
       background: #f5f5f5;
     }
 
-    /* ONLINE DOT */
     .status-dot {
       width: 10px;
       height: 10px;
@@ -73,34 +110,24 @@
       box-shadow: 0 0 0 1px #ddd;
     }
 
-    /* REQUEST BOX */
     #pendingSection {
       background: #fffbe6;
       border: 1px solid #ffe58f;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      display: none;
+      padding: 12px;
+      border-radius: 12px;
     }
 
-    /* SMALL BUTTON */
-    .btn-small {
-      padding: 4px 8px;
-      font-size: 0.8em;
-      border-radius: 4px;
-    }
-
-    /* PROFILE CARD */
     .user-profile-card {
-      background: #333;
+      background: #222;
       color: white;
       padding: 15px;
       border-radius: 12px;
       text-align: center;
       display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* FIXED GAME CARD (Pure Thumbnail Image Grid Component) */
+    /* PURE ISOLATED GAME CARD */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -160,7 +187,7 @@
       opacity: 1;
     }
 
-    /* AUTHENTIC ROBLOX DETAILS MODAL INTERFACE */
+    /* ROBLOX STYLE DETAILS PANEL MODAL */
     #gamePanel {
       display: none; 
       position: fixed; 
@@ -246,7 +273,7 @@
       gap: 15px;
     }
 
-    /* ROBLOX PLAY ENGINE TRIGGER BUTTON */
+    /* MASSIVE GREEN ROBLOX PLAY BUTTON ARTIFACT */
     .roblox-play-btn {
       background: #00b06f; 
       color: white;
@@ -299,8 +326,8 @@
 </head>
 <body>
 
-  <!-- ROBLOX MODAL ENGINE VIEW -->
-<div id="gamePanel">
+  <!-- ROBLOX GAME MODAL DETAIL PAGE -->
+  <div id="gamePanel">
     <div class="modal-content">
       <span class="close-x" onclick="closeGame()">&times;</span>
       <div class="modal-header">
@@ -328,7 +355,7 @@
   </div>
 
   <!-- NAVIGATION TOP BAR -->
-  <header>
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
     <div class="header-left">
       <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
       <nav>
@@ -341,13 +368,13 @@
     <div class="search-container">
       <input type="text" placeholder="Search for games..." class="search-bar">
     </div>
-    <div id="authButtons"></div>
+    <div id="authButtons" style="display: flex; align-items: center; gap: 10px;"></div>
   </header>
 
-  <!-- SPLIT COLUMN LAYOUT -->
+  <!-- TWO COLUMN CENTRAL LAYOUT -->
   <div class="container">
 
-    <!-- LEFT COLUMN: MAIN GRID DISPLAY -->
+    <!-- LEFT COLUMN: MAIN DISPLAY CONTENT -->
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
       <p style="color: #666; margin-bottom: 30px;">Explore worlds, build dreams, and hang out with friends.</p>
@@ -355,7 +382,6 @@
       <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
       
       <div class="games-grid">
-        <!-- Pure Isolated Image Thumbnail Component Card -->
         <div class="game-card" onclick="openGame('baseplate')">
           <div class="game-thumb">
             <div class="play-overlay">BASEPLATE</div>
@@ -364,28 +390,28 @@
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: SIDEBAR (All Community & Identity Elements Live Here) -->
+    <!-- RIGHT COLUMN: SIDEBAR -->
     <div class="sidebar">
       
-      <!-- Identity Presence Widget -->
+      <!-- Account Information Panel Widget -->
       <div id="userCard" class="user-profile-card">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
          <div style="font-size: 0.85em; color: #11AD36; margin-top: 4px; font-weight: bold;">● Online</div>
       </div>
 
-      <!-- Action Notification Box -->
-      <div id="pendingSection" class="social-box">
+      <!-- Actionable Notification Inbound Requests Queue Box -->
+      <div id="pendingSection" class="social-box" style="display: none;">
         <h3 style="border-color: #fadb14;">Requests</h3>
         <div id="requestList"></div>
       </div>
 
-      <!-- Friends Network Manager Container -->
+      <!-- Friends Network Control System Grid Module -->
       <div class="social-box">
         <h3>Friends List</h3>
         
         <div class="search-friend-box" style="display:flex; gap:6px; margin-bottom:15px;">
           <input type="text" id="friendInput" placeholder="Add friend by user..." style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc; font-size: 0.9em;">
-          <button class="green-btn" onclick="sendRequest()" style="padding:0 14px; font-weight: bold; border-radius: 6px; background:#11AD36; color:white; border:none; cursor:pointer;">+</button>
+          <button class="modern-auth-btn" onclick="sendRequest()" style="padding:0 14px;">+</button>
         </div>
 
         <div id="friendsList">
@@ -393,10 +419,10 @@
         </div>
       </div>
 
-    </div> <!-- End Sidebar -->
-  </div> <!-- End Container -->
+    </div>
+  </div>
 
-  <!-- ENGINE SCRIPT LOGIC -->
+  <!-- FIREBASE DATA BACKEND SCRIPT CONFIGS -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -429,6 +455,7 @@
       window.location.href = "baseplate.html";
     }
 
+    // AUTH LAYER VIEW CONTROLLER
     function initApp() {
       const authDiv = document.getElementById('authButtons');
       
@@ -436,10 +463,11 @@
         document.getElementById('userCard').style.display = "block";
         document.getElementById('displayUsername').innerText = currentUser;
         
+        // Swapped to 'header-btn' for large, rounded look in navbar
         authDiv.innerHTML = `
-          <span style="color:white;font-weight:bold;margin-right:12px;">Welcome, ${currentUser}</span>
-          <a href="settings.html"><button class="green-btn" style="margin-right:5px; background:#11AD36; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Settings</button></a>
-          <button class="green-btn" onclick="logout()" style="background:#11AD36; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Logout</button>
+          <span style="color:#333; font-weight:bold; margin-right:12px;">Welcome, ${currentUser}</span>
+          <a href="settings.html"><button class="header-btn">Settings</button></a>
+          <button class="header-btn" onclick="logout()">Logout</button>
         `;      
         
         db.ref('users/' + currentUser + '/presence').set("online");
@@ -447,9 +475,10 @@
         
         loadSocial();
       } else {
+        // Swapped to 'header-btn' for large, rounded look in navbar
         authDiv.innerHTML = `
-          <a href="signup.html"><button class="green-btn" style="margin-right:5px; background:#11AD36; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Sign Up</button></a>
-          <a href="login.html"><button class="green-btn" style="background:#11AD36; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Log In</button></a>
+          <a href="signup.html"><button class="header-btn">Sign Up</button></a>
+          <a href="login.html"><button class="header-btn">Log In</button></a>
         `;
       }
     }
@@ -494,7 +523,7 @@
             list.innerHTML += `
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:0.9em; font-weight:bold; color:#333;">${name}</span>
-                <button class="green-btn btn-small" onclick="accept('${name}')" style="background:#11AD36; color:white; border:none;">Accept</button>
+                <button class="modern-auth-btn" style="padding: 3px 8px; font-size:0.8em;" onclick="accept('${name}')">Accept</button>
               </div>`;
           });
         } else { 
