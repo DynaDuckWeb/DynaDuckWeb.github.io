@@ -93,6 +93,54 @@
     }
   </style>
 </head>
+  <div id="gamePanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7);">
+  
+  <div style="
+    background:white;
+    width:800px;
+    margin:80px auto;
+    padding:30px;
+    border-radius:12px;
+    display:flex;
+    gap:30px;
+  ">
+
+    <!-- Thumbnail -->
+    <div style="
+      width:300px;
+      height:200px;
+      background:#339933;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:bold;
+      font-size:1.5em;
+    ">
+      BASEPLATE
+    </div>
+
+    <!-- Info -->
+    <div style="flex:1;">
+      <h1 style="margin-top:0;">Baseplate</h1>
+      <p style="color:#11AD36; font-weight:bold;">by DynaDuck Team</p>
+
+      <p style="color:#555;">
+        A simple sandbox world where you can test builds and explore mechanics with friends.
+      </p>
+
+      <button class="green-btn" onclick="launchGame()">
+        ▶ Play
+      </button>
+
+      <button class="back-btn" onclick="closeGame()" style="margin-left:10px;">
+        Close
+      </button>
+    </div>
+
+  </div>
+</div>
 <body>
 
 <header>
@@ -170,7 +218,19 @@
     messagingSenderId: "777148453502",
     appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
   };
+function openGame(game) {
+  if (game === 'baseplate') {
+    document.getElementById('gamePanel').style.display = 'block';
+  }
+}
 
+function closeGame() {
+  document.getElementById('gamePanel').style.display = 'none';
+}
+
+function launchGame() {
+  window.location.href = "baseplate.html";
+}
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const db = firebase.database();
   const currentUser = localStorage.getItem('loggedInUser');
