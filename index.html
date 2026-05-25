@@ -166,33 +166,43 @@
 </header>
 
 <div class="container">
-  
+
   <div class="main-section">
+
     <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
     <p style="color: #666;">Explore worlds, build dreams, and hang out with friends.</p>
-    
-    <h2 style="margin-top: 40px; font-size: 1.2em;">Featured Games</h2>
-    <div class="games-grid">
-<div class="game-card" onclick="openGame('baseplate')">
 
-  <div class="game-thumb">
-    <div class="play-overlay">
-      ▶ Play
+    <h2 style="margin-top: 40px; font-size: 1.2em;">Featured Games</h2>
+
+    <div class="games-grid">
+
+      <div class="game-card" onclick="openGame('baseplate')">
+
+        <div class="game-thumb">
+          <div class="play-overlay">▶ Play</div>
+        </div>
+
+        <div class="game-info">
+          <h2>Baseplate</h2>
+          <p>by DynaDuck Team</p>
+        </div>
+
+      </div>
+
     </div>
+
   </div>
 
-  <div class="game-info">
-    <h2>Baseplate</h2>
-    <p>by DynaDuck Team</p>
+  <!-- ✅ THIS MUST BE INSIDE container -->
+  <div class="sidebar">
+
+    <div class="social-box">
+      Sidebar content here
+    </div>
+
   </div>
 
 </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sidebar">
     
     <div id="userCard" class="user-profile-card" style="display:none;">
        <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
