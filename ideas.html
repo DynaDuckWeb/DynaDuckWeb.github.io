@@ -409,5 +409,41 @@ function dismissReport(reportId) {
   db.ref("reports/" + reportId).remove();
 }
 </script>
+  <script>
+function getUser() {
+  return localStorage.getItem("loggedInUser");
+}
+
+function updateHeader() {
+  const authDiv = document.getElementById("authButtons");
+  const user = getUser();
+
+  if (user) {
+    authDiv.innerHTML = `
+      <span style="color:white;font-weight:bold;margin-right:12px;">
+        Welcome, ${user}
+      </span>
+
+      <a href="settings.html">
+        <button class="green-btn">Settings</button>
+      </a>
+
+      <button class="green-btn" onclick="logout()">Logout</button>
+    `;
+  } else {
+    authDiv.innerHTML = `
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+      <a href="login.html"><button class="green-btn">Log In</button></a>
+    `;
+  }
+}
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  location.reload();
+}
+
+window.addEventListener("DOMContentLoaded", updateHeader);
+</script>
 </body>
 </html>
