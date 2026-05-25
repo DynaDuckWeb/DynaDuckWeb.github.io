@@ -146,6 +146,21 @@ nav a:hover { color:#11AD36; }
 </div>
 
 <script>
+/* ---------------- FIREBASE INIT ---------------- */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 /* ---------------- AUTH ---------------- */
 
 function updateHeader() {
@@ -154,7 +169,7 @@ function updateHeader() {
 
   if (user) {
     authDiv.innerHTML = `
-      <span style="color:white; font-weight:bold;">${user}</span>
+      <span style="color:white;font-weight:bold;margin-right:10px;">${user}</span>
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
 
@@ -179,105 +194,103 @@ function logout() {
 
 window.addEventListener('DOMContentLoaded', updateHeader);
 
-/* ---------------- DATA ---------------- */
-
-let ideas = JSON.parse(localStorage.getItem('ideas') || '[]');
-let reports = JSON.parse(localStorage.getItem('reports') || '[]');
-
-/* ---------------- IDEAS ---------------- */
+/* ---------------- ADD IDEA ---------------- */
 
 function addIdea() {
   const title = document.getElementById('ideaTitle').value.trim();
   const desc = document.getElementById('ideaDesc').value.trim();
   const user = localStorage.getItem('loggedInUser');
 
-  if (!title || !desc) return alert("Fill both fields.");
+  if (!user) return alert("Login required");
+  if (!title || !desc) return alert("Fill all fields");
 
-  const idea = {
-    id: crypto.randomUUID(),
+  const id = db.ref().child('ideas').push().key;
+
+  db.ref('ideas/' + id).set({
     title,
     desc,
     user,
     likes: 0,
     dislikes: 0,
     timestamp: Date.now()
-  };
-
-  ideas.unshift(idea);
-  saveIdeas();
+  });
 
   document.getElementById('ideaTitle').value = "";
   document.getElementById('ideaDesc').value = "";
-
-  loadIdeas();
 }
+
+/* ---------------- LOAD IDEAS (REALTIME) ---------------- */
 
 function loadIdeas() {
   const container = document.getElementById('ideasList');
-  container.innerHTML = "";
 
-  ideas.forEach(idea => {
-    const div = document.createElement('div');
-    div.className = "idea";
+  db.ref('ideas').on('value', snap => {
+    container.innerHTML = "";
 
-    div.innerHTML = `
-      <h3>${idea.title}</h3>
-      <div class="meta">By ${idea.user}</div>
-      <p>${idea.desc}</p>
+    snap.forEach(child => {
+      const idea = child.val();
+      const id = child.key;
 
-      <div class="actions">
-        <button class="green-btn" onclick="vote('${idea.id}', true)">👍 ${idea.likes}</button>
-        <button class="green-btn" onclick="vote('${idea.id}', false)">👎 ${idea.dislikes}</button>
-        <button class="green-btn" onclick="reportIdea('${idea.id}')">Report</button>
-      </div>
-    `;
+      const div = document.createElement('div');
+      div.className = "idea";
 
-    container.appendChild(div);
+      div.innerHTML = `
+        <h3>${idea.title}</h3>
+        <div class="meta">By ${idea.user}</div>
+        <p>${idea.desc}</p>
+
+        <div class="actions">
+          <button class="green-btn" onclick="vote('${id}', true)">👍 ${idea.likes}</button>
+          <button class="green-btn" onclick="vote('${id}', false)">👎 ${idea.dislikes}</button>
+          <button class="green-btn" onclick="reportIdea('${id}')">Report</button>
+        </div>
+      `;
+
+      container.appendChild(div);
+    });
   });
 }
 
+/* ---------------- VOTE ---------------- */
+
 function vote(id, up) {
-  const idea = ideas.find(i => i.id === id);
-  if (!idea) return;
+  const ref = db.ref('ideas/' + id);
 
-  up ? idea.likes++ : idea.dislikes++;
+  ref.get().then(snap => {
+    if (!snap.exists()) return;
 
-  saveIdeas();
-  loadIdeas();
+    const data = snap.val();
+
+    if (up) {
+      ref.update({ likes: data.likes + 1 });
+    } else {
+      ref.update({ dislikes: data.dislikes + 1 });
+    }
+  });
 }
 
-function saveIdeas() {
-  localStorage.setItem('ideas', JSON.stringify(ideas));
-}
-
-/* ---------------- SORT ---------------- */
-
-function sortIdeas(type) {
-  if (type === "likes") ideas.sort((a,b) => b.likes - a.likes);
-  if (type === "newest") ideas.sort((a,b) => b.timestamp - a.timestamp);
-  loadIdeas();
-}
-
-/* ---------------- REPORTS ---------------- */
+/* ---------------- REPORT ---------------- */
 
 function reportIdea(id) {
-  const reason = prompt("Reason for report:");
+  const reason = prompt("Why are you reporting this idea?");
   if (!reason) return;
 
   const user = localStorage.getItem('loggedInUser');
   if (!user) return alert("Login required");
 
-  reports.push({
-    id: crypto.randomUUID(),
+  const reportId = db.ref().child('reports').push().key;
+
+  db.ref('reports/' + reportId).set({
     ideaId: id,
     reporter: user,
     reason,
     timestamp: Date.now()
   });
 
-  localStorage.setItem('reports', JSON.stringify(reports));
   alert("Reported!");
 }
+
+/* ---------------- ADMIN REPORTS ---------------- */
 
 function loadReports() {
   const user = localStorage.getItem('loggedInUser');
@@ -286,43 +299,48 @@ function loadReports() {
   document.getElementById('adminReports').style.display = "block";
 
   const container = document.getElementById('reportsContainer');
-  container.innerHTML = "";
 
-  reports.forEach((rep, index) => {
-    const idea = ideas.find(i => i.id === rep.ideaId);
-    if (!idea) return;
+  db.ref('reports').on('value', snap => {
+    container.innerHTML = "";
 
-    const div = document.createElement('div');
-    div.className = "report-card";
+    snap.forEach(repSnap => {
+      const rep = repSnap.val();
+      const repId = repSnap.key;
 
-    div.innerHTML = `
-      <p><b>Reporter:</b> ${rep.reporter}</p>
-      <p><b>Reason:</b> ${rep.reason}</p>
-      <p><b>Idea:</b> ${idea.title}</p>
+      db.ref('ideas/' + rep.ideaId).get().then(ideaSnap => {
+        if (!ideaSnap.exists()) return;
 
-      <div class="report-actions">
-        <button class="green-btn" onclick="deleteIdea('${idea.id}', ${index})">Delete Idea</button>
-        <button class="green-btn" style="background:#ccc" onclick="dismissReport(${index})">Dismiss</button>
-      </div>
-    `;
+        const idea = ideaSnap.val();
 
-    container.appendChild(div);
+        const div = document.createElement('div');
+        div.className = "report-card";
+
+        div.innerHTML = `
+          <p><b>Reporter:</b> ${rep.reporter}</p>
+          <p><b>Reason:</b> ${rep.reason}</p>
+          <p><b>Idea:</b> ${idea.title}</p>
+
+          <div class="report-actions">
+            <button class="green-btn" onclick="deleteIdea('${rep.ideaId}', '${repId}')">Delete Idea</button>
+            <button class="green-btn" style="background:#ccc" onclick="dismissReport('${repId}')">Dismiss</button>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    });
   });
 }
 
-function deleteIdea(id, reportIndex) {
-  ideas = ideas.filter(i => i.id !== id);
-  reports.splice(reportIndex, 1);
-  saveIdeas();
-  localStorage.setItem('reports', JSON.stringify(reports));
-  loadIdeas();
-  loadReports();
+/* ---------------- DELETE / DISMISS ---------------- */
+
+function deleteIdea(ideaId, reportId) {
+  db.ref('ideas/' + ideaId).remove();
+  db.ref('reports/' + reportId).remove();
 }
 
-function dismissReport(index) {
-  reports.splice(index, 1);
-  localStorage.setItem('reports', JSON.stringify(reports));
-  loadReports();
+function dismissReport(reportId) {
+  db.ref('reports/' + reportId).remove();
 }
 </script>
 
