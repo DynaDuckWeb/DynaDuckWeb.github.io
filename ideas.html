@@ -158,53 +158,54 @@ const firebaseConfig = {
   appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* ================= MODERATION FILTER ================= */
+/* ================= MODERATION ================= */
 
 const bannedWords = [
   "fuck","shit","bitch","asshole",
   "nigger","fag","retard",
-
-  "my age is","i am years old","i live in","my address",
-  "instagram","snapchat","discord","tiktok","@"
+  "discord","instagram","snapchat","tiktok","@",
+  "my age is","i am years old","i live in","address"
 ];
 
-function isBlocked(text) {
-  const lower = text.toLowerCase();
-  return bannedWords.some(w => lower.includes(w));
+function isBlocked(text = "") {
+  return bannedWords.some(w =>
+    text.toLowerCase().includes(w)
+  );
 }
 
 /* ================= AUTH ================= */
 
+function getUser() {
+  return localStorage.getItem("loggedInUser");
+}
+
 function updateHeader() {
   const authDiv = document.getElementById("authButtons");
-  let user = localStorage.getItem("loggedInUser");
+  const user = getUser();
 
-  if (!user) user = null;
-
-  if (user) {
-    authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;margin-right:10px;">${user}</span>
-      <button class="green-btn" onclick="logout()">Logout</button>
-    `;
-
-    document.getElementById("notLoggedIn").style.display = "none";
-    document.getElementById("ideasContent").style.display = "block";
-
-    loadPosts();
-    if (user === "Admin") loadReports();
-
-  } else {
+  if (!user) {
     authDiv.innerHTML = `
       <a href="login.html"><button class="green-btn">Log In</button></a>
       <a href="signup.html"><button class="green-btn">Sign Up</button></a>
     `;
-
     document.getElementById("notLoggedIn").style.display = "block";
     document.getElementById("ideasContent").style.display = "none";
+    return;
   }
+
+  authDiv.innerHTML = `
+    <span style="color:white;font-weight:bold;margin-right:10px;">${user}</span>
+    <button class="green-btn" onclick="logout()">Logout</button>
+  `;
+
+  document.getElementById("notLoggedIn").style.display = "none";
+  document.getElementById("ideasContent").style.display = "block";
+
+  loadPosts();
+  if (user === "Admin") loadReports();
 }
 
 function logout() {
@@ -217,21 +218,18 @@ window.addEventListener("DOMContentLoaded", updateHeader);
 /* ================= CREATE POST ================= */
 
 function addPost() {
+  const user = getUser();
+  if (!user) return alert("Login required");
+
   const title = document.getElementById("ideaTitle").value.trim();
   const text = document.getElementById("ideaDesc").value.trim();
-  const user = localStorage.getItem("loggedInUser");
 
-  if (!user) return alert("Login required");
   if (!title || !text) return alert("Fill all fields");
+  if (isBlocked(title + text)) return alert("Blocked content detected");
 
-  if (isBlocked(title + " " + text)) {
-    alert("Blocked content detected.");
-    return;
-  }
+  const postRef = db.ref("posts").push();
 
-  const postId = db.ref().child("posts").push().key;
-
-  db.ref("posts/" + postId).set({
+  postRef.set({
     title,
     text,
     user,
@@ -246,6 +244,8 @@ function addPost() {
 
 function loadPosts() {
   const container = document.getElementById("ideasList");
+
+  db.ref("posts").off(); // prevent duplicate listeners
 
   db.ref("posts").on("value", snap => {
     container.innerHTML = "";
@@ -267,10 +267,10 @@ function loadPosts() {
           <button class="green-btn" onclick="reportPost('${id}')">Report</button>
         </div>
 
-        <div id="replies-${id}" style="margin-top:10px;"></div>
+        <div id="replies-${id}"></div>
 
-        <div id="replyBox-${id}" style="display:none; margin-top:10px;">
-          <input id="replyInput-${id}" style="width:100%;padding:8px;" placeholder="Write reply...">
+        <div id="replyBox-${id}" style="display:none;margin-top:10px;">
+          <input id="replyInput-${id}" style="width:100%;padding:8px;">
           <button class="green-btn" onclick="addReply('${id}')">Send</button>
         </div>
       `;
@@ -286,25 +286,21 @@ function loadPosts() {
 
 function toggleReply(id) {
   const box = document.getElementById("replyBox-" + id);
+  if (!box) return;
   box.style.display = box.style.display === "none" ? "block" : "none";
 }
 
 function addReply(postId) {
+  const user = getUser();
+  if (!user) return alert("Login required");
+
   const input = document.getElementById("replyInput-" + postId);
   const text = input.value.trim();
-  const user = localStorage.getItem("loggedInUser");
 
-  if (!user) return alert("Login required");
   if (!text) return;
+  if (isBlocked(text)) return alert("Blocked content");
 
-  if (isBlocked(text)) {
-    alert("Blocked content detected.");
-    return;
-  }
-
-  const replyId = db.ref().child("replies").push().key;
-
-  db.ref("replies/" + postId + "/" + replyId).set({
+  db.ref("replies/" + postId).push().set({
     user,
     text,
     timestamp: Date.now()
@@ -314,16 +310,20 @@ function addReply(postId) {
 }
 
 function loadReplies(postId) {
+  const container = document.getElementById("replies-" + postId);
+  if (!container) return;
+
+  db.ref("replies/" + postId).off();
+
   db.ref("replies/" + postId).on("value", snap => {
-    const container = document.getElementById("replies-" + postId);
     container.innerHTML = "";
 
     snap.forEach(r => {
       const reply = r.val();
 
       const div = document.createElement("div");
-      div.style.borderTop = "1px solid #ddd";
       div.style.padding = "5px";
+      div.style.borderTop = "1px solid #ddd";
 
       div.innerHTML = `<b>${reply.user}:</b> ${reply.text}`;
 
@@ -332,18 +332,16 @@ function loadReplies(postId) {
   });
 }
 
-/* ================= REPORT SYSTEM ================= */
+/* ================= REPORTS ================= */
 
 function reportPost(postId) {
+  const user = getUser();
+  if (!user) return alert("Login required");
+
   const reason = prompt("Why are you reporting?");
   if (!reason) return;
 
-  const user = localStorage.getItem("loggedInUser");
-  if (!user) return alert("Login required");
-
-  const reportId = db.ref().child("reports").push().key;
-
-  db.ref("reports/" + reportId).set({
+  db.ref("reports").push().set({
     postId,
     reporter: user,
     reason,
@@ -353,15 +351,17 @@ function reportPost(postId) {
   alert("Reported!");
 }
 
-/* ================= ADMIN PANEL ================= */
+/* ================= ADMIN ================= */
 
 function loadReports() {
-  const user = localStorage.getItem("loggedInUser");
+  const user = getUser();
   if (user !== "Admin") return;
 
   document.getElementById("adminReports").style.display = "block";
 
   const container = document.getElementById("reportsContainer");
+
+  db.ref("reports").off();
 
   db.ref("reports").on("value", snap => {
     container.innerHTML = "";
@@ -384,7 +384,7 @@ function loadReports() {
           <p><b>Post:</b> ${post.title}</p>
 
           <div class="report-actions">
-            <button class="green-btn" onclick="deletePost('${rep.postId}','${repId}')">Delete Post</button>
+            <button class="green-btn" onclick="deletePost('${rep.postId}','${repId}')">Delete</button>
             <button class="green-btn" style="background:#ccc" onclick="dismissReport('${repId}')">Dismiss</button>
           </div>
         `;
@@ -395,7 +395,7 @@ function loadReports() {
   });
 }
 
-/* ================= DELETE / DISMISS ================= */
+/* ================= DELETE ================= */
 
 function deletePost(postId, reportId) {
   db.ref("posts/" + postId).remove();
