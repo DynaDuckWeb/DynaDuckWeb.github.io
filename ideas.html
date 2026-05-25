@@ -180,7 +180,9 @@ function isBlocked(text) {
 
 function updateHeader() {
   const authDiv = document.getElementById("authButtons");
-  const user = localStorage.getItem("loggedInUser");
+  let user = localStorage.getItem("loggedInUser");
+
+  if (!user) user = null;
 
   if (user) {
     authDiv.innerHTML = `
@@ -199,6 +201,9 @@ function updateHeader() {
       <a href="login.html"><button class="green-btn">Log In</button></a>
       <a href="signup.html"><button class="green-btn">Sign Up</button></a>
     `;
+
+    document.getElementById("notLoggedIn").style.display = "block";
+    document.getElementById("ideasContent").style.display = "none";
   }
 }
 
