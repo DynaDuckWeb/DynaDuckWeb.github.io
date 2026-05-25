@@ -5,17 +5,18 @@
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* REVERTED TO YOUR MODERN LOOK */
+    /* YOUR ORIGINAL MODERN CONTAINER LAYOUT */
     .container {
       max-width: 1100px;
       margin: 30px auto;
       display: grid;
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 1fr 320px; /* main + sidebar */
       gap: 25px;
       padding: 0 20px;
       align-items: start;
     }
 
+    /* MAIN CONTENT */
     .main-section {
       background: white;
       padding: 25px;
@@ -25,41 +26,45 @@
       min-height: 400px;
     }
 
+    /* SIDEBAR SYSTEM */
     .sidebar {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
     }
 
+    /* BOXES */
     .social-box {
       background: white;
-      padding: 18px;
+      padding: 15px;
       border-radius: 12px;
       border: 1px solid #ddd;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
 
+    /* TITLES */
     .social-box h3 {
-      margin: 0 0 12px 0;
+      margin: 0 0 10px 0;
       font-size: 1.05em;
       border-bottom: 2px solid #11AD36;
       padding-bottom: 6px;
-      color: #333;
     }
 
+    /* FRIEND ITEM */
     .friend-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 8px 10px;
+      gap: 10px;
+      padding: 8px;
       border-radius: 8px;
-      transition: background 0.2s;
+      transition: 0.2s;
     }
 
     .friend-item:hover {
       background: #f5f5f5;
     }
 
+    /* ONLINE DOT */
     .status-dot {
       width: 10px;
       height: 10px;
@@ -68,32 +73,34 @@
       box-shadow: 0 0 0 1px #ddd;
     }
 
+    /* REQUEST BOX */
     #pendingSection {
       background: #fffbe6;
       border: 1px solid #ffe58f;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
       display: none;
     }
 
+    /* SMALL BUTTON */
     .btn-small {
       padding: 4px 8px;
       font-size: 0.8em;
       border-radius: 4px;
-      cursor: pointer;
     }
 
+    /* PROFILE CARD */
     .user-profile-card {
-      background: #222;
+      background: #333;
       color: white;
-      padding: 18px;
+      padding: 15px;
       border-radius: 12px;
       text-align: center;
       display: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* IMPROVED STRIPPED GAME CARD (No Text Box / No White Card Background) */
+    /* FIXED GAME CARD (Pure Thumbnail Image Grid Component) */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -153,7 +160,7 @@
       opacity: 1;
     }
 
-    /* BETTER ROBLOX GAME MODAL UI */
+    /* AUTHENTIC ROBLOX DETAILS MODAL INTERFACE */
     #gamePanel {
       display: none; 
       position: fixed; 
@@ -178,7 +185,6 @@
       gap: 20px;
     }
 
-    /* Quick Clean Close X Asset */
     .close-x {
       position: absolute;
       top: 15px;
@@ -240,7 +246,7 @@
       gap: 15px;
     }
 
-    /* MASSIVE GREEN ROBLOX PLAY BUTTON */
+    /* ROBLOX PLAY ENGINE TRIGGER BUTTON */
     .roblox-play-btn {
       background: #00b06f; 
       color: white;
@@ -256,7 +262,6 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      transition: background 0.1s;
     }
 
     .roblox-play-btn:hover {
@@ -268,7 +273,6 @@
       transform: translateY(4px);
     }
 
-    /* Play Button CSS Triangle CSS Vector */
     .play-arrow {
       width: 0;
       height: 0;
@@ -278,7 +282,6 @@
       display: inline-block;
     }
 
-    /* Game Stats Grid */
     .game-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -296,54 +299,35 @@
 </head>
 <body>
 
-  <!-- ROBLOX GAME DETAIL POPUP MODAL -->
+  <!-- ROBLOX MODAL ENGINE VIEW -->
   <div id="gamePanel">
     <div class="modal-content">
-      
-      <!-- Better Close Button Layout Position -->
       <span class="close-x" onclick="closeGame()">&times;</span>
-
-      <!-- Modal Header Content Info -->
       <div class="modal-header">
         <h1>Baseplate</h1>
         <p class="modal-creator">by DynaDuck Team</p>
       </div>
-
-      <!-- Main Panel Framework -->
       <div class="modal-body">
-        
-        <!-- Showcase Box Area -->
-        <div class="modal-showcase">
-          BASEPLATE
-        </div>
-
-        <!-- Right Menu Interactions Column -->
+        <div class="modal-showcase">BASEPLATE</div>
         <div class="modal-actions">
-          
-          <!-- Large Green Action Trigger -->
           <button class="roblox-play-btn" onclick="launchGame()">
             <span class="play-arrow"></span> PLAY
           </button>
-
           <p style="color:#555; font-size:0.85em; margin:0; line-height:1.45;">
             A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.
           </p>
-
-          <!-- System Stats Meta -->
           <div class="game-stats">
             <div class="stat-row">Active: <b>0</b></div>
             <div class="stat-row">Visits: <b>128</b></div>
             <div class="stat-row">Created: <b>5/2026</b></div>
             <div class="stat-row">Max Players: <b>12</b></div>
           </div>
-
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- HEADER (Inherits styles from your style.css) -->
+  <!-- NAVIGATION TOP BAR -->
   <header>
     <div class="header-left">
       <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
@@ -360,10 +344,10 @@
     <div id="authButtons"></div>
   </header>
 
-  <!-- TWO COLUMN CENTRAL LAYOUT -->
+  <!-- SPLIT COLUMN LAYOUT -->
   <div class="container">
 
-    <!-- LEFT COLUMN: MAIN CONTENT -->
+    <!-- LEFT COLUMN: MAIN GRID DISPLAY -->
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
       <p style="color: #666; margin-bottom: 30px;">Explore worlds, build dreams, and hang out with friends.</p>
@@ -371,7 +355,7 @@
       <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
       
       <div class="games-grid">
-        <!-- Clean Stripped Card - Pure Image Thumbnail Only -->
+        <!-- Pure Isolated Image Thumbnail Component Card -->
         <div class="game-card" onclick="openGame('baseplate')">
           <div class="game-thumb">
             <div class="play-overlay">BASEPLATE</div>
@@ -380,22 +364,22 @@
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: SIDEBAR -->
+    <!-- RIGHT COLUMN: SIDEBAR (All Community & Identity Elements Live Here) -->
     <div class="sidebar">
       
-      <!-- User Account Panel Widget -->
+      <!-- Identity Presence Widget -->
       <div id="userCard" class="user-profile-card">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
          <div style="font-size: 0.85em; color: #11AD36; margin-top: 4px; font-weight: bold;">● Online</div>
       </div>
 
-      <!-- Outbound Requests Queue -->
+      <!-- Action Notification Box -->
       <div id="pendingSection" class="social-box">
         <h3 style="border-color: #fadb14;">Requests</h3>
         <div id="requestList"></div>
       </div>
 
-      <!-- Friends Grid Interface -->
+      <!-- Friends Network Manager Container -->
       <div class="social-box">
         <h3>Friends List</h3>
         
@@ -409,10 +393,10 @@
         </div>
       </div>
 
-    </div>
-  </div>
+    </div> <!-- End Sidebar -->
+  </div> <!-- End Container -->
 
-  <!-- BACKEND CONFIGURATION RELAYS -->
+  <!-- ENGINE SCRIPT LOGIC -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -470,7 +454,6 @@
       }
     }
 
-    // Terminate Session Relay Logic
     function logout() {
       if (currentUser) {
         db.ref('users/' + currentUser + '/presence').set("offline").then(() => {
@@ -546,7 +529,6 @@
       });
     }
 
-    // Resolve Mutual Connection
     function accept(n) {
       db.ref('users/' + currentUser + '/friends/' + n).set(true);
       db.ref('users/' + n + '/friends/' + currentUser).set(true);
