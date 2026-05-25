@@ -240,8 +240,13 @@ function launchGame() {
     if (currentUser) {
       document.getElementById('userCard').style.display = "block";
       document.getElementById('displayUsername').innerText = currentUser;
-      authDiv.innerHTML = `<button class="green-btn" onclick="logout()">Logout</button>`;
-      
+authDiv.innerHTML = `
+  <span style="color:white;font-weight:bold;margin-right:10px;">${currentUser}</span>
+  <a href="settings.html">
+    <button class="green-btn">Settings</button>
+  </a>
+  <button class="green-btn" onclick="logout()">Logout</button>
+`;      
       db.ref('users/' + currentUser + '/presence').set("online");
       db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
       
