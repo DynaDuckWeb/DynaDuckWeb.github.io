@@ -5,35 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DynaDuck - Ideas</title>
 <link rel="stylesheet" href="style.css">
+
 <style>
 body { font-family:'Poppins', sans-serif; margin:0; padding:0; background:#f2f2f2; color:#222; }
+
 header { display:flex; align-items:center; justify-content:space-between; background:#333; padding:15px 40px; }
 .header-left { display:flex; align-items:center; gap:20px; }
 .logo { height:70px; cursor:pointer; }
 nav { display:flex; gap:25px; }
 nav a { text-decoration:none; color:white; font-weight:600; font-size:1.05em; transition:0.2s; }
 nav a:hover { color:#11AD36; }
+
 .search-container { flex:1; display:flex; justify-content:center; }
 .search-bar { width:320px; padding:10px 12px; border-radius:8px; border:none; outline:none; font-size:1em; }
-.green-btn { background:#11AD36; color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1em; transition:0.2s; }
+
+.green-btn {
+  background:#11AD36;
+  color:white;
+  border:none;
+  padding:10px 18px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  font-size:1em;
+  transition:0.2s;
+}
 .green-btn:hover { background:#0E8E2C; }
+
 #authButtons { display:flex; gap:15px; align-items:center; }
 
 .main-container { max-width:900px; margin:40px auto; padding:0 20px; }
 .center-message { text-align:center; margin-top:100px; font-size:1.8em; font-weight:bold; color:#555; }
 
-.idea-input { background:white; padding:20px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); margin-bottom:30px; }
-.idea-input textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; resize:none; margin-bottom:10px; }
-.idea-input input[type="text"] { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px; }
-.idea { background:white; padding:15px 20px; border-radius:12px; margin-bottom:15px; box-shadow:0 3px 12px rgba(0,0,0,0.1); }
-.idea h3 { margin:0 0 5px 0; }
-.idea p { margin:5px 0; }
-.idea .meta { font-size:0.85em; color:#11AD36; font-weight:600; margin-bottom:8px; }
-.idea .actions { display:flex; gap:10px; margin-top:10px; }
-.sort-options { margin-bottom:20px; }
-.sort-options button { margin-right:10px; }
+.idea-input {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.1);
+  margin-bottom:30px;
+}
 
-/* Admin report panel */
+.idea-input textarea,
+.idea-input input[type="text"] {
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin-bottom:10px;
+  resize:none;
+}
+
+.idea {
+  background:white;
+  padding:15px 20px;
+  border-radius:12px;
+  margin-bottom:15px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.1);
+}
+
+.idea h3 { margin:0 0 5px 0; }
+.idea .meta { font-size:0.85em; color:#11AD36; font-weight:600; margin-bottom:8px; }
+
+.idea .actions {
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
 #adminReports {
   background:#fff;
   padding:20px;
@@ -41,6 +79,7 @@ nav a:hover { color:#11AD36; }
   box-shadow:0 4px 15px rgba(0,0,0,0.1);
   margin-top:40px;
 }
+
 .report-card {
   border:1px solid #ccc;
   border-radius:10px;
@@ -48,10 +87,15 @@ nav a:hover { color:#11AD36; }
   margin-bottom:12px;
   background:#fafafa;
 }
-.report-card p { margin:5px 0; }
-.report-actions { display:flex; gap:10px; margin-top:5px; }
+
+.report-actions {
+  display:flex;
+  gap:10px;
+  margin-top:5px;
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -73,158 +117,210 @@ nav a:hover { color:#11AD36; }
 </header>
 
 <div class="main-container">
+
   <div id="notLoggedIn" class="center-message">
     MAKE AN ACCOUNT TO ACCESS THIS PAGE :3
   </div>
 
   <div id="ideasContent" style="display:none;">
+
     <div class="idea-input">
-      <input type="text" id="ideaTitle" placeholder="Idea title" />
+      <input type="text" id="ideaTitle" placeholder="Idea title">
       <textarea id="ideaDesc" rows="3" placeholder="Idea description"></textarea>
       <button class="green-btn" onclick="addIdea()">Add Idea</button>
     </div>
 
-    <div class="sort-options">
-      <button class="green-btn" onclick="sortIdeas('likes')">Sort by Most Likes</button>
+    <div class="actions" style="margin-bottom:20px;">
+      <button class="green-btn" onclick="sortIdeas('likes')">Sort by Likes</button>
       <button class="green-btn" onclick="sortIdeas('newest')">Sort by Newest</button>
     </div>
 
     <div id="ideasList"></div>
 
-    <!-- Admin Report Panel -->
     <div id="adminReports" style="display:none;">
       <h2>Reported Ideas (Admin)</h2>
       <div id="reportsContainer"></div>
     </div>
+
   </div>
 </div>
 
 <script>
-/* ------------------- Header & Login ------------------- */
+/* ---------------- AUTH ---------------- */
+
 function updateHeader() {
   const authDiv = document.getElementById('authButtons');
-  const loggedInUser = localStorage.getItem('loggedInUser');
-  if(loggedInUser){
+  const user = localStorage.getItem('loggedInUser');
+
+  if (user) {
     authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
-      <a href="settings.html"><button class="green-btn">Settings</button></a>
+      <span style="color:white; font-weight:bold;">${user}</span>
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
-    document.getElementById('notLoggedIn').style.display='none';
-    document.getElementById('ideasContent').style.display='block';
+
+    document.getElementById('notLoggedIn').style.display = "none";
+    document.getElementById('ideasContent').style.display = "block";
+
     loadIdeas();
-    if(loggedInUser==='Admin') loadReports();
+    if (user === "Admin") loadReports();
+
   } else {
     authDiv.innerHTML = `
-      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
       <a href="login.html"><button class="green-btn">Log In</button></a>
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
     `;
-    document.getElementById('notLoggedIn').style.display='block';
-    document.getElementById('ideasContent').style.display='none';
   }
 }
-function logout(){ localStorage.removeItem('loggedInUser'); updateHeader(); }
+
+function logout() {
+  localStorage.removeItem('loggedInUser');
+  location.reload();
+}
+
 window.addEventListener('DOMContentLoaded', updateHeader);
 
-/* ------------------- Ideas ------------------- */
+/* ---------------- DATA ---------------- */
+
 let ideas = JSON.parse(localStorage.getItem('ideas') || '[]');
 let reports = JSON.parse(localStorage.getItem('reports') || '[]');
 
-function addIdea(){
+/* ---------------- IDEAS ---------------- */
+
+function addIdea() {
   const title = document.getElementById('ideaTitle').value.trim();
   const desc = document.getElementById('ideaDesc').value.trim();
   const user = localStorage.getItem('loggedInUser');
-  if(!title || !desc) return alert('Fill both title and description.');
-  const newIdea = { title, desc, user, likes:0, dislikes:0, reports:[], timestamp: Date.now() };
-  ideas.unshift(newIdea);
-  localStorage.setItem('ideas', JSON.stringify(ideas));
-  document.getElementById('ideaTitle').value='';
-  document.getElementById('ideaDesc').value='';
+
+  if (!title || !desc) return alert("Fill both fields.");
+
+  const idea = {
+    id: crypto.randomUUID(),
+    title,
+    desc,
+    user,
+    likes: 0,
+    dislikes: 0,
+    timestamp: Date.now()
+  };
+
+  ideas.unshift(idea);
+  saveIdeas();
+
+  document.getElementById('ideaTitle').value = "";
+  document.getElementById('ideaDesc').value = "";
+
   loadIdeas();
 }
 
-function loadIdeas(){
+function loadIdeas() {
   const container = document.getElementById('ideasList');
-  container.innerHTML='';
-  ideas.forEach((idea,i)=>{
+  container.innerHTML = "";
+
+  ideas.forEach(idea => {
     const div = document.createElement('div');
-    div.className='idea';
-    div.innerHTML=`
+    div.className = "idea";
+
+    div.innerHTML = `
       <h3>${idea.title}</h3>
       <div class="meta">By ${idea.user}</div>
       <p>${idea.desc}</p>
+
       <div class="actions">
-        <button class="green-btn" onclick="vote(${i},true)">👍 ${idea.likes}</button>
-        <button class="green-btn" onclick="vote(${i},false)">👎 ${idea.dislikes}</button>
-        <button class="green-btn" onclick="reportIdea(${i})">Report</button>
+        <button class="green-btn" onclick="vote('${idea.id}', true)">👍 ${idea.likes}</button>
+        <button class="green-btn" onclick="vote('${idea.id}', false)">👎 ${idea.dislikes}</button>
+        <button class="green-btn" onclick="reportIdea('${idea.id}')">Report</button>
       </div>
     `;
+
     container.appendChild(div);
   });
 }
 
-function vote(index,isUp){
-  if(isUp) ideas[index].likes++;
-  else ideas[index].dislikes++;
+function vote(id, up) {
+  const idea = ideas.find(i => i.id === id);
+  if (!idea) return;
+
+  up ? idea.likes++ : idea.dislikes++;
+
+  saveIdeas();
+  loadIdeas();
+}
+
+function saveIdeas() {
   localStorage.setItem('ideas', JSON.stringify(ideas));
+}
+
+/* ---------------- SORT ---------------- */
+
+function sortIdeas(type) {
+  if (type === "likes") ideas.sort((a,b) => b.likes - a.likes);
+  if (type === "newest") ideas.sort((a,b) => b.timestamp - a.timestamp);
   loadIdeas();
 }
 
-function reportIdea(index){
-  const reason = prompt("Enter reason for reporting this idea:");
-  if(!reason) return;
-  const loggedInUser = localStorage.getItem('loggedInUser');
-  if(!loggedInUser) return alert('Log in to report.');
-  const report = { reporter: loggedInUser, reason:reason, ideaIndex:index, timestamp:Date.now() };
-  reports.push(report);
+/* ---------------- REPORTS ---------------- */
+
+function reportIdea(id) {
+  const reason = prompt("Reason for report:");
+  if (!reason) return;
+
+  const user = localStorage.getItem('loggedInUser');
+  if (!user) return alert("Login required");
+
+  reports.push({
+    id: crypto.randomUUID(),
+    ideaId: id,
+    reporter: user,
+    reason,
+    timestamp: Date.now()
+  });
+
   localStorage.setItem('reports', JSON.stringify(reports));
-  alert('Reported to Admin!');
-  loadReports();
+  alert("Reported!");
 }
 
-function sortIdeas(method){
-  if(method==='likes') ideas.sort((a,b)=>b.likes-a.likes);
-  else if(method==='newest') ideas.sort((a,b)=>b.timestamp-a.timestamp);
-  loadIdeas();
-}
+function loadReports() {
+  const user = localStorage.getItem('loggedInUser');
+  if (user !== "Admin") return;
 
-/* ------------------- Admin Reports ------------------- */
-function loadReports(){
-  const loggedInUser = localStorage.getItem('loggedInUser');
-  if(loggedInUser!=='Admin') return;
-  document.getElementById('adminReports').style.display='block';
+  document.getElementById('adminReports').style.display = "block";
+
   const container = document.getElementById('reportsContainer');
-  container.innerHTML='';
-  reports.forEach((rep,i)=>{
-    const idea = ideas[rep.ideaIndex];
-    if(!idea) return;
+  container.innerHTML = "";
+
+  reports.forEach((rep, index) => {
+    const idea = ideas.find(i => i.id === rep.ideaId);
+    if (!idea) return;
+
     const div = document.createElement('div');
-    div.className='report-card';
-    div.innerHTML=`
-      <p><strong>Reporter:</strong> ${rep.reporter}</p>
-      <p><strong>Reason:</strong> ${rep.reason}</p>
-      <p><strong>Idea:</strong> ${idea.title} - ${idea.desc} (by ${idea.user})</p>
+    div.className = "report-card";
+
+    div.innerHTML = `
+      <p><b>Reporter:</b> ${rep.reporter}</p>
+      <p><b>Reason:</b> ${rep.reason}</p>
+      <p><b>Idea:</b> ${idea.title}</p>
+
       <div class="report-actions">
-        <button class="green-btn" onclick="deleteIdea(${rep.ideaIndex},${i})">Delete Idea</button>
-        <button class="green-btn" style="background:#ccc" onclick="dismissReport(${i})">Dismiss Report</button>
+        <button class="green-btn" onclick="deleteIdea('${idea.id}', ${index})">Delete Idea</button>
+        <button class="green-btn" style="background:#ccc" onclick="dismissReport(${index})">Dismiss</button>
       </div>
     `;
+
     container.appendChild(div);
   });
 }
 
-function deleteIdea(ideaIndex,reportIndex){
-  if(!confirm("Delete this idea?")) return;
-  ideas.splice(ideaIndex,1);
-  reports.splice(reportIndex,1);
-  localStorage.setItem('ideas', JSON.stringify(ideas));
+function deleteIdea(id, reportIndex) {
+  ideas = ideas.filter(i => i.id !== id);
+  reports.splice(reportIndex, 1);
+  saveIdeas();
   localStorage.setItem('reports', JSON.stringify(reports));
   loadIdeas();
   loadReports();
 }
 
-function dismissReport(reportIndex){
-  reports.splice(reportIndex,1);
+function dismissReport(index) {
+  reports.splice(index, 1);
   localStorage.setItem('reports', JSON.stringify(reports));
   loadReports();
 }
