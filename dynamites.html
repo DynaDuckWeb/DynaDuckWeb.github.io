@@ -367,6 +367,12 @@ function updateHeader() {
 
 }
 
+  const savedBalance =
+  localStorage.getItem("dynamites") || 0;
+
+document.getElementById("dynamiteBalance").innerText =
+  savedBalance;
+  
 function logout(){
 
   localStorage.removeItem('loggedInUser');
@@ -375,6 +381,16 @@ function logout(){
 }
 
 function buyDynamites(amount){
+
+  let balance =
+    parseInt(localStorage.getItem("dynamites")) || 0;
+
+  balance += amount;
+
+  localStorage.setItem("dynamites", balance);
+
+  document.getElementById("dynamiteBalance").innerText =
+    balance;
 
   alert("Purchased " + amount + " Dynamites!");
 
