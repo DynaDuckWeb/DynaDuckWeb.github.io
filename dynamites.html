@@ -324,18 +324,124 @@ nav a:hover{
 
 </main>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
 
-function updateHeader() {
+/* ================= FIREBASE ================= */
 
-  const authDiv = document.getElementById('authButtons');
-  const loggedInUser = localStorage.getItem('loggedInUser');
+const firebaseConfig = {
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+};
 
-  if(loggedInUser){
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.database();
+
+/* ================= USER ================= */
+
+const currentUser =
+  localStorage.getItem("loggedInUser");
+
+/* ================= LOAD BALANCE ================= */
+
+function loadBalance(){
+
+  if(!currentUser){
+
+    document.getElementById(
+      "dynamiteBalance"
+    ).innerText = "0";
+
+    return;
+  }
+
+  const balanceRef =
+    db.ref("users/" + currentUser + "/dynamites");
+
+  balanceRef.on("value", snapshot => {
+
+    let balance = snapshot.val();
+
+    if(balance == null){
+
+      balance = 0;
+
+      balanceRef.set(0);
+
+    }
+
+    document.getElementById(
+      "dynamiteBalance"
+    ).innerText = balance;
+
+  });
+
+}
+
+/* ================= BUY DYNAMITES ================= */
+
+function buyDynamites(amount){
+
+  if(!currentUser){
+
+    alert("Please log in first.");
+    return;
+
+  }
+
+  const balanceRef =
+    db.ref("users/" + currentUser + "/dynamites");
+
+  balanceRef.once("value").then(snapshot => {
+
+    let currentBalance = snapshot.val();
+
+    if(currentBalance == null)
+      currentBalance = 0;
+
+    const newBalance =
+      currentBalance + amount;
+
+    balanceRef.set(newBalance).then(() => {
+
+      alert(
+        "You bought " +
+        amount +
+        " Dynamites!"
+      );
+
+    });
+
+  });
+
+}
+
+/* ================= HEADER ================= */
+
+function updateHeader(){
+
+  const authDiv =
+    document.getElementById("authButtons");
+
+  if(currentUser){
 
     authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;">
-        Welcome, ${loggedInUser}!
+      <span style="
+        color:white;
+        font-weight:bold;
+        margin-right:10px;
+      ">
+        Welcome, ${currentUser}!
       </span>
 
       <a href="settings.html">
@@ -344,7 +450,10 @@ function updateHeader() {
         </button>
       </a>
 
-      <button class="green-btn" onclick="logout()">
+      <button
+        class="green-btn"
+        onclick="logout()"
+      >
         Logout
       </button>
     `;
@@ -369,69 +478,30 @@ function updateHeader() {
 
 }
 
-  const savedBalance =
-  localStorage.getItem("dynamites") || 0;
+/* ================= LOGOUT ================= */
 
-document.getElementById("dynamiteBalance").innerText =
-  savedBalance;
-  
 function logout(){
 
-  localStorage.removeItem('loggedInUser');
+  localStorage.removeItem(
+    "loggedInUser"
+  );
+
   location.reload();
 
 }
 
-/* ================= BALANCE ================= */
+/* ================= START ================= */
 
-function loadBalance(){
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-  const user = localStorage.getItem("loggedInUser");
+    updateHeader();
+    loadBalance();
 
-  if(!user) return;
-
-  db.ref("users/" + user + "/dynamites").on("value", snap => {
-
-    let balance = snap.val();
-
-    if(balance === null) balance = 0;
-
-    document.getElementById("dynamiteBalance").innerText =
-      balance;
-
-  });
-
-}
-
-/* ================= BUY ================= */
-
-function buyDynamites(amount){
-
-  const user = localStorage.getItem("loggedInUser");
-
-  if(!user){
-    alert("Login required");
-    return;
   }
+);
 
-  const balanceRef =
-    db.ref("users/" + user + "/dynamites");
-
-  balanceRef.get().then(snap => {
-
-    let current = snap.val();
-
-    if(current === null) current = 0;
-
-    current += amount;
-
-    balanceRef.set(current);
-
-    alert("Purchased " + amount + " Dynamites!");
-
-  });
-
-}
-
+</script>
 </body>
 </html>
