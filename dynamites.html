@@ -4,6 +4,81 @@
   <meta charset="UTF-8">
   <title>Dynamites - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* CSS for Dynamite Page Card Grid and Card Styling */
+    main {
+      padding: 20px;
+    }
+
+    .dynamites-introduction {
+      margin-bottom: 30px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+      justify-items: center;
+    }
+
+    .dynamite-card {
+      width: 200px;
+      border: 5px solid black;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .card-graphic-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      min-height: 200px;
+    }
+
+    .dynamite-graphic {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .card-info-area {
+      height: 40px;
+      border-top: 1px solid black;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      box-sizing: border-box;
+    }
+
+    /* Font for the text - uses a clean, blocky font similar to the original numbers */
+    .card-amount-text {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #333;
+      text-transform: capitalize;
+    }
+
+    .card-buy-button {
+      height: 45px;
+      background-color: #008000; /* Darker green for the button */
+      color: white;
+      border: none;
+      font-size: 1.3em;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      text-transform: capitalize;
+    }
+
+    .card-buy-button:hover {
+      background-color: #009900; /* Lighter green on hover */
+    }
+  </style>
 </head>
 <body>
 
@@ -11,7 +86,7 @@
   <div class="header-left">
     <a href="index.html">
       <img src="logo.png" class="logo" alt="Logo" />
-    </a>
+    </div>
     <nav>
       <a href="catalog.html">Catalog</a>
       <a href="ideas.html">Ideas</a>
@@ -31,12 +106,66 @@
 </header>
 
 <main>
-  <h1>Dynamites</h1>
-  <p>This is the currency you can use to buy things from the catalog.</p>
+  <div class="dynamites-introduction">
+    <h1>Dynamites</h1>
+    <p>This is the currency you can use to buy things from the catalog.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="dynamite-card">
+      <div class="card-graphic-area">
+        <img src="dynamites_new_explosion.png" class="dynamite-graphic" alt="Bundle of 100 Dynamites with explosion" />
+      </div>
+      <div class="card-info-area">
+        <span class="card-amount-text">100 Dynamites</span>
+      </div>
+      <button class="card-buy-button">Buy</button>
+    </div>
+
+    <div class="dynamite-card">
+      <div class="card-graphic-area">
+        <img src="dynamites_new_explosion.png" class="dynamite-graphic" alt="Bundle of 400 Dynamites with explosion" />
+      </div>
+      <div class="card-info-area">
+        <span class="card-amount-text">400 Dynamites</span>
+      </div>
+      <button class="card-buy-button">Buy</button>
+    </div>
+
+    <div class="dynamite-card">
+      <div class="card-graphic-area">
+        <img src="dynamites_new_explosion.png" class="dynamite-graphic" alt="Bundle of 600 Dynamites with explosion" />
+      </div>
+      <div class="card-info-area">
+        <span class="card-amount-text">600 Dynamites</span>
+      </div>
+      <button class="card-buy-button">Buy</button>
+    </div>
+
+    <div class="dynamite-card">
+      <div class="card-graphic-area">
+        <img src="dynamites_new_explosion.png" class="dynamite-graphic" alt="Bundle of 800 Dynamites with explosion" />
+      </div>
+      <div class="card-info-area">
+        <span class="card-amount-text">800 Dynamites</span>
+      </div>
+      <button class="card-buy-button">Buy</button>
+    </div>
+
+    <div class="dynamite-card">
+      <div class="card-graphic-area">
+        <img src="dynamites_new_explosion.png" class="dynamite-graphic" alt="Bundle of 1000 Dynamites with explosion" />
+      </div>
+      <div class="card-info-area">
+        <span class="card-amount-text">1000 Dynamites</span>
+      </div>
+      <button class="card-buy-button">Buy</button>
+    </div>
+
+  </div>
+
 </main>
 
-</body>
-</html>
 <script>
 function updateHeader() {
   const authDiv = document.getElementById('authButtons');
@@ -63,3 +192,6 @@ function logout(){
 
 window.addEventListener('DOMContentLoaded', updateHeader);
 </script>
+
+</body>
+</html>
