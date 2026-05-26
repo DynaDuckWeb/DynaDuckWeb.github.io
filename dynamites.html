@@ -2,63 +2,118 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynamites - DynaDuck</title>
 
 <link rel="stylesheet" href="style.css">
 
 <style>
 
-/* PAGE */
+/* ================= PAGE ================= */
 
-main{
+body{
+  margin:0;
+  font-family:Poppins,sans-serif;
+  background:#f2f2f2;
+  color:#222;
+}
+
+/* ================= HEADER ================= */
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#333;
+  padding:15px 40px;
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.logo{
+  height:70px;
+  cursor:pointer;
+}
+
+nav{
+  display:flex;
+  gap:25px;
+}
+
+nav a{
+  text-decoration:none;
+  color:white;
+  font-weight:600;
+  transition:0.2s;
+}
+
+nav a:hover{
+  color:#11AD36;
+}
+
+.search-container{
+  flex:1;
+  display:flex;
+  justify-content:center;
+}
+
+.search-bar{
+  width:320px;
+  padding:10px 12px;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  font-size:1em;
+}
+
+.green-btn{
+  background:#11AD36;
+  color:white;
+  border:none;
+  padding:10px 18px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+.green-btn:hover{
+  background:#0d8d2b;
+}
+
+#authButtons{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* ================= PAGE ================= */
+
+.dynamites-page{
   max-width:1200px;
   margin:40px auto;
   padding:0 20px;
 }
 
-.shop-title{
-  font-size:2.2em;
-  margin-bottom:10px;
+.dynamites-top{
+  margin-bottom:35px;
 }
 
-.balance-text{
-  color:#11AD36;
-  font-size:1.5em;
-  font-weight:bold;
-  margin-bottom:40px;
+.dynamites-top h1{
+  margin:0;
+  font-size:2.5em;
 }
 
-/* SHOP */
-
-.shop-grid{
-  display:flex;
-  justify-content:center;
-  gap:35px;
-  flex-wrap:wrap;
-}
-
-/* CARD */
-
-/* ================= DYNAMITES ================= */
-
-.dynamites-page{
-  max-width:1100px;
-  margin:40px auto;
-  padding:0 20px;
-}
-
-.dynamites-header{
-  margin-bottom:30px;
-}
-
-.dynamites-header h1{
-  font-size:2.3em;
-  margin-bottom:5px;
-}
-
-.dynamites-header p{
+.dynamites-top p{
   color:#666;
+  margin-top:8px;
 }
+
+/* ================= GRID ================= */
 
 .dynamites-grid{
   display:flex;
@@ -66,50 +121,66 @@ main{
   flex-wrap:wrap;
 }
 
+/* ================= CARD ================= */
+
 .dynamite-card{
-  width:260px;
+  width:320px;
   background:white;
-  border-radius:14px;
-  border:1px solid #ddd;
+  border-radius:16px;
   overflow:hidden;
-  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  border:1px solid #ddd;
+  box-shadow:0 3px 12px rgba(0,0,0,0.08);
   transition:0.2s;
 }
 
 .dynamite-card:hover{
-  transform:translateY(-4px);
+  transform:translateY(-5px);
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
 }
 
-.dynamite-card img{
-  width:100%;
-  height:180px;
-  object-fit:cover;
-  display:block;
-  background:#f3f3f3;
+/* ================= IMAGE ================= */
+
+.dynamite-image{
+  height:240px;
+  background:#f7f7f7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-.dynamite-info{
-  padding:18px;
+.dynamite-image img{
+  width:200px;
+  height:200px;
+  object-fit:contain;
 }
 
-.dynamite-info h2{
+/* ================= CONTENT ================= */
+
+.dynamite-content{
+  padding:20px;
+}
+
+.dynamite-content h2{
   margin:0;
-  font-size:1.3em;
+  font-size:1.5em;
 }
 
-.price{
+.dynamite-price{
   color:#11AD36;
   font-weight:bold;
-  margin:10px 0 15px;
-  font-size:1.1em;
+  font-size:1.3em;
+  margin-top:10px;
+  margin-bottom:20px;
 }
+
+/* ================= BUTTON ================= */
 
 .buy-btn{
   width:100%;
+  border:none;
   background:#11AD36;
   color:white;
-  border:none;
-  padding:12px;
+  padding:14px;
   border-radius:10px;
   font-size:1em;
   font-weight:bold;
@@ -127,10 +198,11 @@ main{
 <body>
 
 <header>
+
   <div class="header-left">
 
     <a href="index.html">
-      <img src="logo.png" class="logo" alt="Logo" />
+      <img src="logo.png" class="logo" alt="Logo">
     </a>
 
     <nav>
@@ -146,87 +218,89 @@ main{
     <input type="text" class="search-bar" placeholder="Search...">
   </div>
 
-  <div id="authButtons">
-    <a href="signup.html">
-      <button class="green-btn">Sign Up</button>
-    </a>
+  <div id="authButtons"></div>
 
-    <a href="login.html">
-      <button class="green-btn">Log In</button>
-    </a>
-  </div>
 </header>
 
-<main>
+<!-- ================= PAGE ================= -->
 
-  <h1 class="shop-title">Dynamites Shop</h1>
+<main class="dynamites-page">
 
-  <div class="balance-text">
-    💥 Your Dynamites:
-    <span id="balance">0</span>
+  <div class="dynamites-top">
+    <h1>Dynamites</h1>
+    <p>Get shiny green explosions for your account 💥</p>
   </div>
 
-  <div class="shop-grid">
+  <div class="dynamites-grid">
 
-    <!-- 100 -->
+    <!-- CARD -->
 
     <div class="dynamite-card">
 
-      <div class="card-image">
+      <div class="dynamite-image">
+        <img src="dynamites_new_explosion.png">
+      </div>
 
-        <img src="dynamites_new_explode.png">
+      <div class="dynamite-content">
 
-        <button class="buy-overlay" onclick="buyDynamites(100)">
+        <h2>200 Dynamites</h2>
+
+        <div class="dynamite-price">
+          $2.99
+        </div>
+
+        <button class="buy-btn" onclick="buyDynamites(200)">
           Buy
         </button>
 
-      </div>
-
-      <div class="card-info">
-        <h2>100</h2>
-        <p>Dynamites</p>
       </div>
 
     </div>
 
-    <!-- 500 -->
+    <!-- CARD -->
 
     <div class="dynamite-card">
 
-      <div class="card-image">
-
+      <div class="dynamite-image">
         <img src="dynamites_new_explosion.png">
+      </div>
 
-        <button class="buy-overlay" onclick="buyDynamites(500)">
+      <div class="dynamite-content">
+
+        <h2>800 Dynamites</h2>
+
+        <div class="dynamite-price">
+          $7.99
+        </div>
+
+        <button class="buy-btn" onclick="buyDynamites(800)">
           Buy
         </button>
 
-      </div>
-
-      <div class="card-info">
-        <h2>500</h2>
-        <p>Dynamites</p>
       </div>
 
     </div>
 
-    <!-- 1000 -->
+    <!-- CARD -->
 
     <div class="dynamite-card">
 
-      <div class="card-image">
-
+      <div class="dynamite-image">
         <img src="dynamites_new_explosion.png">
+      </div>
 
-        <button class="buy-overlay" onclick="buyDynamites(1000)">
+      <div class="dynamite-content">
+
+        <h2>2000 Dynamites</h2>
+
+        <div class="dynamite-price">
+          $14.99
+        </div>
+
+        <button class="buy-btn" onclick="buyDynamites(2000)">
           Buy
         </button>
 
-      </div>
-
-      <div class="card-info">
-        <h2>1000</h2>
-        <p>Dynamites</p>
       </div>
 
     </div>
@@ -235,30 +309,7 @@ main{
 
 </main>
 
-<!-- FIREBASE -->
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-  authDomain: "dynaduck-19dbb.firebaseapp.com",
-  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dynaduck-19dbb",
-  storageBucket: "dynaduck-19dbb.firebasestorage.app",
-  messagingSenderId: "777148453502",
-  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-};
-
-if(!firebase.apps.length){
-  firebase.initializeApp(firebaseConfig);
-}
-
-const db = firebase.database();
-
-/* HEADER */
 
 function updateHeader() {
 
@@ -268,12 +319,14 @@ function updateHeader() {
   if(loggedInUser){
 
     authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;margin-right:15px;">
+      <span style="color:white;font-weight:bold;">
         Welcome, ${loggedInUser}!
       </span>
 
       <a href="settings.html">
-        <button class="green-btn">Settings</button>
+        <button class="green-btn">
+          Settings
+        </button>
       </a>
 
       <button class="green-btn" onclick="logout()">
@@ -281,76 +334,36 @@ function updateHeader() {
       </button>
     `;
 
-    loadBalance();
-
   } else {
 
     authDiv.innerHTML = `
       <a href="signup.html">
-        <button class="green-btn">Sign Up</button>
+        <button class="green-btn">
+          Sign Up
+        </button>
       </a>
 
       <a href="login.html">
-        <button class="green-btn">Log In</button>
+        <button class="green-btn">
+          Log In
+        </button>
       </a>
     `;
+
   }
+
 }
 
 function logout(){
+
   localStorage.removeItem('loggedInUser');
   location.reload();
-}
-
-/* BALANCE */
-
-function loadBalance(){
-
-  const user = localStorage.getItem("loggedInUser");
-
-  db.ref("users/" + user + "/dynamites")
-  .on("value", snap => {
-
-    let balance = snap.val();
-
-    if(balance == null){
-      balance = 0;
-    }
-
-    document.getElementById("balance").innerText = balance;
-
-  });
 
 }
-
-/* BUY */
 
 function buyDynamites(amount){
 
-  const user = localStorage.getItem("loggedInUser");
-
-  if(!user){
-    alert("Login first!");
-    return;
-  }
-
-  const ref = db.ref("users/" + user + "/dynamites");
-
-  ref.get().then(snap => {
-
-    let current = snap.val();
-
-    if(current == null){
-      current = 0;
-    }
-
-    current += amount;
-
-    ref.set(current);
-
-    alert("Bought " + amount + " Dynamites!");
-
-  });
+  alert("Purchased " + amount + " Dynamites!");
 
 }
 
