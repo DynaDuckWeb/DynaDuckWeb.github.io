@@ -1,431 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DynaDuck - Dynamites</title>
+<!-- SIMPLE DYNAMITES SHOP -->
 
-<link rel="stylesheet" href="style.css">
+<div class="shop-grid">
 
-<style>
+  <!-- STARTER -->
+  <div class="shop-card">
 
-body{
-  margin:0;
-  background:#f2f2f2;
-  font-family:Poppins,sans-serif;
-}
+    <div class="card-image">
+      <img src="dynamites_new_explosion.png">
 
-/* HEADER */
+      <button class="buy-overlay" onclick="buyDynamites(100)">
+        BUY
+      </button>
+    </div>
 
-header{
-  background:#333;
-  padding:15px 40px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
+    <div class="shop-info">
+      <h2>100 Dynamites</h2>
+      <p class="price-text">Starter Pack</p>
+    </div>
 
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:20px;
-}
-
-.logo{
-  height:70px;
-}
-
-nav{
-  display:flex;
-  gap:25px;
-}
-
-nav a{
-  color:white;
-  text-decoration:none;
-  font-weight:600;
-}
-
-nav a:hover{
-  color:#11AD36;
-}
-
-.search-container{
-  flex:1;
-  display:flex;
-  justify-content:center;
-}
-
-.search-bar{
-  width:320px;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-}
-
-.green-btn{
-  background:#11AD36;
-  color:white;
-  border:none;
-  padding:10px 18px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.green-btn:hover{
-  background:#0e8e2c;
-}
-
-#authButtons{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-/* PAGE */
-
-.page{
-  max-width:1400px;
-  margin:auto;
-  padding:40px;
-}
-
-.balance-box{
-  background:white;
-  padding:25px;
-  border-radius:14px;
-  margin-bottom:35px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.08);
-}
-
-.balance-box h1{
-  margin:0;
-}
-
-.balance{
-  color:#11AD36;
-  font-size:2em;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-/* SHOP */
-
-.shop-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:30px;
-}
-
-.shop-card{
-  background:white;
-  border-radius:16px;
-  overflow:hidden;
-  border:3px solid #111;
-  box-shadow:0 5px 18px rgba(0,0,0,0.12);
-  transition:0.2s;
-}
-
-.shop-card:hover{
-  transform:translateY(-5px);
-}
-
-.shop-card img{
-  width:100%;
-  height:250px;
-  object-fit:contain;
-  background:#f5f5f5;
-}
-
-.shop-info{
-  padding:18px;
-  text-align:center;
-}
-
-.shop-info h2{
-  margin:0 0 15px;
-}
-
-.buy-btn{
-  width:100%;
-  padding:14px;
-  font-size:1.05em;
-  border:none;
-  background:#11AD36;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.buy-btn:hover{
-  background:#0e8e2c;
-}
-
-</style>
-</head>
-
-<body>
-
-<header>
-
-  <div class="header-left">
-    <a href="index.html">
-      <img src="logo.png" class="logo">
-    </a>
-
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
-    </nav>
   </div>
 
-  <div class="search-container">
-    <input type="text" class="search-bar" placeholder="Search...">
+  <!-- POPULAR -->
+  <div class="shop-card featured-card">
+
+    <div class="popular-tag">
+      MOST POPULAR
+    </div>
+
+    <div class="card-image">
+      <img src="dynamites_new_explosion.png">
+
+      <button class="buy-overlay" onclick="buyDynamites(500)">
+        BUY
+      </button>
+    </div>
+
+    <div class="shop-info">
+      <h2>500 Dynamites</h2>
+      <p class="price-text">Best Value</p>
+    </div>
+
   </div>
 
-  <div id="authButtons"></div>
+  <!-- MEGA -->
+  <div class="shop-card">
 
-</header>
-
-<div class="page">
-
-  <div class="balance-box">
-    <h1>Your Dynamites</h1>
-    <div class="balance" id="dynamiteBalance">0 💥</div>
-  </div>
-
-  <div class="shop-grid">
-
-    <div class="shop-card">
+    <div class="card-image">
       <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>100 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(100)">Buy</button>
-      </div>
+
+      <button class="buy-overlay" onclick="buyDynamites(1000)">
+        BUY
+      </button>
     </div>
 
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>200 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(200)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>300 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(300)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>400 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(400)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>500 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(500)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>600 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(600)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>700 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(700)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>800 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(800)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>900 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(900)">Buy</button>
-      </div>
-    </div>
-
-    <div class="shop-card">
-      <img src="dynamites_new_explosion.png">
-      <div class="shop-info">
-        <h2>1000 Dynamites</h2>
-        <button class="buy-btn" onclick="buyDynamites(1000)">Buy</button>
-      </div>
+    <div class="shop-info">
+      <h2>1000 Dynamites</h2>
+      <p class="price-text">Mega Pack</p>
     </div>
 
   </div>
 
 </div>
-
-<!-- FIREBASE -->
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-
-/* FIREBASE */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-  authDomain: "dynaduck-19dbb.firebaseapp.com",
-  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dynaduck-19dbb",
-  storageBucket: "dynaduck-19dbb.firebasestorage.app",
-  messagingSenderId: "777148453502",
-  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-};
-
-if(!firebase.apps.length){
-  firebase.initializeApp(firebaseConfig);
-}
-
-const db = firebase.database();
-
-/* USER */
-
-function getUser(){
-  return localStorage.getItem("loggedInUser");
-}
-
-/* HEADER */
-
-function updateHeader(){
-
-  const authDiv = document.getElementById("authButtons");
-  const user = getUser();
-
-  if(user){
-
-    authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;">
-        ${user}
-      </span>
-
-      <a href="settings.html">
-        <button class="green-btn">Settings</button>
-      </a>
-
-      <button class="green-btn" onclick="logout()">
-        Logout
-      </button>
-    `;
-
-  } else {
-
-    authDiv.innerHTML = `
-      <a href="signup.html">
-        <button class="green-btn">Sign Up</button>
-      </a>
-
-      <a href="login.html">
-        <button class="green-btn">Log In</button>
-      </a>
-    `;
-  }
-}
-
-function logout(){
-  localStorage.removeItem("loggedInUser");
-  location.reload();
-}
-
-/* LOAD BALANCE */
-
-function loadBalance(){
-
-  const user = getUser();
-
-  if(!user){
-    document.getElementById("dynamiteBalance").innerHTML =
-      "Login to buy Dynamites";
-    return;
-  }
-
-  db.ref("users/" + user + "/dynamites")
-  .on("value", snapshot => {
-
-    let amount = 0;
-
-    if(snapshot.exists()){
-      amount = snapshot.val();
-    }
-
-    document.getElementById("dynamiteBalance")
-    .innerHTML = amount + " 💥";
-
-  });
-}
-
-/* BUY */
-
-function buyDynamites(amount){
-
-  const user = getUser();
-
-  if(!user){
-    alert("Login first!");
-    return;
-  }
-
-  const ref = db.ref("users/" + user + "/dynamites");
-
-  ref.get().then(snapshot => {
-
-    let current = 0;
-
-    if(snapshot.exists()){
-      current = snapshot.val();
-    }
-
-    current += amount;
-
-    ref.set(current);
-
-    alert(
-      "Successfully bought " +
-      amount +
-      " Dynamites!"
-    );
-
-  });
-
-}
-
-/* START */
-
-window.onload = function(){
-  updateHeader();
-  loadBalance();
-};
-
-</script>
-
-</body>
-</html>
