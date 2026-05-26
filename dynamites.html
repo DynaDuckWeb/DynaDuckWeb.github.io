@@ -382,25 +382,56 @@ function logout(){
 
 }
 
-function buyDynamites(amount){
+/* ================= BALANCE ================= */
 
-  let balance =
-    parseInt(localStorage.getItem("dynamites")) || 0;
+function loadBalance(){
 
-  balance += amount;
+  const user = localStorage.getItem("loggedInUser");
 
-  localStorage.setItem("dynamites", balance);
+  if(!user) return;
 
-  document.getElementById("dynamiteBalance").innerText =
-    balance;
+  db.ref("users/" + user + "/dynamites").on("value", snap => {
 
-  alert("Purchased " + amount + " Dynamites!");
+    let balance = snap.val();
+
+    if(balance === null) balance = 0;
+
+    document.getElementById("dynamiteBalance").innerText =
+      balance;
+
+  });
 
 }
 
-window.addEventListener('DOMContentLoaded', updateHeader);
+/* ================= BUY ================= */
 
-</script>
+function buyDynamites(amount){
+
+  const user = localStorage.getItem("loggedInUser");
+
+  if(!user){
+    alert("Login required");
+    return;
+  }
+
+  const balanceRef =
+    db.ref("users/" + user + "/dynamites");
+
+  balanceRef.get().then(snap => {
+
+    let current = snap.val();
+
+    if(current === null) current = 0;
+
+    current += amount;
+
+    balanceRef.set(current);
+
+    alert("Purchased " + amount + " Dynamites!");
+
+  });
+
+}
 
 </body>
 </html>
