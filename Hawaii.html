@@ -4,11 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dream Sweet in Sea Major</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Reset margins and hide scrollbars */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050505; /* Deep dark fallback background */
+        }
+
+        /* Fullscreen Video container */
+        .video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #bg-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Keeps aspect ratio while filling screen */
+        }
+
+        /* Text Layer Layout */
+        .text-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2; /* Forces text to layer over the video */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; /* Allows user to interact with elements underneath if needed */
+        }
+
+        /* Text Styling */
+        h1 {
+            color: #111111; /* Clean, deep dark gray/black text */
+            font-family: 'Georgia', serif; /* Classic serif font style */
+            font-size: 3.5rem;
+            font-weight: 400;
+            letter-spacing: 4px;
+            text-align: center;
+            padding: 0 20px;
+            
+            /* A subtle soft light glow behind the dark text to keep it legible over dark clouds */
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.25); 
+            
+            /* Smooth fade-in effect on load */
+            animation: fadeIn 2.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Background Video Container -->
     <div class="video-container">
         <video autoplay loop muted playsinline id="bg-video">
             <source src="Hawaii.mp4" type="video/mp4">
@@ -16,7 +81,6 @@
         </video>
     </div>
 
-    <!-- Centered Content -->
     <main class="text-layer">
         <h1>Dream Sweet in Sea Major</h1>
     </main>
