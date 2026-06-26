@@ -398,7 +398,7 @@
 
         if (!snapshot.exists()) {
             await userRef.set({
-                currency: 100000,
+                Dynamites: 100000,
                 inventory: {
                     "Starter Pack": true
                 },
@@ -457,19 +457,19 @@
         const snapshot = await userRef.once("value");
 
         const user = snapshot.val() || {
-            currency: 0,
+            Dynamites: 0,
             inventory: {},
             colors: defaultColors,
             equipped: {}
         };
 
-        // Self-heal: if currency is missing or corrupted (not a finite number),
+        // Self-heal: if Dynamites is missing or corrupted (not a finite number),
         // reset it instead of letting NaN propagate into Firebase.
-        let currentCurrency = Number(user.currency);
-        if (!Number.isFinite(currentCurrency)) {
-            console.warn("currency was invalid (", user.currency, "), resetting to 0");
-            currentCurrency = 0;
-            await userRef.update({ currency: 0 });
+        let currentDynamites = Number(user.Dynamites);
+        if (!Number.isFinite(currentDynamites)) {
+            console.warn("Dynamites was invalid (", user.Dynamites, "), resetting to 0");
+            currentDynamites = 0;
+            await userRef.update({ Dynamites: 0 });
         }
 
         if (user.inventory && user.inventory[item.name]) {
@@ -477,13 +477,13 @@
             return;
         }
 
-        if (currentCurrency < item.price) {
+        if (currentDynamites < item.price) {
             alert("Not enough Dynamites!");
             return;
         }
 
         await userRef.update({
-            currency: currentCurrency - item.price,
+            Dynamites: currentDynamites - item.price,
             ["inventory/" + item.name]: {
                 slot: item.slot,
                 color: item.color
