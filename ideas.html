@@ -147,7 +147,7 @@ function getUser() {
 function isBlocked(text = "") {
   const lower = text.toLowerCase();
   return bannedWords.some(w => lower.includes(w));
-}'
+}
 function updateHeader() {
   const user = getUser();
   const authDiv = document.getElementById("authButtons");
