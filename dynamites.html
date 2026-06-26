@@ -8,17 +8,13 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-
-/* ================= PAGE ================= */
-
-body{
+  
+body {
   margin:0;
   font-family:Poppins,sans-serif;
   background:#f2f2f2;
   color:#222;
 }
-
-/* ================= HEADER ================= */
 
 header{
   display:flex;
@@ -91,9 +87,7 @@ nav a:hover{
   align-items:center;
 }
 
-/* ================= PAGE ================= */
-
-.dynamites-page{
+.dynamites-page { 
   max-width:1200px;
   margin:40px auto;
   padding:0 20px;
@@ -113,15 +107,11 @@ nav a:hover{
   margin-top:8px;
 }
 
-/* ================= GRID ================= */
-
 .dynamites-grid{
   display:flex;
   gap:25px;
   flex-wrap:wrap;
 }
-
-/* ================= CARD ================= */
 
 .dynamite-card{
   width:320px;
@@ -138,8 +128,6 @@ nav a:hover{
   box-shadow:0 6px 18px rgba(0,0,0,0.12);
 }
 
-/* ================= IMAGE ================= */
-
 .dynamite-image{
   height:240px;
   background:#f7f7f7;
@@ -155,8 +143,6 @@ nav a:hover{
   position:relative;
   top:25px;
 }
-
-/* ================= CONTENT ================= */
 
 .dynamite-content{
   padding:20px;
@@ -175,8 +161,6 @@ nav a:hover{
   margin-bottom:20px;
 }
 
-/* ================= BUTTON ================= */
-
 .buy-btn{
   width:100%;
   border:none;
@@ -193,144 +177,87 @@ nav a:hover{
 .buy-btn:hover{
   background:#0d8d2b;
 }
-
 </style>
 </head>
-
 <body>
-
 <header>
-
   <div class="header-left">
-
     <a href="index.html">
       <img src="logo.png" class="logo" alt="Logo">
     </a>
-
     <nav>
       <a href="catalog.html">Catalog</a>
       <a href="ideas.html">Ideas</a>
       <a href="create.html">Create</a>
       <a href="dynamites.html">Dynamites</a>
     </nav>
-
   </div>
-
   <div class="search-container">
     <input type="text" class="search-bar" placeholder="Search...">
   </div>
-
   <div id="authButtons"></div>
-
 </header>
-
-<!-- ================= PAGE ================= -->
-
 <main class="dynamites-page">
-
 <div class="dynamites-top">
-
   <div class="top-row">
-
     <div>
       <h1>Dynamites</h1>
       <p>Buy those stuff so you can look goodie 💥</p>
     </div>
-
     <div class="balance-box">
       <span>Your Balance</span>
       <h2 id="dynamiteBalance">0</h2>
     </div>
-
   </div>
-
 </div>
-
   <div class="dynamites-grid">
-
-    <!-- CARD -->
-
     <div class="dynamite-card">
-
       <div class="dynamite-image">
         <img src="dynamites_new_explosion.png">
       </div>
-
       <div class="dynamite-content">
-
         <h2>200 Dynamites</h2>
-
         <div class="dynamite-price">
           $2.99
         </div>
-
         <button class="buy-btn" onclick="buyDynamites(200)">
           Buy
         </button>
-
       </div>
-
     </div>
-
-    <!-- CARD -->
-
     <div class="dynamite-card">
-
       <div class="dynamite-image">
         <img src="dynamites_new_explosion.png">
       </div>
-
       <div class="dynamite-content">
-
         <h2>800 Dynamites</h2>
-
         <div class="dynamite-price">
           $7.99
         </div>
-
         <button class="buy-btn" onclick="buyDynamites(800)">
           Buy
         </button>
-
       </div>
-
     </div>
-
-    <!-- CARD -->
-
     <div class="dynamite-card">
-
       <div class="dynamite-image">
         <img src="dynamites_new_explosion.png">
       </div>
-
       <div class="dynamite-content">
-
         <h2>2000 Dynamites</h2>
-
         <div class="dynamite-price">
           $14.99
         </div>
-
         <button class="buy-btn" onclick="buyDynamites(2000)">
           Buy
         </button>
-
       </div>
-
     </div>
-
   </div>
-
 </main>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-
-/* ================= FIREBASE ================= */
-
 const firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
   authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -340,20 +267,12 @@ const firebaseConfig = {
   messagingSenderId: "777148453502",
   appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
 };
-
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
-
 const db = firebase.database();
-
-/* ================= USER ================= */
-
 const currentUser =
   localStorage.getItem("loggedInUser");
-
-/* ================= LOAD BALANCE ================= */
-
 function loadBalance(){
 
   if(!currentUser){
@@ -364,77 +283,46 @@ function loadBalance(){
 
     return;
   }
-
   const balanceRef =
     db.ref("users/" + currentUser + "/dynamites");
-
   balanceRef.on("value", snapshot => {
-
     let balance = snapshot.val();
-
     if(balance == null){
-
       balance = 0;
-
       balanceRef.set(0);
-
     }
-
     document.getElementById(
       "dynamiteBalance"
     ).innerText = balance;
-
   });
 
 }
-
-/* ================= BUY DYNAMITES ================= */
-
 function buyDynamites(amount){
-
   if(!currentUser){
-
     alert("Please log in first.");
     return;
-
   }
-
   const balanceRef =
     db.ref("users/" + currentUser + "/dynamites");
-
   balanceRef.once("value").then(snapshot => {
-
     let currentBalance = snapshot.val();
-
     if(currentBalance == null)
       currentBalance = 0;
-
     const newBalance =
       currentBalance + amount;
-
     balanceRef.set(newBalance).then(() => {
-
       alert(
         "You bought " +
         amount +
         " Dynamites!"
       );
-
     });
-
   });
-
 }
-
-/* ================= HEADER ================= */
-
 function updateHeader(){
-
   const authDiv =
     document.getElementById("authButtons");
-
   if(currentUser){
-
     authDiv.innerHTML = `
       <span style="
         color:white;
@@ -443,13 +331,11 @@ function updateHeader(){
       ">
         Welcome, ${currentUser}!
       </span>
-
       <a href="settings.html">
         <button class="green-btn">
           Settings
         </button>
       </a>
-
       <button
         class="green-btn"
         onclick="logout()"
@@ -457,51 +343,34 @@ function updateHeader(){
         Logout
       </button>
     `;
-
   } else {
-
     authDiv.innerHTML = `
       <a href="signup.html">
         <button class="green-btn">
           Sign Up
         </button>
       </a>
-
       <a href="login.html">
         <button class="green-btn">
           Log In
         </button>
       </a>
     `;
-
   }
-
 }
-
-/* ================= LOGOUT ================= */
-
 function logout(){
-
   localStorage.removeItem(
     "loggedInUser"
   );
-
   location.reload();
-
 }
-
-/* ================= START ================= */
-
 window.addEventListener(
   "DOMContentLoaded",
   () => {
-
     updateHeader();
     loadBalance();
-
   }
 );
-
 </script>
 </body>
 </html>
