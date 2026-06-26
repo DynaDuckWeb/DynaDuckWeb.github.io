@@ -356,105 +356,115 @@
 
   </div>
 
- <script>
-    // 1. INITIALIZE DATABASE
-    const db = firebase.database();
-    const username = localStorage.getItem('loggedInUser') || "Guest";
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    // 2. STATE & LOAD DATA
-    let currentColors = { 'head': '#ffcd3a', 'torso': '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' };
+<script>
+  // 1. Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+    authDomain: "dynaduck-19dbb.firebaseapp.com",
+    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dynaduck-19dbb",
+    storageBucket: "dynaduck-19dbb.firebasestorage.app",
+    messagingSenderId: "777148453502",
+    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+  };
 
-    // Listen for color updates from DB
-    db.ref('users/' + username + '/avatar/colors').on('value', (snapshot) => {
-        if(snapshot.exists()) {
-            currentColors = snapshot.val();
-            for(let part in currentColors) {
-                document.getElementById('part-' + part).style.backgroundColor = currentColors[part];
-            }
-        }
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const db = firebase.database();
+  const username = localStorage.getItem('loggedInUser') || "Admin"; // Fallback to Admin for testing
+
+  // 2. State & Load
+  let currentColors = { 'head': '#ffcd3a', 'torso': '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' };
+
+  // Listen for real-time changes
+  db.ref('users/' + username + '/avatar/colors').on('value', (snapshot) => {
+    if(snapshot.exists()) {
+      currentColors = snapshot.val();
+      for(let part in currentColors) {
+        const el = document.getElementById('part-' + part);
+        if(el) el.style.backgroundColor = currentColors[part];
+      }
+    }
+  });
+
+  // 3. Color Logic
+  function applyColor(hexColor) {
+    const selectedPart = document.getElementById('bodyPartSelect').value;
+    let testColors = { ...currentColors, [selectedPart]: hexColor };
+    
+    // Anti-Solid Check
+    if (Object.values(testColors).every(val => val === hexColor)) {
+      alert("Design Rule: Your avatar cannot be a single solid color!");
+      return;
+    }
+
+    db.ref('users/' + username + '/avatar/colors/' + selectedPart).set(hexColor);
+  }
+
+  // 4. Shop Logic
+  function loadCatalog() {
+    const items = [
+      { name: "DynaDuck Logo T-Shirt", price: 25 },
+      { name: "Admin Red Cap", price: 50 },
+      { name: "Sheldesky's Crown", price: 100000 }
+    ];
+
+    const grid = document.querySelector('.center-section');
+    grid.innerHTML = "";
+
+    items.forEach(item => {
+      grid.innerHTML += `
+        <div class="item-card">
+          <div class="item-box"><h4>${item.name.replace(/ /g, '<br>')}</h4></div>
+          <div class="item-btn" onclick="buyItem('${item.name}', ${item.price})">
+            <span class="btn-text-buy">Buy</span>
+            <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
+          </div>
+        </div>
+      `;
     });
+  }
 
-    // 3. COLOR PICKER LOGIC (With Anti-Solid Check)
-    function applyColor(hexColor) {
-        const selectedPart = document.getElementById('bodyPartSelect').value;
-        let testColors = { ...currentColors, [selectedPart]: hexColor };
-        
-        // Anti-Solid Check: Are they all the same?
-        if (Object.values(testColors).every(val => val === hexColor)) {
-            alert("Design Rule: Your avatar cannot be a single solid color!");
-            return;
-        }
+  function buyItem(itemName, price) {
+    const userRef = db.ref('users/' + username);
+    userRef.once('value').then(snapshot => {
+      let data = snapshot.val() || { currency: 0 };
+      let balance = data.currency || 0;
 
-        // Apply and Save
-        currentColors[selectedPart] = hexColor;
-        document.getElementById('part-' + selectedPart).style.backgroundColor = hexColor;
-        db.ref('users/' + username + '/avatar/colors/' + selectedPart).set(hexColor);
-    }
+      if (balance < price) {
+        alert("Not enough Dynamites! You have " + balance.toLocaleString() + ".");
+        return;
+      }
 
-    // 4. MARKETPLACE LOGIC (Including Crown)
-    function loadCatalog() {
-        const items = [
-            { name: "DynaDuck Logo T-Shirt", price: 25 },
-            { name: "Admin Red Cap", price: 50 },
-            { name: "Sheldesky's Crown", price: 100000 }
-        ];
+      userRef.update({
+        'currency': balance - price,
+        ['inventory/' + itemName]: true
+      }).then(() => {
+        alert("Purchase Successful!");
+        updateInventoryUI();
+      });
+    });
+  }
 
-        const grid = document.querySelector('.center-section');
-        grid.innerHTML = "";
+  function updateInventoryUI() {
+    db.ref('users/' + username + '/inventory').once('value').then(snapshot => {
+      const container = document.querySelector('.inventory-grid');
+      if(!container) return;
+      container.innerHTML = "";
+      let items = snapshot.val() || {};
+      Object.keys(items).forEach(item => {
+        container.innerHTML += `<div class="inventory-item">${item}</div>`;
+      });
+    });
+  }
 
-        items.forEach(item => {
-            grid.innerHTML += `
-                <div class="item-card">
-                    <div class="item-box"><h4>${item.name.replace(/ /g, '<br>')}</h4></div>
-                    <div class="item-btn" onclick="buyItem('${item.name}', ${item.price})">
-                        <span class="btn-text-buy">Buy</span>
-                        <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    // 5. BUY ITEM LOGIC
-    function buyItem(itemName, price) {
-        const userRef = db.ref('users/' + username);
-        
-        userRef.once('value').then(snapshot => {
-            let data = snapshot.val() || { currency: 0 };
-            let balance = data.currency || 0;
-
-            if (balance < price) {
-                alert("Not enough Dynamites! You have " + balance + ".");
-                return;
-            }
-
-            // Perform Transaction
-            const updates = {};
-            updates['currency'] = balance - price;
-            updates['inventory/' + itemName] = true;
-            
-            userRef.update(updates).then(() => {
-                alert("Purchase Successful: " + itemName + " added to inventory!");
-                updateInventoryUI();
-            });
-        });
-    }
-
-    // 6. UPDATE WARDROBE UI
-    function updateInventoryUI() {
-        db.ref('users/' + username + '/inventory').once('value').then(snapshot => {
-            const container = document.querySelector('.inventory-grid');
-            container.innerHTML = "";
-            let items = snapshot.val() || {};
-            
-            Object.keys(items).forEach(item => {
-                container.innerHTML += `<div class="inventory-item">${item}</div>`;
-            });
-        });
-    }
-
-    // Init
-    window.onload = () => { loadCatalog(); updateInventoryUI(); };
+  // Initial Boot
+  window.onload = () => { loadCatalog(); updateInventoryUI(); };
 </script>
 </body>
 </html>
