@@ -8,12 +8,14 @@
     /* Catalog Layout Styles */
     .catalog-layout {
       display: flex;
-      gap: 30px;
+      justify-content: space-between;
+      gap: 20px;
       margin-top: 30px;
     }
 
+    /* Left Sidebar: Body Colors Picker */
     .catalog-sidebar {
-      width: 240px;
+      width: 200px;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -21,7 +23,7 @@
 
     .sidebar-box {
       background: white;
-      padding: 20px;
+      padding: 15px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
@@ -29,39 +31,125 @@
     .sidebar-box h3 {
       margin-top: 0;
       margin-bottom: 15px;
-      font-size: 1.2em;
+      font-size: 1.1em;
       border-bottom: 2px solid #f2f2f2;
       padding-bottom: 8px;
     }
 
-    .filter-btn {
-      display: block;
+    .editor-select {
       width: 100%;
-      background: white;
+      padding: 8px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      padding: 10px 12px;
+      font-size: 0.95em;
+      margin-bottom: 15px;
+      outline: none;
+    }
+    
+    .editor-select:focus {
+      border-color: #11AD36;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-dot {
+      width: 30px;
+      height: 30px;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
-      text-align: left;
-      margin-bottom: 8px;
-      transition: 0.2s;
+      border: 1px solid rgba(0,0,0,0.15);
+      transition: 0.1s;
     }
 
-    .filter-btn:hover {
-      border-color: #11AD36;
-      color: #11AD36;
+    .color-dot:hover {
+      transform: scale(1.1);
     }
 
-    .catalog-main {
+    /* MIDDLE: Character Preview & Store Cards */
+    .catalog-main-area {
       flex: 1;
       display: flex;
-      flex-direction: column;
-      gap: 25px;
+      gap: 40px;
+      align-items: flex-start;
+      padding: 0 10px;
     }
 
-    /* Grid layout for items */
+    /* Classic Blocky Character Component from 213.PNG */
+    .avatar-preview-container {
+      width: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .avatar-character {
+      position: relative;
+      width: 120px;
+      height: 220px;
+    }
+
+    /* Avatar Body Parts Styling */
+    .av-part {
+      position: absolute;
+      border: 2px solid #000;
+      background-color: #ffcd3a; /* Default classic yellow */
+      box-sizing: border-box;
+      transition: background-color 0.2s;
+    }
+
+    #av-head {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      left: 38px;
+      top: 0px;
+      z-index: 3;
+    }
+
+    #av-torso {
+      width: 52px;
+      height: 70px;
+      left: 34px;
+      top: 46px;
+      z-index: 2;
+    }
+
+    #av-leftArm {
+      width: 24px;
+      height: 65px;
+      left: 8px;
+      top: 48px;
+    }
+
+    #av-rightArm {
+      width: 24px;
+      height: 65px;
+      left: 88px;
+      top: 48px;
+    }
+
+    #av-leftLeg {
+      width: 24px;
+      height: 75px;
+      left: 34px;
+      top: 118px;
+    }
+
+    #av-rightLeg {
+      width: 24px;
+      height: 75px;
+      left: 62px;
+      top: 118px;
+    }
+
+    /* Marketplace Items Grid */
     .catalog-grid {
+      flex: 1;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 20px;
@@ -73,78 +161,74 @@
       border-radius: 12px;
       box-shadow: 0 3px 12px rgba(0,0,0,0.08);
       text-align: center;
+      border: 2px solid #000; /* Matching retro borders */
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    /* Text placeholder box instead of an image */
     .item-placeholder-box {
       width: 100%;
-      height: 120px;
-      border-radius: 8px;
+      height: 130px;
+      border: 2px solid #000;
+      background: white;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       margin-bottom: 10px;
-      border: 2px dashed rgba(255,255,255,0.4);
+      padding: 10px;
+      box-sizing: border-box;
     }
 
-    .item-placeholder-box span {
-      color: white;
+    .item-placeholder-box .item-title-text {
+      font-size: 1.3em;
       font-weight: bold;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
-      font-size: 0.9em;
-    }
-
-    .item-card h4 {
-      margin: 5px 0;
-      font-size: 1.1em;
-      color: #333;
-    }
-
-    .item-price {
-      color: #11AD36;
-      font-weight: bold;
-      margin-bottom: 10px;
+      color: #000;
+      margin: 2px 0;
     }
 
     .item-card button {
       width: 100%;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: bold;
     }
 
-    /* Color customizer styling */
-    .editor-select {
+    /* Right Sidebar: Categories */
+    .category-sidebar {
+      width: 160px;
+      background: white;
+      padding: 20px 15px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .category-sidebar h2 {
+      margin-top: 0;
+      font-size: 1.4em;
+      margin-bottom: 20px;
+    }
+
+    .cat-btn {
+      display: block;
       width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      margin-bottom: 15px;
-      outline: none;
-    }
-    
-    .editor-select:focus {
-      border-color: #11AD36;
-    }
-
-    .color-palette {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .color-dot {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
+      background: white;
+      border: 2px solid #ccc;
+      padding: 8px 10px;
+      border-radius: 10px;
       cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.15);
-      transition: 0.1s;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 12px;
+      transition: 0.2s;
     }
 
-    .color-dot:hover {
-      transform: scale(1.15);
+    .cat-btn:hover {
+      border-color: #11AD36;
+      color: #11AD36;
     }
   </style>
 </head>
@@ -165,14 +249,12 @@
       <input type="text" class="search-bar" placeholder="Search...">
     </div>
 
-    <div id="authButtons">
-      </div>
+    <div id="authButtons"></div>
   </header>
 
   <div class="main-container catalog-layout">
     
     <aside class="catalog-sidebar">
-      
       <div class="sidebar-box">
         <h3>Body Colors</h3>
         <select id="bodyPartSelect" class="editor-select">
@@ -193,20 +275,32 @@
           <div class="color-dot" style="background: #222222;" onclick="changeBodyColor('#222222')"></div>
         </div>
       </div>
-
-      <div class="sidebar-box">
-        <h3>Categories</h3>
-        <button class="filter-btn" onclick="loadCatalog('All')">All Items</button>
-        <button class="filter-btn" onclick="loadCatalog('Shirt')">Shirts</button>
-        <button class="filter-btn" onclick="loadCatalog('Pants')">Pants</button>
-      </div>
     </aside>
 
-    <main class="catalog-main">
-      <h2>DynaDuck Clothing Marketplace</h2>
+    <div class="catalog-main-area">
+      
+      <div class="avatar-preview-container">
+        <div class="avatar-character">
+          <div id="av-head" class="av-part"></div>
+          <div id="av-torso" class="av-part"></div>
+          <div id="av-leftArm" class="av-part"></div>
+          <div id="av-rightArm" class="av-part"></div>
+          <div id="av-leftLeg" class="av-part"></div>
+          <div id="av-rightLeg" class="av-part"></div>
+        </div>
+      </div>
+
       <div class="catalog-grid" id="catalogGrid">
         </div>
-    </main>
+
+    </div>
+
+    <aside class="category-sidebar">
+      <h2>Category</h2>
+      <button class="cat-btn" onclick="loadCatalog('Shirt')">Shirts</button>
+      <button class="cat-btn" onclick="loadCatalog('Pants')">Pants</button>
+      <button class="cat-btn" onclick="loadCatalog('Hats')">Hats</button>
+    </aside>
 
   </div>
 
@@ -229,7 +323,7 @@
     }
     const db = firebase.database();
 
-    // HEADER MANAGEMENT
+    // HEADER FUNCTION
     function updateHeader() {
       const authDiv = document.getElementById('authButtons');
       const loggedInUser = localStorage.getItem('loggedInUser');
@@ -240,6 +334,8 @@
           <a href="settings.html"><button class="green-btn">Settings</button></a>
           <button class="green-btn" onclick="logout()">Logout</button>
         `;
+        // Listen to live character color updates for the logged-in user
+        listenToAvatarColors(loggedInUser);
       } else {
         authDiv.innerHTML = `
           <a href="signup.html"><button class="green-btn">Sign Up</button></a>
@@ -251,19 +347,43 @@
     function logout() {
       localStorage.removeItem('loggedInUser');
       localStorage.removeItem('isAdmin');
-      updateHeader();
-      loadCatalog('All'); // Reload to show logout states
+      window.location.reload();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      updateHeader();
-      loadCatalog('All');
-    });
+    // LIVE AVATAR COLOR LISTENER
+    function listenToAvatarColors(username) {
+      db.ref(`users/${username}/avatar/colors`).on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          const colors = snapshot.val();
+          // Apply colors from database to the HTML elements
+          if (colors.head) document.getElementById('av-head').style.backgroundColor = colors.head;
+          if (colors.torso) document.getElementById('av-torso').style.backgroundColor = colors.torso;
+          if (colors.leftArm) document.getElementById('av-leftArm').style.backgroundColor = colors.leftArm;
+          if (colors.rightArm) document.getElementById('av-rightArm').style.backgroundColor = colors.rightArm;
+          if (colors.leftLeg) document.getElementById('av-leftLeg').style.backgroundColor = colors.leftLeg;
+          if (colors.rightLeg) document.getElementById('av-rightLeg').style.backgroundColor = colors.rightLeg;
+        }
+      });
+    }
 
-    // DYNAMIC CATALOG DISPLAY
-    function loadCatalog(filterType = 'All') {
+    // UPDATE AVATAR COLOR IN FIREBASE
+    function changeBodyColor(hexColor) {
+      const username = localStorage.getItem('loggedInUser');
+      const selectedPart = document.getElementById('bodyPartSelect').value;
+
+      if (!username) {
+        alert("Please log in to edit your avatar colors!");
+        return;
+      }
+
+      db.ref(`users/${username}/avatar/colors/${selectedPart}`).set(hexColor)
+        .catch(err => console.error("Error setting color:", err));
+    }
+
+    // LOAD MARKETPLACE ITEMS
+    function loadCatalog(filterType = 'Shirt') {
       const grid = document.getElementById('catalogGrid');
-      grid.innerHTML = "<p>Loading store assets...</p>";
+      grid.innerHTML = "<p>Loading products...</p>";
 
       db.ref('catalog').get().then((snapshot) => {
         if (snapshot.exists()) {
@@ -273,100 +393,72 @@
             const item = childSnapshot.val();
             const itemId = childSnapshot.key;
 
-            if (filterType !== 'All' && item.type !== filterType) {
-              return;
-            }
+            if (item.type !== filterType) return;
 
+            // Generate the text box design based on your 213.PNG sketch
             const cardHTML = `
               <div class="item-card">
-                <div class="item-placeholder-box" style="background-color: ${item.color || '#ccc'}">
-                  <span>${item.type.toUpperCase()}</span>
+                <div class="item-placeholder-box">
+                  <div class="item-title-text">${item.name.split(' ')[0] || 'DynaDuck'}</div>
+                  <div class="item-title-text">${item.name.split(' ')[1] || 'Item'}</div>
+                  <div class="item-title-text">${item.name.split(' ')[2] || ''}</div>
                 </div>
-                <h4>${item.name}</h4>
-                <div class="item-price">${item.price} Dynamites</div>
-                <button class="green-btn" onclick="buyItem('${itemId}', ${item.price})">Buy</button>
+                <button class="green-btn" onclick="buyItem('${itemId}', ${item.price})">
+                  Buy<br><span style="font-size:0.75em; font-weight:normal;">${item.price} Dynamites</span>
+                </button>
               </div>
             `;
             grid.innerHTML += cardHTML;
           });
           
           if (grid.innerHTML === "") {
-            grid.innerHTML = "<p>No products available in this category.</p>";
+            grid.innerHTML = `<p>No items found in ${filterType}.</p>`;
           }
         } else {
-          grid.innerHTML = "<p>Marketplace database is empty.</p>";
+          grid.innerHTML = "<p>Marketplace is empty.</p>";
         }
-      }).catch(err => {
-        console.error(err);
-        grid.innerHTML = "<p>Error loading catalog data.</p>";
       });
     }
 
-    // BODY COLOR EDITOR ENGINE
-    function changeBodyColor(hexColor) {
-      const username = localStorage.getItem('loggedInUser');
-      const selectedPart = document.getElementById('bodyPartSelect').value;
-
-      if (!username) {
-        alert("Please register or log in to adjust character layout dimensions!");
-        return;
-      }
-
-      db.ref(`users/${username}/avatar/colors/${selectedPart}`).set(hexColor)
-        .then(() => {
-          alert(`Success! Saved ${hexColor} color assignment to your ${selectedPart}.`);
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("Database configuration sync error.");
-        });
-    }
-
-    // TRANSACTION PROCESSING ALGORITHM
+    // TRANSACTION PROCESSING
     function buyItem(itemId, price) {
       const username = localStorage.getItem('loggedInUser');
-
       if (!username) {
-        alert("You must log in to purchase platform utilities!");
+        alert("Please log in to purchase items!");
         return;
       }
 
-      // 1. Fetch user data
       db.ref('users/' + username).get().then((snapshot) => {
         if (snapshot.exists()) {
           const userData = snapshot.val();
-          // Admin account handles checks smoothly with custom allocations
           const currentBalance = userData.currency !== undefined ? userData.currency : 0;
 
-          // 2. Check funds condition (If Admin, balance check passes safely)
           if (currentBalance < price && username !== "Admin") {
-            alert(`Insufficient funds! You need ${price} Dynamites, but only have ${currentBalance}.`);
+            alert(`You need ${price} Dynamites!`);
             return;
           }
 
-          // 3. Prevent duplicate ownership loops
           if (userData.inventory && userData.inventory[itemId]) {
-            alert("You already own this clothing asset!");
+            alert("You already own this item!");
             return;
           }
 
-          // 4. Subtract balances safely (Admin retains full count values)
           const newBalance = username === "Admin" ? currentBalance : (currentBalance - price);
-
-          // 5. Atomic write changes safely to user nodes
           const updates = {};
           updates[`users/${username}/currency`] = newBalance;
           updates[`users/${username}/inventory/${itemId}`] = true;
 
           db.ref().update(updates).then(() => {
-            alert("Purchase successful! Item appended to your character profile.");
+            alert("Item bought successfully!");
           });
         }
-      }).catch(err => {
-        console.error(err);
-        alert("Failed to confirm wallet status against database rules.");
       });
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateHeader();
+      loadCatalog('Shirt'); // Starts by displaying shirts first
+    });
   </script>
 </body>
 </html>
