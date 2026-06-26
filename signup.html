@@ -117,10 +117,25 @@
     const mail = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
 
-    // ================= USERNAME REGISTRATION MODERATION =================
+// ================= USERNAME REGISTRATION MODERATION =================
     const usernameRegex = /^[a-zA-Z0-9_]+$/;
     const lowerUser = user.toLowerCase();
-    const bannedWords = ["skibiditoiletgay", "swear1", "swear2"]; // Keep synced with your login banned list
+
+    // Comprehensive moderation filter list
+    const bannedWords = [
+      // Requested Identity/Edgy terms used by trolls
+      "gay", "lesbian", "bi", "bisexual", 
+      
+      // Slurs & Severe Hate Speech (Including variations)
+      "nigga", "nigger", "fag", "faggot", "retard",
+      
+      // Standard Profanity & Swears
+      "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
+      
+      // Social Media Platforms & Links to prevent external advertisement spam
+      "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
+      "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
+    ];
 
     // 1. Length Rules
     if (user.length < 3 || user.length > 15) {
@@ -128,7 +143,7 @@
       return;
     }
 
-    // 2. Allowed Character Rule
+    // 2. Allowed Character Rule (Letters, numbers, underscores only)
     if (!usernameRegex.test(user)) {
       alert("Usernames can only contain letters, numbers, and underscores!");
       return;
@@ -140,10 +155,10 @@
       return;
     }
 
-    // 4. Bad Word Filtering
+    // 4. Advanced Banned Word and Socials Check
     for (let word of bannedWords) {
       if (lowerUser.includes(word)) {
-        alert("This username contains restricted text. Please choose another.");
+        alert("This username contains restricted text or social media terms. Please choose another.");
         return;
       }
     }
