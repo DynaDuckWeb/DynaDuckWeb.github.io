@@ -4,75 +4,179 @@
   <meta charset="UTF-8">
   <title>Log In - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Custom alignment for the auth card to look clean and centered */
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+    .auth-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .auth-box h1 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 2em;
+      color: #333;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      font-size: 1em;
+      outline: none;
+    }
+    .auth-box input:focus {
+      border-color: #11AD36;
+    }
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.05em;
+    }
+    .auth-box p {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .auth-box p a {
+      color: #11AD36;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .auth-box p a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
-<div class="auth-container">
-  <div class="auth-box">
-    <h1>Log In</h1>
-    <form id="loginForm">
-      <input type="text" id="loginUsername" placeholder="Username" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button type="submit" class="green-btn">Log In</button>
-    </form>
-    <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
+  <header>
+    <div class="header-left">
+      <img src="logo.png" class="logo" alt="DynaDuck" onclick="window.location.href='index.html'">
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="ideas.html">Ideas</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="auth-container">
+    <div class="auth-box">
+      <h1>Log In</h1>
+      <form id="loginForm">
+        <input type="text" id="loginUsername" placeholder="Username" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="green-btn">Log In</button>
+      </form>
+      <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
   </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<script>
-  // 2. Your NEW Firebase Config (Corrected for Europe)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-    authDomain: "dynaduck-19dbb.firebaseapp.com",
-    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dynaduck-19dbb",
-    storageBucket: "dynaduck-19dbb.firebasestorage.app",
-    messagingSenderId: "777148453502",
-    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-  };
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+      authDomain: "dynaduck-19dbb.firebaseapp.com",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dynaduck-19dbb",
+      storageBucket: "dynaduck-19dbb.firebasestorage.app",
+      messagingSenderId: "777148453502",
+      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+    };
 
-  // 3. Initialize Firebase
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.database();
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
 
+    const loginForm = document.getElementById('loginForm');
 
-  const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-  loginForm.addEventListener('submit', function(e) {
-    e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
 
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value;
+      // ================= USERNAME MODERATION =================
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      const lowerUser = username.toLowerCase();
+      const bannedWords = ["skibiditoiletgay", "swear1", "swear2"]; // Add any additional bad words here
 
-    // ASK THE CLOUD: "Does this user exist?"
-    db.ref('users/' + username).get().then((snapshot) => {
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        
-        // CHECK IF PASSWORD MATCHES
-        if (userData.password === password) {
-          alert('Logged in successfully via Cloud!');
-          
-          // Remember who is logged in on THIS browser
-          localStorage.setItem('loggedInUser', username);
-          
-          window.location.href = 'index.html';
-        } else {
-          alert('Incorrect password!');
-        }
-      } else {
-        alert('User does not exist in the cloud!');
+      // 1. Length Restrictions
+      if (username.length < 3 || username.length > 15) {
+        alert("Username must be between 3 and 15 characters long!");
+        return;
       }
-    }).catch((error) => {
-      console.error(error);
-      alert("Error connecting to Firebase!");
+
+      // 2. Character Filter (No spaces or strange symbols)
+      if (!usernameRegex.test(username)) {
+        alert("Usernames can only contain letters, numbers, and underscores!");
+        return;
+      }
+
+      // 3. Prevent Fake System/Admin Names
+      // Replace 'Teodor' or 'Eric' with your actual strict personal username if needed
+      if ((lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) && username !== "Admin") {
+        alert("You cannot log into system reserved usernames!");
+        return;
+      }
+
+      // 4. Cleanliness check
+      for (let word of bannedWords) {
+        if (lowerUser.includes(word)) {
+          alert("Username contains restricted language!");
+          return;
+        }
+      }
+      // ========================================================
+
+      // Ask Firebase for user details
+      db.ref('users/' + username).get().then((snapshot) => {
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          
+          // Check Password matching
+          if (userData.password === password) {
+            alert('Logged in successfully!');
+            
+            // Set session details locally
+            localStorage.setItem('loggedInUser', username);
+            
+            // Check if user is the master admin account
+            if (username === "Admin") {
+              localStorage.setItem('isAdmin', 'true');
+            } else {
+              localStorage.removeItem('isAdmin');
+            }
+            
+            window.location.href = 'index.html';
+          } else {
+            alert('Incorrect password!');
+          }
+        } else {
+          alert('User does not exist in the cloud!');
+        }
+      }).catch((error) => {
+        console.error(error);
+        alert("Error connecting to Firebase!");
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>
