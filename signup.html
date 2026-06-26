@@ -5,7 +5,6 @@
   <title>Sign Up - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Clean alignment styling matching the login layout */
     .auth-container {
       display: flex;
       justify-content: center;
@@ -62,129 +61,143 @@
 </head>
 <body>
 
-<header>
-  <div class="header-left">
-    <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
-    </nav>
+  <header>
+    <div class="header-left">
+      <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
+    </div>
+
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search...">
+    </div>
+
+    <div id="authButtons">
+      </div>
+  </header>
+
+  <div class="auth-container">
+    <div class="auth-box">
+      <h1>Create Account</h1>
+      <form id="signupForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit" class="green-btn">Sign Up</button>
+      </form>
+      <p>Already have an account? <a href="login.html">Log In</a></p>
+    </div>
   </div>
-  <div id="authButtons">
-    <a href="login.html"><button class="green-btn">Log In</button></a>
-  </div>
-</header>
 
-<div class="auth-container">
-  <div class="auth-box">
-    <h1>Create Account</h1>
-    <form id="signupForm">
-      <input type="text" id="username" placeholder="Username" required>
-      <input type="email" id="email" placeholder="Email" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <button type="submit" class="green-btn">Sign Up</button>
-    </form>
-    <p>Already have an account? <a href="login.html">Log In</a></p>
-  </div>
-</div>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+      authDomain: "dynaduck-19dbb.firebaseapp.com",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dynaduck-19dbb",
+      storageBucket: "dynaduck-19dbb.firebasestorage.app",
+      messagingSenderId: "777148453502",
+      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+    };
 
-<script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-    authDomain: "dynaduck-19dbb.firebaseapp.com",
-    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dynaduck-19dbb",
-    storageBucket: "dynaduck-19dbb.firebasestorage.app",
-    messagingSenderId: "777148453502",
-    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-  };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
 
-  // Initialize Firebase
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.database();
+    // DYNAMIC HEADER ENGINE
+    function updateHeader() {
+      const authDiv = document.getElementById('authButtons');
+      const loggedInUser = localStorage.getItem('loggedInUser');
 
-  document.getElementById('signupForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const user = document.getElementById('username').value.trim();
-    const mail = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value;
-
-// ================= USERNAME REGISTRATION MODERATION =================
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    const lowerUser = user.toLowerCase();
-
-    // Comprehensive moderation filter list
-    const bannedWords = [
-      // Requested Identity/Edgy terms used by trolls
-      "gay", "lesbian", "bi", "bisexual", 
-      
-      // Slurs & Severe Hate Speech (Including variations)
-      "nigga", "nigger", "fag", "faggot", "retard",
-      
-      // Standard Profanity & Swears
-      "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
-      
-      // Social Media Platforms & Links to prevent external advertisement spam
-      "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
-      "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
-    ];
-
-    // 1. Length Rules
-    if (user.length < 3 || user.length > 15) {
-      alert("Username must be between 3 and 15 characters long!");
-      return;
+      if (loggedInUser) {
+        authDiv.innerHTML = `
+          <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+          <a href="settings.html"><button class="green-btn">Settings</button></a>
+          <button class="green-btn" onclick="logout()">Logout</button>
+        `;
+      } else {
+        authDiv.innerHTML = `
+          <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+          <a href="login.html"><button class="green-btn">Log In</button></a>
+        `;
+      }
     }
 
-    // 2. Allowed Character Rule (Letters, numbers, underscores only)
-    if (!usernameRegex.test(user)) {
-      alert("Usernames can only contain letters, numbers, and underscores!");
-      return;
+    function logout() {
+      localStorage.removeItem('loggedInUser');
+      localStorage.removeItem('isAdmin');
+      updateHeader();
     }
 
-    // 3. Absolute Impersonation Block
-    if (lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) {
-      alert("You cannot register usernames containing 'Admin', 'System', or 'DynaDuck'.");
-      return;
-    }
+    window.addEventListener('DOMContentLoaded', updateHeader);
 
-    // 4. Advanced Banned Word and Socials Check
-    for (let word of bannedWords) {
-      if (lowerUser.includes(word)) {
-        alert("This username contains restricted text or social media terms. Please choose another.");
+    // SIGNUP FORM WITH FULL SECURITY FILTERS
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const user = document.getElementById('username').value.trim();
+      const mail = document.getElementById('email').value.trim();
+      const pass = document.getElementById('password').value;
+
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      const lowerUser = user.toLowerCase();
+      
+      const bannedWords = [
+        "gay", "lesbian", "bi", "bisexual", 
+        "nigga", "nigger", "fag", "faggot", "retard",
+        "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
+        "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
+        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
+      ];
+
+      if (user.length < 3 || user.length > 15) {
+        alert("Username must be between 3 and 15 characters long!");
         return;
       }
-    }
-    // ====================================================================
 
-    // CHECK IF THE USERNAME IS ALREADY TAKEN IN THE CLOUD
-    db.ref('users/' + user).get().then((snapshot) => {
-      if (snapshot.exists()) {
-        alert('This username is already taken! Please choose a different one.');
-      } else {
-        // Safe to create new profile with safe initial variables
-        db.ref('users/' + user).set({
-          email: mail,
-          password: pass,
-          currency: 100, // <--- Secure starter currency baseline setup here!
-          joinedDate: Date.now()
-        }).then(() => {
-          alert('Cloud Account Created Successfully!');
-          window.location.href = 'login.html';
-        });
+      if (!usernameRegex.test(user)) {
+        alert("Usernames can only contain letters, numbers, and underscores!");
+        return;
       }
-    }).catch((error) => {
-      console.error(error);
-      alert("Error verification failed against server endpoints.");
+
+      if (lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) {
+        alert("You cannot register usernames containing 'Admin', 'System', or 'DynaDuck'.");
+        return;
+      }
+
+      for (let word of bannedWords) {
+        if (lowerUser.includes(word)) {
+          alert("This username contains restricted text or social media terms. Please choose another.");
+          return;
+        }
+      }
+
+      db.ref('users/' + user).get().then((snapshot) => {
+        if (snapshot.exists()) {
+          alert('This username is already taken! Please choose a different one.');
+        } else {
+          db.ref('users/' + user).set({
+            email: mail,
+            password: pass,
+            currency: 100, 
+            joinedDate: Date.now()
+          }).then(() => {
+            alert('Cloud Account Created Successfully!');
+            window.location.href = 'login.html';
+          });
+        }
+      }).catch((error) => {
+        console.error(error);
+        alert("Verification failed against server endpoints.");
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>
