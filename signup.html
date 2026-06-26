@@ -4,6 +4,61 @@
   <meta charset="UTF-8">
   <title>Sign Up - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Clean alignment styling matching the login layout */
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+    .auth-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .auth-box h1 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 2em;
+      color: #333;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      font-size: 1em;
+      outline: none;
+    }
+    .auth-box input:focus {
+      border-color: #11AD36;
+    }
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.05em;
+    }
+    .auth-box p {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .auth-box p a {
+      color: #11AD36;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .auth-box p a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
@@ -39,7 +94,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // 2. Your NEW Firebase Config (Corrected for Europe)
+  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
     authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -50,7 +105,7 @@
     appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
   };
 
-  // 3. Initialize Firebase
+  // Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
@@ -62,14 +117,57 @@
     const mail = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
 
-    // Save to Firebase
-    db.ref('users/' + user).set({
-      email: mail,
-      password: pass,
-      joinedDate: Date.now()
-    }).then(() => {
-      alert('Cloud Account Created!');
-      window.location.href = 'login.html';
+    // ================= USERNAME REGISTRATION MODERATION =================
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    const lowerUser = user.toLowerCase();
+    const bannedWords = ["skibiditoiletgay", "swear1", "swear2"]; // Keep synced with your login banned list
+
+    // 1. Length Rules
+    if (user.length < 3 || user.length > 15) {
+      alert("Username must be between 3 and 15 characters long!");
+      return;
+    }
+
+    // 2. Allowed Character Rule
+    if (!usernameRegex.test(user)) {
+      alert("Usernames can only contain letters, numbers, and underscores!");
+      return;
+    }
+
+    // 3. Absolute Impersonation Block
+    if (lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) {
+      alert("You cannot register usernames containing 'Admin', 'System', or 'DynaDuck'.");
+      return;
+    }
+
+    // 4. Bad Word Filtering
+    for (let word of bannedWords) {
+      if (lowerUser.includes(word)) {
+        alert("This username contains restricted text. Please choose another.");
+        return;
+      }
+    }
+    // ====================================================================
+
+    // CHECK IF THE USERNAME IS ALREADY TAKEN IN THE CLOUD
+    db.ref('users/' + user).get().then((snapshot) => {
+      if (snapshot.exists()) {
+        alert('This username is already taken! Please choose a different one.');
+      } else {
+        // Safe to create new profile with safe initial variables
+        db.ref('users/' + user).set({
+          email: mail,
+          password: pass,
+          currency: 100, // <--- Secure starter currency baseline setup here!
+          joinedDate: Date.now()
+        }).then(() => {
+          alert('Cloud Account Created Successfully!');
+          window.location.href = 'login.html';
+        });
+      }
+    }).catch((error) => {
+      console.error(error);
+      alert("Error verification failed against server endpoints.");
     });
   });
 </script>
