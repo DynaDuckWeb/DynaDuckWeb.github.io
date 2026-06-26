@@ -60,7 +60,6 @@
   </style>
 </head>
 <body>
-
   <header>
     <div class="header-left">
       <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
@@ -71,15 +70,12 @@
         <a href="dynamites.html">Dynamites</a>
       </nav>
     </div>
-
     <div class="search-container">
       <input type="text" class="search-bar" placeholder="Search...">
     </div>
-
     <div id="authButtons">
       </div>
   </header>
-
   <div class="auth-container">
     <div class="auth-box">
       <h1>Create Account</h1>
@@ -92,10 +88,8 @@
       <p>Already have an account? <a href="login.html">Log In</a></p>
     </div>
   </div>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
@@ -106,17 +100,13 @@
       messagingSenderId: "777148453502",
       appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
     };
-
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
-
-    // DYNAMIC HEADER ENGINE
     function updateHeader() {
       const authDiv = document.getElementById('authButtons');
       const loggedInUser = localStorage.getItem('loggedInUser');
-
       if (loggedInUser) {
         authDiv.innerHTML = `
           <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
@@ -130,25 +120,19 @@
         `;
       }
     }
-
     function logout() {
       localStorage.removeItem('loggedInUser');
       localStorage.removeItem('isAdmin');
       updateHeader();
     }
-
     window.addEventListener('DOMContentLoaded', updateHeader);
-
-    // SIGNUP FORM WITH FULL SECURITY FILTERS
     document.getElementById('signupForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const user = document.getElementById('username').value.trim();
       const mail = document.getElementById('email').value.trim();
       const pass = document.getElementById('password').value;
-
       const usernameRegex = /^[a-zA-Z0-9_]+$/;
-      const lowerUser = user.toLowerCase();
-      
+      const lowerUser = user.toLowerCase()
       const bannedWords = [
         "gay", "lesbian", "bi", "bisexual", 
         "nigga", "nigger", "fag", "faggot", "retard",
@@ -156,29 +140,24 @@
         "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
         "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
       ];
-
       if (user.length < 3 || user.length > 15) {
         alert("Username must be between 3 and 15 characters long!");
         return;
       }
-
       if (!usernameRegex.test(user)) {
         alert("Usernames can only contain letters, numbers, and underscores!");
         return;
       }
-
       if (lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) {
         alert("You cannot register usernames containing 'Admin', 'System', or 'DynaDuck'.");
         return;
       }
-
       for (let word of bannedWords) {
         if (lowerUser.includes(word)) {
           alert("This username contains restricted text or social media terms. Please choose another.");
           return;
         }
       }
-
       db.ref('users/' + user).get().then((snapshot) => {
         if (snapshot.exists()) {
           alert('This username is already taken! Please choose a different one.');
