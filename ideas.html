@@ -5,20 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DynaDuck - Ideas</title>
 <link rel="stylesheet" href="style.css">
-
 <style>
 body { font-family:'Poppins', sans-serif; margin:0; padding:0; background:#f2f2f2; color:#222; }
-
 header { display:flex; align-items:center; justify-content:space-between; background:#333; padding:15px 40px; }
 .header-left { display:flex; align-items:center; gap:20px; }
 .logo { height:70px; cursor:pointer; }
 nav { display:flex; gap:25px; }
 nav a { text-decoration:none; color:white; font-weight:600; font-size:1.05em; transition:0.2s; }
 nav a:hover { color:#11AD36; }
-
 .search-container { flex:1; display:flex; justify-content:center; }
 .search-bar { width:320px; padding:10px 12px; border-radius:8px; border:none; outline:none; font-size:1em; }
-
 .green-btn {
   background:#11AD36;
   color:white;
@@ -31,12 +27,9 @@ nav a:hover { color:#11AD36; }
   transition:0.2s;
 }
 .green-btn:hover { background:#0E8E2C; }
-
 #authButtons { display:flex; gap:15px; align-items:center; }
-
 .main-container { max-width:900px; margin:40px auto; padding:0 20px; }
 .center-message { text-align:center; margin-top:100px; font-size:1.8em; font-weight:bold; color:#555; }
-
 .idea-input {
   background:white;
   padding:20px;
@@ -44,7 +37,6 @@ nav a:hover { color:#11AD36; }
   box-shadow:0 4px 20px rgba(0,0,0,0.1);
   margin-bottom:30px;
 }
-
 .idea-input textarea,
 .idea-input input[type="text"] {
   width:100%;
@@ -54,7 +46,6 @@ nav a:hover { color:#11AD36; }
   margin-bottom:10px;
   resize:none;
 }
-
 .idea {
   background:white;
   padding:15px 20px;
@@ -62,16 +53,13 @@ nav a:hover { color:#11AD36; }
   margin-bottom:15px;
   box-shadow:0 3px 12px rgba(0,0,0,0.1);
 }
-
 .idea h3 { margin:0 0 5px 0; }
 .idea .meta { font-size:0.85em; color:#11AD36; font-weight:600; margin-bottom:8px; }
-
 .idea .actions {
   display:flex;
   gap:10px;
   margin-top:10px;
 }
-
 #adminReports {
   background:#fff;
   padding:20px;
@@ -79,7 +67,6 @@ nav a:hover { color:#11AD36; }
   box-shadow:0 4px 15px rgba(0,0,0,0.1);
   margin-top:40px;
 }
-
 .report-card {
   border:1px solid #ccc;
   border-radius:10px;
@@ -87,7 +74,6 @@ nav a:hover { color:#11AD36; }
   margin-bottom:12px;
   background:#fafafa;
 }
-
 .report-actions {
   display:flex;
   gap:10px;
@@ -95,9 +81,7 @@ nav a:hover { color:#11AD36; }
 }
 </style>
 </head>
-
 <body>
-
 <header>
   <div class="header-left">
     <a href="index.html">
@@ -110,49 +94,35 @@ nav a:hover { color:#11AD36; }
       <a href="dynamites.html">Dynamites</a>
     </nav>
   </div>
-
   <div class="search-container">
     <input type="text" class="search-bar" placeholder="Search...">
   </div>
-
   <div id="authButtons"></div>
 </header>
-
 <div class="main-container">
-
   <div id="notLoggedIn" class="center-message">
     MAKE AN ACCOUNT TO ACCESS THIS PAGE :3
   </div>
-
   <div id="ideasContent" style="display:none;">
-
     <div class="idea-input">
       <input type="text" id="ideaTitle" placeholder="Idea title">
       <textarea id="ideaDesc" rows="3" placeholder="Idea description"></textarea>
       <button class="green-btn" onclick="addIdea()">Add Idea</button>
     </div>
-
     <div class="actions" style="margin-bottom:20px;">
       <button class="green-btn" onclick="sortIdeas('likes')">Sort by Likes</button>
       <button class="green-btn" onclick="sortIdeas('newest')">Sort by Newest</button>
     </div>
-
     <div id="ideasList"></div>
-
     <div id="adminReports" style="display:none;">
       <h2>Reported Ideas (Admin)</h2>
       <div id="reportsContainer"></div>
     </div>
-
   </div>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-/* ================= FIREBASE ================= */
-
 const firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
   authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -162,42 +132,30 @@ const firebaseConfig = {
   messagingSenderId: "777148453502",
   appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
 };
-
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-/* ================= AUTH HELPERS ================= */
-
 function getUser() {
   return localStorage.getItem("loggedInUser");
 }
-
-/* ================= MODERATION ================= */
-
-const bannedWords = [
-  "fuck","shit","bitch","asshole",
-  "nigger","fag","retard",
-  "discord","instagram","snapchat","tiktok","@",
-  "my age","i am years old","i live in","address"
-];
-
+      const bannedWords = [
+        "gay", "lesbian", "bi", "bisexual", 
+        "nigga", "nigger", "fag", "faggot", "retard",
+        "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
+        "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
+        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
+      ];
 function isBlocked(text = "") {
   const lower = text.toLowerCase();
   return bannedWords.some(w => lower.includes(w));
-}
-
-/* ================= UI AUTH ================= */
-
+}'
 function updateHeader() {
   const user = getUser();
   const authDiv = document.getElementById("authButtons");
-
   if (!user) {
     authDiv.innerHTML = `
       <a href="login.html"><button class="green-btn">Log In</button></a>
       <a href="signup.html"><button class="green-btn">Sign Up</button></a>
     `;
-
     document.getElementById("notLoggedIn").style.display = "block";
     document.getElementById("ideasContent").style.display = "none";
     return;
@@ -207,126 +165,88 @@ function updateHeader() {
     <span style="color:white;font-weight:bold;margin-right:10px;">${user}</span>
     <button class="green-btn" onclick="logout()">Logout</button>
   `;
-
   document.getElementById("notLoggedIn").style.display = "none";
   document.getElementById("ideasContent").style.display = "block";
-
   loadPosts();
-
   if (user === "Admin") loadReports();
 }
-
 function logout() {
   localStorage.removeItem("loggedInUser");
   location.reload();
 }
-
 window.addEventListener("DOMContentLoaded", updateHeader);
-
-/* ================= CREATE POST ================= */
-
 function addIdea() {
   const user = getUser();
   if (!user) return alert("Login required");
-
   const title = document.getElementById("ideaTitle").value.trim();
   const text = document.getElementById("ideaDesc").value.trim();
-
   if (!title || !text) return alert("Fill all fields");
   if (isBlocked(title + text)) return alert("Blocked content detected");
-
   const id = db.ref("posts").push().key;
-
   db.ref("posts/" + id).set({
     title,
     text,
     user,
     timestamp: Date.now()
   });
-
   document.getElementById("ideaTitle").value = "";
   document.getElementById("ideaDesc").value = "";
 }
-
-/* ================= LOAD POSTS (FIXED) ================= */
-
 let postsListenerAttached = false;
-
 function loadPosts() {
   if (postsListenerAttached) return;
   postsListenerAttached = true;
-
   const container = document.getElementById("ideasList");
-
   db.ref("posts").on("value", snap => {
     container.innerHTML = "";
-
     snap.forEach(postSnap => {
       const post = postSnap.val();
       const id = postSnap.key;
-
       const div = document.createElement("div");
       div.className = "idea";
-
       div.innerHTML = `
         <h3>${post.title}</h3>
         <div class="meta">By ${post.user}</div>
         <p>${post.text}</p>
-
         <div class="actions">
           <button class="green-btn" onclick="toggleReply('${id}')">Reply</button>
           <button class="green-btn" onclick="reportPost('${id}')">Report</button>
         </div>
-
         <div id="replies-${id}"></div>
-
         <div id="replyBox-${id}" style="display:none;margin-top:10px;">
           <input id="replyInput-${id}" style="width:100%;padding:8px;">
           <button class="green-btn" onclick="addReply('${id}')">Send</button>
         </div>
       `;
-
       container.appendChild(div);
       loadReplies(id);
     });
   });
 }
-
-/* ================= REPLIES ================= */
-
 function toggleReply(id) {
   const box = document.getElementById("replyBox-" + id);
   if (box) box.style.display = box.style.display === "none" ? "block" : "none";
 }
-
 function addReply(postId) {
   const user = getUser();
   if (!user) return alert("Login required");
-
   const input = document.getElementById("replyInput-" + postId);
   const text = input.value.trim();
-
   if (!text) return;
   if (isBlocked(text)) return alert("Blocked content");
-
   db.ref("replies/" + postId).push().set({
     user,
     text,
     timestamp: Date.now()
   });
-
   input.value = "";
 }
-
 function loadReplies(postId) {
   const container = document.getElementById("replies-" + postId);
   if (!container) return;
-
   db.ref("replies/" + postId).off();
-
   db.ref("replies/" + postId).on("value", snap => {
     container.innerHTML = "";
-
     snap.forEach(r => {
       const reply = r.val();
       const div = document.createElement("div");
@@ -337,76 +257,53 @@ function loadReplies(postId) {
     });
   });
 }
-
-/* ================= REPORT ================= */
-
 function reportPost(postId) {
   const user = getUser();
   if (!user) return alert("Login required");
-
   const reason = prompt("Why report?");
   if (!reason) return;
-
   db.ref("reports").push().set({
     postId,
     reporter: user,
     reason,
     timestamp: Date.now()
   });
-
   alert("Reported!");
 }
-
-/* ================= ADMIN ================= */
-
 function loadReports() {
   const user = getUser();
   if (user !== "Admin") return;
-
   document.getElementById("adminReports").style.display = "block";
-
   const container = document.getElementById("reportsContainer");
-
   db.ref("reports").on("value", snap => {
     container.innerHTML = "";
-
     snap.forEach(repSnap => {
       const rep = repSnap.val();
       const repId = repSnap.key;
-
       db.ref("posts/" + rep.postId).once("value").then(postSnap => {
         if (!postSnap.exists()) return;
-
         const post = postSnap.val();
-
         const div = document.createElement("div");
         div.className = "report-card";
-
         div.innerHTML = `
           <p><b>Reporter:</b> ${rep.reporter}</p>
           <p><b>Reason:</b> ${rep.reason}</p>
           <p><b>Post:</b> ${post.title}</p>
-
           <div class="report-actions">
             <button class="green-btn" onclick="deletePost('${rep.postId}','${repId}')">Delete</button>
             <button class="green-btn" style="background:#ccc" onclick="dismissReport('${repId}')">Dismiss</button>
           </div>
         `;
-
         container.appendChild(div);
       });
     });
   });
 }
-
-/* ================= DELETE ================= */
-
 function deletePost(postId, reportId) {
   db.ref("posts/" + postId).remove();
   db.ref("replies/" + postId).remove();
   db.ref("reports/" + reportId).remove();
 }
-
 function dismissReport(reportId) {
   db.ref("reports/" + reportId).remove();
 }
@@ -415,21 +312,17 @@ function dismissReport(reportId) {
 function getUser() {
   return localStorage.getItem("loggedInUser");
 }
-
 function updateHeader() {
   const authDiv = document.getElementById("authButtons");
   const user = getUser();
-
   if (user) {
     authDiv.innerHTML = `
       <span style="color:white;font-weight:bold;margin-right:12px;">
         Welcome, ${user}
       </span>
-
       <a href="settings.html">
         <button class="green-btn">Settings</button>
       </a>
-
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
   } else {
@@ -439,12 +332,10 @@ function updateHeader() {
     `;
   }
 }
-
 function logout() {
   localStorage.removeItem("loggedInUser");
   location.reload();
 }
-
 window.addEventListener("DOMContentLoaded", updateHeader);
 </script>
 </body>
