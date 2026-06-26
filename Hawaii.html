@@ -58,7 +58,6 @@
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
         }
 
-        /* Diagnostic Debug Box */
         #debug-status {
             position: fixed;
             bottom: 15px;
@@ -96,17 +95,7 @@
             debug.style.backgroundColor = "rgba(0, 200, 0, 0.85)";
             debug.innerText = "Status: Video playing perfectly backgrounded.";
             setTimeout(() => { debug.style.display = 'none'; }, 3000);
-        };
-
-        video.onerror = function() {
-            debug.innerText = "Error: Cannot find 'Hawaii.mp4'. Check your file name and folder.";
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            video.play().catch(error => {
-                debug.innerText = "Status: Browser blocked autoplay. Click anywhere on the screen to force play.";
-                document.body.style.cursor = "pointer";
-                
+        };                
                 document.body.addEventListener('click', () => {
                     video.play();
                     document.body.style.cursor = "default";
