@@ -24,7 +24,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 1; /* Keeping it low */
+            z-index: 1; 
             overflow: hidden;
         }
 
@@ -43,7 +43,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10; /* Make sure it stays on top */
+            z-index: 10; 
             pointer-events: none;
         }
 
@@ -92,20 +92,16 @@
         const video = document.getElementById('bg-video');
         const debug = document.getElementById('debug-status');
 
-        // Check if video successfully plays
         video.onplaying = function() {
             debug.style.backgroundColor = "rgba(0, 200, 0, 0.85)";
             debug.innerText = "Status: Video playing perfectly backgrounded.";
-            // Auto hide debug notice after 3 seconds of success
             setTimeout(() => { debug.style.display = 'none'; }, 3000);
         };
 
-        // Check if video encounters an error
         video.onerror = function() {
             debug.innerText = "Error: Cannot find 'Hawaii.mp4'. Check your file name and folder.";
         };
 
-        // Direct browser override check
         window.addEventListener('DOMContentLoaded', () => {
             video.play().catch(error => {
                 debug.innerText = "Status: Browser blocked autoplay. Click anywhere on the screen to force play.";
