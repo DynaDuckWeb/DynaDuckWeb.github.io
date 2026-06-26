@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>DynaDuck Catalog</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
     /* Base Page Styling */
     body {
@@ -14,85 +16,82 @@
     /* ------------------------------------------- */
     /* HEADER                                      */
     /* ------------------------------------------- */
-/* ------------------------------------------- */
-/* HEADER                                      */
-/* ------------------------------------------- */
 
-header {
-    background-color: #333333;
-    color: white;
-    height: 72px;
-    padding: 0 30px;
+    header {
+        background-color: #333333;
+        color: white;
+        height: 72px;
+        padding: 0 30px;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
-    box-sizing: border-box;
-}
+        box-sizing: border-box;
+    }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 35px;
-}
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 35px;
+    }
 
-.logo {
-    height: 48px;
-    width: auto;
-    display: block;
-}
+    .logo {
+        height: 48px;
+        width: auto;
+        display: block;
+    }
 
-nav {
-    display: flex;
-    gap: 25px;
-}
+    nav {
+        display: flex;
+        gap: 25px;
+    }
 
-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 17px;
-    line-height: 1;
-}
+    nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 17px;
+        line-height: 1;
+    }
 
-nav a.active {
-    color: #11AD36;
-}
+    nav a.active {
+        color: #11AD36;
+    }
 
-.search-bar {
-    width: 350px;
-    height: 42px;
-    padding: 0 15px;
+    .search-bar {
+        width: 350px;
+        height: 42px;
+        padding: 0 15px;
 
-    border: none;
-    border-radius: 8px;
-    outline: none;
+        border: none;
+        border-radius: 8px;
+        outline: none;
 
-    font-size: 15px;
-    box-sizing: border-box;
-}
+        font-size: 15px;
+        box-sizing: border-box;
+    }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-weight: bold;
-}
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: bold;
+    }
 
-.header-btn {
-    height: 40px;
-    padding: 0 18px;
+    .header-btn {
+        height: 40px;
+        padding: 0 18px;
 
-    background: #11AD36;
-    border: none;
-    border-radius: 6px;
+        background: #11AD36;
+        border: none;
+        border-radius: 6px;
 
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 15px;
-}
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 15px;
+    }
 
     /* ------------------------------------------- */
     /* MAIN LAYOUT MATRIX                          */
@@ -287,12 +286,12 @@ nav a.active {
   <header>
     <div class="header-left">
       <a href="#"><img src="logo.png" class="logo" alt="Logo"></a>
-<nav>
-    <a href="catalog.html" class="active">Catalog</a>
-    <a href="ideas.html">Ideas</a>
-    <a href="create.html">Create</a>
-    <a href="dynamites.html">Dynamites</a>
-</nav>
+      <nav>
+        <a href="catalog.html" class="active">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
     </div>
     <div>
       <input type="text" class="search-bar" placeholder="Search...">
@@ -305,9 +304,9 @@ nav a.active {
   </header>
 
   <div class="main-container">
-    
+
     <div class="left-column">
-      
+
       <div class="editor-top-row">
         <div class="body-colors-panel">
           <h3>Body Colors</h3>
@@ -319,7 +318,7 @@ nav a.active {
             <option value="l-leg">Left Leg</option>
             <option value="r-leg">Right Leg</option>
           </select>
-          
+
           <div class="color-grid">
             <div class="color-box" style="background: #ffcd3a;" onclick="applyColor('#ffcd3a')"></div>
             <div class="color-box" style="background: #0055ff;" onclick="applyColor('#0055ff')"></div>
@@ -355,25 +354,7 @@ nav a.active {
     </div>
 
     <div class="center-section">
-      <div class="item-card">
-        <div class="item-box">
-          <h4>DynaDuck<br>Logo<br>T-Shirt</h4>
-        </div>
-        <div class="item-btn">
-          <span class="btn-text-buy">Buy</span>
-          <span class="btn-text-price">25 Dynamites</span>
-        </div>
-      </div>
-      
-      <div class="item-card">
-        <div class="item-box">
-          <h4>Admin<br>Red<br>Cap</h4>
-        </div>
-        <div class="item-btn">
-          <span class="btn-text-buy">Buy</span>
-          <span class="btn-text-price">50 Dynamites</span>
-        </div>
-      </div>
+      <!-- populated by loadCatalog() -->
     </div>
 
     <div class="right-section">
@@ -385,133 +366,145 @@ nav a.active {
 
   </div>
 
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-  authDomain: "dynaduck-19dbb.firebaseapp.com",
-  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dynaduck-19dbb",
-  storageBucket: "dynaduck-19dbb.firebasestorage.app",
-  messagingSenderId: "777148453502",
-  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.database();
-
-const username = "Admin";
-
-// Initialize app
-async function initApp() {
-    const userRef = db.ref("users/" + username);
-
-    const snapshot = await userRef.once("value");
-
-    if (!snapshot.exists()) {
-        await userRef.set({
-            currency: 100000,
-            inventory: {
-                "Starter Pack": true
-            }
-        });
-    }
-
-    loadCatalog();
-    updateInventoryUI();
-}
-
-// Catalog
-function loadCatalog() {
-
-    const items = [
-        { name: "DynaDuck Logo T-Shirt", price: 25 },
-        { name: "Admin Red Cap", price: 50 },
-        { name: "Sheldesky's Crown", price: 100000 }
-    ];
-
-    const grid = document.querySelector(".center-section");
-    grid.innerHTML = "";
-
-    items.forEach(item => {
-
-        const card = document.createElement("div");
-        card.className = "item-card";
-
-        card.innerHTML = `
-            <div class="item-box">
-                <h4>${item.name.replace(/ /g,"<br>")}</h4>
-            </div>
-            <div class="item-btn">
-                <span class="btn-text-buy">Buy</span>
-                <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
-            </div>
-        `;
-
-        card.querySelector(".item-btn").onclick = () => buyItem(item.name, item.price);
-
-        grid.appendChild(card);
-
-    });
-
-}
-
-// Purchase
-async function buyItem(itemName, price) {
-
-    const userRef = db.ref("users/" + username);
-
-    const snapshot = await userRef.once("value");
-
-    const user = snapshot.val() || {
-        currency: 0,
-        inventory: {}
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+      authDomain: "dynaduck-19dbb.firebaseapp.com",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dynaduck-19dbb",
+      storageBucket: "dynaduck-19dbb.firebasestorage.app",
+      messagingSenderId: "777148453502",
+      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
     };
 
-    if (user.inventory && user.inventory[itemName]) {
-        alert("You already own this item.");
-        return;
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.database();
+
+    const username = "Admin";
+
+    // Initialize app
+    async function initApp() {
+        const userRef = db.ref("users/" + username);
+
+        const snapshot = await userRef.once("value");
+
+        if (!snapshot.exists()) {
+            await userRef.set({
+                currency: 100000,
+                inventory: {
+                    "Starter Pack": true
+                }
+            });
+        }
+
+        loadCatalog();
+        updateInventoryUI();
     }
 
-    if (user.currency < price) {
-        alert("Not enough Dynamites!");
-        return;
+    // Catalog
+    function loadCatalog() {
+
+        const items = [
+            { name: "DynaDuck Logo T-Shirt", price: 25 },
+            { name: "Admin Red Cap", price: 50 },
+            { name: "Sheldesky's Crown", price: 100000 }
+        ];
+
+        const grid = document.querySelector(".center-section");
+        grid.innerHTML = "";
+
+        items.forEach(item => {
+
+            const card = document.createElement("div");
+            card.className = "item-card";
+
+            card.innerHTML = `
+                <div class="item-box">
+                    <h4>${item.name.replace(/ /g, "<br>")}</h4>
+                </div>
+                <div class="item-btn">
+                    <span class="btn-text-buy">Buy</span>
+                    <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
+                </div>
+            `;
+
+            card.querySelector(".item-btn").onclick = () => buyItem(item.name, item.price);
+
+            grid.appendChild(card);
+
+        });
+
     }
 
-    await userRef.update({
-        currency: user.currency - price,
-        ["inventory/" + itemName]: true
-    });
+    // Purchase
+    async function buyItem(itemName, price) {
 
-    alert("Purchased " + itemName + "!");
+        const userRef = db.ref("users/" + username);
 
-    updateInventoryUI();
+        const snapshot = await userRef.once("value");
 
-}
+        const user = snapshot.val() || {
+            currency: 0,
+            inventory: {}
+        };
 
-// Inventory
-async function updateInventoryUI() {
+        if (user.inventory && user.inventory[itemName]) {
+            alert("You already own this item.");
+            return;
+        }
 
-    const snapshot = await db.ref("users/" + username + "/inventory").once("value");
+        if (user.currency < price) {
+            alert("Not enough Dynamites!");
+            return;
+        }
 
-    const inventory = snapshot.val() || {};
+        await userRef.update({
+            currency: user.currency - price,
+            ["inventory/" + itemName]: true
+        });
 
-    const container = document.querySelector(".inventory-grid");
+        alert("Purchased " + itemName + "!");
 
-    container.innerHTML = "";
+        updateInventoryUI();
 
-    Object.keys(inventory).forEach(item => {
+    }
 
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.textContent = item;
+    // Inventory
+    async function updateInventoryUI() {
 
-        container.appendChild(div);
+        const snapshot = await db.ref("users/" + username + "/inventory").once("value");
 
-    });
+        const inventory = snapshot.val() || {};
 
-}
+        const container = document.querySelector(".inventory-grid");
 
-window.onload = initApp;
+        container.innerHTML = "";
+
+        Object.keys(inventory).forEach(item => {
+
+            const div = document.createElement("div");
+            div.className = "inventory-item";
+            div.textContent = item;
+
+            container.appendChild(div);
+
+        });
+
+    }
+
+    // Avatar color editor
+    function applyColor(hexColor) {
+        const part = document.getElementById("bodyPartSelect").value;
+        const el = document.getElementById("part-" + part);
+        if (el) {
+            el.style.backgroundColor = hexColor;
+        }
+    }
+
+    window.onload = initApp;
+  </script>
+
 </body>
 </html>
