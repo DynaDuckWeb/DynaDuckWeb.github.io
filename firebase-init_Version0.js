@@ -1,6 +1,3 @@
-// Minimal Firebase initialization and helper auth/profile functions.
-// Uses your firebaseConfig. Add this file to your repo root.
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import {
   getAuth,
@@ -40,8 +37,6 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-/* Sign up and create a profile document using the chosen username as doc id.
-   Uses a transaction to ensure username uniqueness. */
 export async function signUpWithUsername(email, password, username){
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   const uid = cred.user.uid;
@@ -54,8 +49,6 @@ export async function signUpWithUsername(email, password, username){
   });
   return cred;
 }
-
-/* Sign in by username OR email. */
 export async function signInByUsernameOrEmail(loginInput, password){
   if (loginInput.includes('@')) {
     return signInWithEmailAndPassword(auth, loginInput, password);
@@ -70,7 +63,6 @@ export async function signInByUsernameOrEmail(loginInput, password){
     return signInWithEmailAndPassword(auth, email, password);
   }
 }
-
 export async function signOutUser(){ return signOut(auth); }
 export function onAuthStateChanged(cb){ fuOnAuthStateChanged(auth, cb); }
 
@@ -81,12 +73,10 @@ export async function getProfileByUid(uid){
   if(snaps.empty) return null;
   return snaps.docs[0].data();
 }
-
 export async function getProfileByUsername(username){
   const snap = await getDoc(doc(db, "profiles", username));
   return snap.exists() ? snap.data() : null;
 }
-
 export async function updateProfileDisplayName(newName){
   const user = auth.currentUser;
   if(!user) throw new Error("Not authenticated");
@@ -96,13 +86,11 @@ export async function updateProfileDisplayName(newName){
   await setDoc(profileRef, { ...profile, displayName: newName }, { merge: true });
   await setDoc(doc(db, "users", user.uid), { displayName: newName }, { merge: true });
 }
-
 export async function changePassword(newPassword){
   const user = auth.currentUser;
   if(!user) throw new Error("Not authenticated");
   await updatePassword(user, newPassword);
 }
-
 export async function deleteAccountWithReauth(currentPassword){
   const user = auth.currentUser;
   if(!user) throw new Error("Not authenticated");
