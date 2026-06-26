@@ -516,6 +516,7 @@
           });
         }
       });
+    }
     function accept(n) {
       db.ref('users/' + currentUser + '/friends/' + n).set(true);
       db.ref('users/' + n + '/friends/' + currentUser).set(true);
@@ -524,4 +525,4 @@
     window.onload = initApp;
   </script>
 </body>
-</html>
+</html>s
