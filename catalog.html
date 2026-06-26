@@ -258,12 +258,12 @@
   <header>
     <div class="header-left">
       <a href="#"><img src="logo.png" class="logo" alt="Logo"></a>
-      <nav>
-        <a href="#" class="active">Catalog</a>
-        <a href="#">Ideas</a>
-        <a href="#">Create</a>
-        <a href="#">Dynamites</a>
-      </nav>
+<nav>
+    <a href="catalog.html" class="active">Catalog</a>
+    <a href="ideas.html">Ideas</a>
+    <a href="create.html">Create</a>
+    <a href="dynamites.html">Dynamites</a>
+</nav>
     </div>
     <div>
       <input type="text" class="search-bar" placeholder="Search...">
@@ -360,53 +360,32 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // 1. Initialize Firebase
+  // 1. Initialize
   const firebaseConfig = {
-    apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-    authDomain: "dynaduck-19dbb.firebaseapp.com",
+    apiKey: "YOUR_API_KEY",
     databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dynaduck-19dbb",
-    storageBucket: "dynaduck-19dbb.firebasestorage.app",
-    messagingSenderId: "777148453502",
-    appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+    projectId: "dynaduck-19dbb"
   };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
+  
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  const username = localStorage.getItem('loggedInUser') || "Admin"; // Fallback to Admin for testing
+  const username = "Admin"; // Hardcoded for testing; ensure this matches your DB structure
 
-  // 2. State & Load
-  let currentColors = { 'head': '#ffcd3a', 'torso': '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' };
-
-  // Listen for real-time changes
-  db.ref('users/' + username + '/avatar/colors').on('value', (snapshot) => {
-    if(snapshot.exists()) {
-      currentColors = snapshot.val();
-      for(let part in currentColors) {
-        const el = document.getElementById('part-' + part);
-        if(el) el.style.backgroundColor = currentColors[part];
-      }
-    }
-  });
-
-  // 3. Color Logic
-  function applyColor(hexColor) {
-    const selectedPart = document.getElementById('bodyPartSelect').value;
-    let testColors = { ...currentColors, [selectedPart]: hexColor };
+  // 2. Fetch User Data & Shop
+  function initApp() {
+    const userRef = db.ref('users/' + username);
     
-    // Anti-Solid Check
-    if (Object.values(testColors).every(val => val === hexColor)) {
-      alert("Design Rule: Your avatar cannot be a single solid color!");
-      return;
-    }
-
-    db.ref('users/' + username + '/avatar/colors/' + selectedPart).set(hexColor);
+    userRef.once('value').then(snapshot => {
+      if (!snapshot.exists()) {
+        // Initialize user if they don't exist
+        userRef.set({ currency: 100000, inventory: { "Starter Pack": true } });
+      }
+      loadCatalog();
+      updateInventoryUI();
+    });
   }
 
-  // 4. Shop Logic
+  // 3. Load Catalog
   function loadCatalog() {
     const items = [
       { name: "DynaDuck Logo T-Shirt", price: 25 },
@@ -415,7 +394,7 @@
     ];
 
     const grid = document.querySelector('.center-section');
-    grid.innerHTML = "";
+    grid.innerHTML = ""; // Clear "empty" message
 
     items.forEach(item => {
       grid.innerHTML += `
@@ -430,41 +409,38 @@
     });
   }
 
+  // 4. Buy Logic
   function buyItem(itemName, price) {
     const userRef = db.ref('users/' + username);
     userRef.once('value').then(snapshot => {
-      let data = snapshot.val() || { currency: 0 };
-      let balance = data.currency || 0;
-
-      if (balance < price) {
-        alert("Not enough Dynamites! You have " + balance.toLocaleString() + ".");
-        return;
+      let balance = snapshot.val().currency || 0;
+      if (balance >= price) {
+        userRef.update({
+          currency: balance - price,
+          ['inventory/' + itemName]: true
+        }).then(() => {
+          alert("Purchased " + itemName + "!");
+          updateInventoryUI();
+        });
+      } else {
+        alert("Not enough Dynamites!");
       }
-
-      userRef.update({
-        'currency': balance - price,
-        ['inventory/' + itemName]: true
-      }).then(() => {
-        alert("Purchase Successful!");
-        updateInventoryUI();
-      });
     });
   }
 
   function updateInventoryUI() {
-    db.ref('users/' + username + '/inventory').once('value').then(snapshot => {
+    db.ref('users/' + username + '/inventory').on('value', snapshot => {
       const container = document.querySelector('.inventory-grid');
-      if(!container) return;
-      container.innerHTML = "";
-      let items = snapshot.val() || {};
-      Object.keys(items).forEach(item => {
-        container.innerHTML += `<div class="inventory-item">${item}</div>`;
-      });
+      if(container) {
+        container.innerHTML = "";
+        Object.keys(snapshot.val() || {}).forEach(item => {
+          container.innerHTML += `<div class="inventory-item">${item}</div>`;
+        });
+      }
     });
   }
 
-  // Initial Boot
-  window.onload = () => { loadCatalog(); updateInventoryUI(); };
+  window.onload = initApp;
 </script>
 </body>
 </html>
