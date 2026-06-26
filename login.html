@@ -5,7 +5,6 @@
   <title>Log In - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Custom alignment for the auth card to look clean and centered */
     .auth-container {
       display: flex;
       justify-content: center;
@@ -62,7 +61,7 @@
 </head>
 <body>
 
-<header>
+  <header>
     <div class="header-left">
       <img src="logo.png" class="logo" alt="DynaDuck" onclick="window.location.href='index.html'">
       <nav>
@@ -72,6 +71,13 @@
         <a href="dynamites.html">Dynamites</a>
       </nav>
     </div>
+
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search...">
+    </div>
+
+    <div id="authButtons">
+      </div>
   </header>
 
   <div class="auth-container">
@@ -90,7 +96,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
       authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -101,66 +106,87 @@
       appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
     };
 
-    // Initialize Firebase
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
 
-    const loginForm = document.getElementById('loginForm');
+    // DYNAMIC HEADER ENGINE
+    function updateHeader() {
+      const authDiv = document.getElementById('authButtons');
+      const loggedInUser = localStorage.getItem('loggedInUser');
 
+      if (loggedInUser) {
+        authDiv.innerHTML = `
+          <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+          <a href="settings.html"><button class="green-btn">Settings</button></a>
+          <button class="green-btn" onclick="logout()">Logout</button>
+        `;
+      } else {
+        authDiv.innerHTML = `
+          <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+          <a href="login.html"><button class="green-btn">Log In</button></a>
+        `;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedInUser');
+      localStorage.removeItem('isAdmin');
+      updateHeader();
+    }
+
+    window.addEventListener('DOMContentLoaded', updateHeader);
+
+    // LOGIN PROCESS WITH SECURITY MODERATION
+    const loginForm = document.getElementById('loginForm');
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
 
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
 
-      // ================= USERNAME MODERATION =================
       const usernameRegex = /^[a-zA-Z0-9_]+$/;
       const lowerUser = username.toLowerCase();
-      const bannedWords = ["skibiditoiletgay", "swear1", "swear2"]; // Add any additional bad words here
+      
+      const bannedWords = [
+        "gay", "lesbian", "bi", "bisexual", 
+        "nigga", "nigger", "fag", "faggot", "retard",
+        "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
+        "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
+        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
+      ];
 
-      // 1. Length Restrictions
       if (username.length < 3 || username.length > 15) {
         alert("Username must be between 3 and 15 characters long!");
         return;
       }
 
-      // 2. Character Filter (No spaces or strange symbols)
       if (!usernameRegex.test(username)) {
         alert("Usernames can only contain letters, numbers, and underscores!");
         return;
       }
 
-      // 3. Prevent Fake System/Admin Names
-      // Replace 'Teodor' or 'Eric' with your actual strict personal username if needed
       if ((lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) && username !== "Admin") {
         alert("You cannot log into system reserved usernames!");
         return;
       }
 
-      // 4. Cleanliness check
       for (let word of bannedWords) {
         if (lowerUser.includes(word)) {
           alert("Username contains restricted language!");
           return;
         }
       }
-      // ========================================================
 
-      // Ask Firebase for user details
       db.ref('users/' + username).get().then((snapshot) => {
         if (snapshot.exists()) {
           const userData = snapshot.val();
           
-          // Check Password matching
           if (userData.password === password) {
             alert('Logged in successfully!');
-            
-            // Set session details locally
             localStorage.setItem('loggedInUser', username);
             
-            // Check if user is the master admin account
             if (username === "Admin") {
               localStorage.setItem('isAdmin', 'true');
             } else {
