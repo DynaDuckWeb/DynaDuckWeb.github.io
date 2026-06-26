@@ -6,16 +6,12 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    /* Base Page Styling */
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #eeeeee;
     }
-
-    /* ------------------------------------------- */
-    /* HEADER                                      */
-    /* ------------------------------------------- */
 
     header {
         background-color: #333333;
@@ -93,9 +89,6 @@
         font-size: 15px;
     }
 
-    /* ------------------------------------------- */
-    /* MAIN LAYOUT MATRIX                          */
-    /* ------------------------------------------- */
     .main-container {
       display: flex;
       justify-content: space-between;
@@ -103,9 +96,6 @@
       gap: 30px;
     }
 
-    /* ------------------------------------------- */
-    /* LEFT SECTION: Editor, Avatar & Inventory    */
-    /* ------------------------------------------- */
     .left-column {
       display: flex;
       flex-direction: column;
@@ -120,7 +110,6 @@
       align-items: flex-start;
     }
 
-    /* Body Colors Panel */
     .body-colors-panel {
       background: white;
       border-radius: 8px;
@@ -161,7 +150,6 @@
     }
     .color-box:hover { transform: scale(1.1); }
 
-    /* Blocky Avatar Design */
     .avatar-container {
       position: relative;
       width: 140px;
@@ -183,7 +171,6 @@
     .av-l-leg { width: 37px; height: 80px; background: #ffcd3a; top: 134px; left: 29px; }
     .av-r-leg { width: 37px; height: 80px; background: #ffcd3a; top: 134px; left: 66px; }
 
-    /* Inventory Panel (Below Avatar) */
     .inventory-panel {
       background: white;
       border-radius: 8px;
@@ -211,15 +198,12 @@
     }
     .inventory-item:hover { background: #e0e0e0; }
 
-    /* ------------------------------------------- */
-    /* CENTER SECTION: Store Items                 */
-    /* ------------------------------------------- */
     .center-section {
       flex-grow: 1;
       display: flex;
-      justify-content: center; /* This centers the items horizontally! */
+      justify-content: center;
       align-items: flex-start;
-      flex-wrap: wrap; /* Allows wrapping if there are many items */
+      flex-wrap: wrap; 
       gap: 25px;
     }
 
@@ -249,9 +233,6 @@
     .btn-text-buy { font-weight: bold; font-size: 20px; display: block; margin-bottom: 2px; }
     .btn-text-price { font-size: 13px; font-weight: bold; }
 
-    /* ------------------------------------------- */
-    /* RIGHT SECTION: Categories                   */
-    /* ------------------------------------------- */
     .right-section {
       background: white;
       border-radius: 15px;
@@ -344,14 +325,12 @@
       <div class="inventory-panel">
         <h3>My Wardrobe</h3>
         <div class="inventory-grid">
-          <!-- populated by updateInventoryUI() -->
         </div>
       </div>
 
     </div>
 
     <div class="center-section">
-      <!-- populated by loadCatalog() -->
     </div>
 
     <div class="right-section">
@@ -364,7 +343,6 @@
   </div>
 
   <script>
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
       authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -390,7 +368,6 @@
         "r-leg": "#ffcd3a"
     };
 
-    // Initialize app
     async function initApp() {
         const userRef = db.ref("users/" + username);
 
@@ -414,7 +391,6 @@
         updateInventoryUI(user.inventory || {}, user.equipped || {});
     }
 
-    // Catalog
     function loadCatalog() {
 
         const items = [
@@ -449,7 +425,6 @@
 
     }
 
-    // Purchase
     async function buyItem(item) {
 
         const userRef = db.ref("users/" + username);
@@ -462,9 +437,7 @@
             colors: defaultColors,
             equipped: {}
         };
-
-        // Self-heal: if Dynamites is missing or corrupted (not a finite number),
-        // reset it instead of letting NaN propagate into Firebase.
+      
         let currentDynamites = Number(user.Dynamites);
         if (!Number.isFinite(currentDynamites)) {
             console.warn("Dynamites was invalid (", user.Dynamites, "), resetting to 0");
@@ -497,7 +470,6 @@
 
     }
 
-    // Inventory
     function updateInventoryUI(inventory, equipped) {
 
         const container = document.querySelector(".inventory-grid");
@@ -539,7 +511,6 @@
 
     }
 
-    // Equip / unequip an owned item
     async function toggleEquip(itemName, itemData, currentlyEquipped) {
 
         if (!itemData || !itemData.slot) {
@@ -550,7 +521,6 @@
         const slot = itemData.slot;
 
         if (currentlyEquipped) {
-            // Unequip: clear the slot, restore default color
             await userRef.update({
                 ["equipped/" + slot]: null,
                 ["colors/" + slot]: defaultColors[slot]
@@ -569,7 +539,6 @@
 
     }
 
-    // Apply saved colors to the avatar on load
     function loadColors(colors) {
         Object.keys(colors).forEach(part => {
             const el = document.getElementById("part-" + part);
@@ -579,7 +548,6 @@
         });
     }
 
-    // Avatar color editor — applies color and saves it to Firebase
     async function applyColor(hexColor) {
         const part = document.getElementById("bodyPartSelect").value;
         const el = document.getElementById("part-" + part);
