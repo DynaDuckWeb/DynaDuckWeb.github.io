@@ -1,4 +1,3 @@
-// Example: attach submit handler and update UI after POST
 document.querySelectorAll('.friend-form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -13,7 +12,6 @@ document.querySelectorAll('.friend-form').forEach(form => {
         const text = await res.text();
         throw new Error(text || res.statusText);
       }
-      // Update button/UI to show request sent
       const btn = form.querySelector('button[type="submit"]');
       if (btn) btn.textContent = 'Requested';
     } catch (err) {
