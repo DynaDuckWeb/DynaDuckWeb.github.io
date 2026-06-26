@@ -463,18 +463,27 @@
             equipped: {}
         };
 
+        // Self-heal: if currency is missing or corrupted (not a finite number),
+        // reset it instead of letting NaN propagate into Firebase.
+        let currentCurrency = Number(user.currency);
+        if (!Number.isFinite(currentCurrency)) {
+            console.warn("currency was invalid (", user.currency, "), resetting to 0");
+            currentCurrency = 0;
+            await userRef.update({ currency: 0 });
+        }
+
         if (user.inventory && user.inventory[item.name]) {
             alert("You already own this item.");
             return;
         }
 
-        if (user.currency < item.price) {
+        if (currentCurrency < item.price) {
             alert("Not enough Dynamites!");
             return;
         }
 
         await userRef.update({
-            currency: user.currency - item.price,
+            currency: currentCurrency - item.price,
             ["inventory/" + item.name]: {
                 slot: item.slot,
                 color: item.color
