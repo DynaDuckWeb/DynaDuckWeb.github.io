@@ -356,91 +356,133 @@
 
   </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+};
 
-<script>
-  // 1. Initialize
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dynaduck-19dbb"
-  };
-  
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const username = "Admin"; // Hardcoded for testing; ensure this matches your DB structure
+firebase.initializeApp(firebaseConfig);
 
-  // 2. Fetch User Data & Shop
-  function initApp() {
-    const userRef = db.ref('users/' + username);
-    
-    userRef.once('value').then(snapshot => {
-      if (!snapshot.exists()) {
-        // Initialize user if they don't exist
-        userRef.set({ currency: 100000, inventory: { "Starter Pack": true } });
-      }
-      loadCatalog();
-      updateInventoryUI();
-    });
-  }
+const db = firebase.database();
 
-  // 3. Load Catalog
-  function loadCatalog() {
+const username = "Admin";
+
+// Initialize app
+async function initApp() {
+    const userRef = db.ref("users/" + username);
+
+    const snapshot = await userRef.once("value");
+
+    if (!snapshot.exists()) {
+        await userRef.set({
+            currency: 100000,
+            inventory: {
+                "Starter Pack": true
+            }
+        });
+    }
+
+    loadCatalog();
+    updateInventoryUI();
+}
+
+// Catalog
+function loadCatalog() {
+
     const items = [
-      { name: "DynaDuck Logo T-Shirt", price: 25 },
-      { name: "Admin Red Cap", price: 50 },
-      { name: "Sheldesky's Crown", price: 100000 }
+        { name: "DynaDuck Logo T-Shirt", price: 25 },
+        { name: "Admin Red Cap", price: 50 },
+        { name: "Sheldesky's Crown", price: 100000 }
     ];
 
-    const grid = document.querySelector('.center-section');
-    grid.innerHTML = ""; // Clear "empty" message
+    const grid = document.querySelector(".center-section");
+    grid.innerHTML = "";
 
     items.forEach(item => {
-      grid.innerHTML += `
-        <div class="item-card">
-          <div class="item-box"><h4>${item.name.replace(/ /g, '<br>')}</h4></div>
-          <div class="item-btn" onclick="buyItem('${item.name}', ${item.price})">
-            <span class="btn-text-buy">Buy</span>
-            <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
-          </div>
-        </div>
-      `;
-    });
-  }
 
-  // 4. Buy Logic
-  function buyItem(itemName, price) {
-    const userRef = db.ref('users/' + username);
-    userRef.once('value').then(snapshot => {
-      let balance = snapshot.val().currency || 0;
-      if (balance >= price) {
-        userRef.update({
-          currency: balance - price,
-          ['inventory/' + itemName]: true
-        }).then(() => {
-          alert("Purchased " + itemName + "!");
-          updateInventoryUI();
-        });
-      } else {
+        const card = document.createElement("div");
+        card.className = "item-card";
+
+        card.innerHTML = `
+            <div class="item-box">
+                <h4>${item.name.replace(/ /g,"<br>")}</h4>
+            </div>
+            <div class="item-btn">
+                <span class="btn-text-buy">Buy</span>
+                <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
+            </div>
+        `;
+
+        card.querySelector(".item-btn").onclick = () => buyItem(item.name, item.price);
+
+        grid.appendChild(card);
+
+    });
+
+}
+
+// Purchase
+async function buyItem(itemName, price) {
+
+    const userRef = db.ref("users/" + username);
+
+    const snapshot = await userRef.once("value");
+
+    const user = snapshot.val() || {
+        currency: 0,
+        inventory: {}
+    };
+
+    if (user.inventory && user.inventory[itemName]) {
+        alert("You already own this item.");
+        return;
+    }
+
+    if (user.currency < price) {
         alert("Not enough Dynamites!");
-      }
-    });
-  }
+        return;
+    }
 
-  function updateInventoryUI() {
-    db.ref('users/' + username + '/inventory').on('value', snapshot => {
-      const container = document.querySelector('.inventory-grid');
-      if(container) {
-        container.innerHTML = "";
-        Object.keys(snapshot.val() || {}).forEach(item => {
-          container.innerHTML += `<div class="inventory-item">${item}</div>`;
-        });
-      }
+    await userRef.update({
+        currency: user.currency - price,
+        ["inventory/" + itemName]: true
     });
-  }
 
-  window.onload = initApp;
-</script>
+    alert("Purchased " + itemName + "!");
+
+    updateInventoryUI();
+
+}
+
+// Inventory
+async function updateInventoryUI() {
+
+    const snapshot = await db.ref("users/" + username + "/inventory").once("value");
+
+    const inventory = snapshot.val() || {};
+
+    const container = document.querySelector(".inventory-grid");
+
+    container.innerHTML = "";
+
+    Object.keys(inventory).forEach(item => {
+
+        const div = document.createElement("div");
+        div.className = "inventory-item";
+        div.textContent = item;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+window.onload = initApp;
 </body>
 </html>
