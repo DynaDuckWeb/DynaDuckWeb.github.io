@@ -6,7 +6,6 @@ body {
   color: #222;
 }
 
-/* ================= HEADER ================= */
 header {
   display: flex;
   align-items: center;
@@ -43,7 +42,6 @@ nav a:hover {
   color: #11AD36;
 }
 
-/* ================= SEARCH ================= */
 .search-container {
   flex: 1;
   display: flex;
@@ -59,7 +57,6 @@ nav a:hover {
   font-size: 1em;
 }
 
-/* ================= BUTTON ================= */
 .green-btn {
   background: #11AD36;
   color: white;
@@ -76,14 +73,12 @@ nav a:hover {
   background: #0E8E2C;
 }
 
-/* ================= LAYOUT ================= */
 .main-container {
   max-width: 900px;
   margin: 40px auto;
   padding: 0 20px;
 }
 
-/* ================= CENTER MESSAGE ================= */
 .center-message {
   text-align: center;
   margin-top: 100px;
@@ -92,7 +87,6 @@ nav a:hover {
   color: #555;
 }
 
-/* ================= IDEAS ================= */
 .idea-input {
   background: white;
   padding: 20px;
@@ -136,7 +130,6 @@ nav a:hover {
   margin-top: 10px;
 }
 
-/* ================= ADMIN ================= */
 #adminReports {
   background: #fff;
   padding: 20px;
