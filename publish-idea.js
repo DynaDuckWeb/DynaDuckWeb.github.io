@@ -1,4 +1,3 @@
-// Example: publish idea and append to feed on success
 const ideaForm = document.getElementById('idea-form');
 if (ideaForm) {
   ideaForm.addEventListener('submit', async (e) => {
@@ -13,7 +12,6 @@ if (ideaForm) {
       });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || res.statusText);
-      // Append to local feed so others can see (immediate UX)
       const feed = document.getElementById('ideas-feed');
       if (feed) {
         const el = document.createElement('article');
