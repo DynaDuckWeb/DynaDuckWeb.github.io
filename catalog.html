@@ -344,10 +344,7 @@
       <div class="inventory-panel">
         <h3>My Wardrobe</h3>
         <div class="inventory-grid">
-          <div class="inventory-item">Basic<br>Shirt</div>
-          <div class="inventory-item">Jeans</div>
-          <div class="inventory-item" style="border-style: dashed; color: #888;">Empty</div>
-          <div class="inventory-item" style="border-style: dashed; color: #888;">Empty</div>
+          <!-- populated by updateInventoryUI() -->
         </div>
       </div>
 
@@ -384,6 +381,15 @@
 
     const username = "Admin";
 
+    const defaultColors = {
+        head: "#ffcd3a",
+        torso: "#e3242b",
+        "l-arm": "#ffcd3a",
+        "r-arm": "#ffcd3a",
+        "l-leg": "#ffcd3a",
+        "r-leg": "#ffcd3a"
+    };
+
     // Initialize app
     async function initApp() {
         const userRef = db.ref("users/" + username);
@@ -395,21 +401,26 @@
                 currency: 100000,
                 inventory: {
                     "Starter Pack": true
-                }
+                },
+                colors: defaultColors,
+                equipped: {}
             });
         }
 
+        const user = (await userRef.once("value")).val() || {};
+
+        loadColors(user.colors || defaultColors);
         loadCatalog();
-        updateInventoryUI();
+        updateInventoryUI(user.inventory || {}, user.equipped || {});
     }
 
     // Catalog
     function loadCatalog() {
 
         const items = [
-            { name: "DynaDuck Logo T-Shirt", price: 25 },
-            { name: "Admin Red Cap", price: 50 },
-            { name: "Sheldesky's Crown", price: 100000 }
+            { name: "DynaDuck Logo T-Shirt", price: 25, slot: "torso", color: "#0055ff" },
+            { name: "Admin Red Cap", price: 50, slot: "head", color: "#e3242b" },
+            { name: "Sheldesky's Crown", price: 100000, slot: "head", color: "#ffd700" }
         ];
 
         const grid = document.querySelector(".center-section");
@@ -430,7 +441,7 @@
                 </div>
             `;
 
-            card.querySelector(".item-btn").onclick = () => buyItem(item.name, item.price);
+            card.querySelector(".item-btn").onclick = () => buyItem(item);
 
             grid.appendChild(card);
 
@@ -439,7 +450,7 @@
     }
 
     // Purchase
-    async function buyItem(itemName, price) {
+    async function buyItem(item) {
 
         const userRef = db.ref("users/" + username);
 
@@ -447,46 +458,71 @@
 
         const user = snapshot.val() || {
             currency: 0,
-            inventory: {}
+            inventory: {},
+            colors: defaultColors,
+            equipped: {}
         };
 
-        if (user.inventory && user.inventory[itemName]) {
+        if (user.inventory && user.inventory[item.name]) {
             alert("You already own this item.");
             return;
         }
 
-        if (user.currency < price) {
+        if (user.currency < item.price) {
             alert("Not enough Dynamites!");
             return;
         }
 
         await userRef.update({
-            currency: user.currency - price,
-            ["inventory/" + itemName]: true
+            currency: user.currency - item.price,
+            ["inventory/" + item.name]: {
+                slot: item.slot,
+                color: item.color
+            }
         });
 
-        alert("Purchased " + itemName + "!");
+        alert("Purchased " + item.name + "!");
 
-        updateInventoryUI();
+        const updated = (await userRef.once("value")).val() || {};
+        updateInventoryUI(updated.inventory || {}, updated.equipped || {});
 
     }
 
     // Inventory
-    async function updateInventoryUI() {
-
-        const snapshot = await db.ref("users/" + username + "/inventory").once("value");
-
-        const inventory = snapshot.val() || {};
+    function updateInventoryUI(inventory, equipped) {
 
         const container = document.querySelector(".inventory-grid");
 
         container.innerHTML = "";
 
-        Object.keys(inventory).forEach(item => {
+        const itemNames = Object.keys(inventory).filter(name => name !== "Starter Pack");
+
+        if (itemNames.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "inventory-item";
+            empty.style.borderStyle = "dashed";
+            empty.style.color = "#888";
+            empty.textContent = "Empty";
+            container.appendChild(empty);
+            return;
+        }
+
+        itemNames.forEach(name => {
+
+            const itemData = inventory[name];
+            const slot = itemData && itemData.slot;
+            const isEquipped = slot && equipped[slot] === name;
 
             const div = document.createElement("div");
             div.className = "inventory-item";
-            div.textContent = item;
+            div.textContent = name;
+
+            if (isEquipped) {
+                div.style.background = "#d4f8d4";
+                div.style.borderColor = "#11AD36";
+            }
+
+            div.onclick = () => toggleEquip(name, itemData, equipped[slot] === name);
 
             container.appendChild(div);
 
@@ -494,13 +530,58 @@
 
     }
 
-    // Avatar color editor
-    function applyColor(hexColor) {
+    // Equip / unequip an owned item
+    async function toggleEquip(itemName, itemData, currentlyEquipped) {
+
+        if (!itemData || !itemData.slot) {
+            return;
+        }
+
+        const userRef = db.ref("users/" + username);
+        const slot = itemData.slot;
+
+        if (currentlyEquipped) {
+            // Unequip: clear the slot, restore default color
+            await userRef.update({
+                ["equipped/" + slot]: null,
+                ["colors/" + slot]: defaultColors[slot]
+            });
+        } else {
+            // Equip: set the slot, apply item's color
+            await userRef.update({
+                ["equipped/" + slot]: itemName,
+                ["colors/" + slot]: itemData.color
+            });
+        }
+
+        const updated = (await userRef.once("value")).val() || {};
+        loadColors(updated.colors || defaultColors);
+        updateInventoryUI(updated.inventory || {}, updated.equipped || {});
+
+    }
+
+    // Apply saved colors to the avatar on load
+    function loadColors(colors) {
+        Object.keys(colors).forEach(part => {
+            const el = document.getElementById("part-" + part);
+            if (el && colors[part]) {
+                el.style.backgroundColor = colors[part];
+            }
+        });
+    }
+
+    // Avatar color editor — applies color and saves it to Firebase
+    async function applyColor(hexColor) {
         const part = document.getElementById("bodyPartSelect").value;
         const el = document.getElementById("part-" + part);
         if (el) {
             el.style.backgroundColor = hexColor;
         }
+
+        const userRef = db.ref("users/" + username);
+        await userRef.update({
+            ["colors/" + part]: hexColor
+        });
     }
 
     window.onload = initApp;
