@@ -14,56 +14,85 @@
     /* ------------------------------------------- */
     /* HEADER                                      */
     /* ------------------------------------------- */
-    header {
-      background-color: #333333;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 25px;
-    }
+/* ------------------------------------------- */
+/* HEADER                                      */
+/* ------------------------------------------- */
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 25px;
-    }
+header {
+    background-color: #333333;
+    color: white;
+    height: 72px;
+    padding: 0 30px;
 
-    .logo { height: 40px; }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 15px;
-    }
-    
-    nav a.active { color: #11AD36; }
+    box-sizing: border-box;
+}
 
-    .search-bar {
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      width: 300px;
-      outline: none;
-    }
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      font-weight: bold;
-    }
+.logo {
+    height: 48px;
+    width: auto;
+    display: block;
+}
 
-    .header-btn {
-      background: #11AD36;
-      border: none;
-      padding: 8px 16px;
-      color: white;
-      font-weight: bold;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+nav {
+    display: flex;
+    gap: 25px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 17px;
+    line-height: 1;
+}
+
+nav a.active {
+    color: #11AD36;
+}
+
+.search-bar {
+    width: 350px;
+    height: 42px;
+    padding: 0 15px;
+
+    border: none;
+    border-radius: 8px;
+    outline: none;
+
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: bold;
+}
+
+.header-btn {
+    height: 40px;
+    padding: 0 18px;
+
+    background: #11AD36;
+    border: none;
+    border-radius: 6px;
+
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+}
 
     /* ------------------------------------------- */
     /* MAIN LAYOUT MATRIX                          */
