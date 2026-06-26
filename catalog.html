@@ -2,64 +2,371 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Catalog - DynaDuck</title>
+  <title>Catalog & Avatar Editor - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Catalog Layout Styles */
+    .catalog-layout {
+      display: flex;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .catalog-sidebar {
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sidebar-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .sidebar-box h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+      border-bottom: 2px solid #f2f2f2;
+      padding-bottom: 8px;
+    }
+
+    .filter-btn {
+      display: block;
+      width: 100%;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      text-align: left;
+      margin-bottom: 8px;
+      transition: 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: #11AD36;
+      color: #11AD36;
+    }
+
+    .catalog-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    /* Grid layout for items */
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .item-card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Text placeholder box instead of an image */
+    .item-placeholder-box {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border: 2px dashed rgba(255,255,255,0.4);
+    }
+
+    .item-placeholder-box span {
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+      font-size: 0.9em;
+    }
+
+    .item-card h4 {
+      margin: 5px 0;
+      font-size: 1.1em;
+      color: #333;
+    }
+
+    .item-price {
+      color: #11AD36;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .item-card button {
+      width: 100%;
+    }
+
+    /* Color customizer styling */
+    .editor-select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      margin-bottom: 15px;
+      outline: none;
+    }
+    
+    .editor-select:focus {
+      border-color: #11AD36;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.15);
+      transition: 0.1s;
+    }
+
+    .color-dot:hover {
+      transform: scale(1.15);
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="header-left">
-    <a href="index.html">
-      <img src="logo.png" class="logo" alt="Logo" />
-    </a>
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
-    </nav>
+  <header>
+    <div class="header-left">
+      <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
+      <nav>
+        <a href="catalog.html" style="color: #11AD36;">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
+    </div>
+
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search...">
+    </div>
+
+    <div id="authButtons">
+      </div>
+  </header>
+
+  <div class="main-container catalog-layout">
+    
+    <aside class="catalog-sidebar">
+      
+      <div class="sidebar-box">
+        <h3>Body Colors</h3>
+        <select id="bodyPartSelect" class="editor-select">
+          <option value="head">Head</option>
+          <option value="torso">Torso</option>
+          <option value="leftArm">Left Arm</option>
+          <option value="rightArm">Right Arm</option>
+          <option value="leftLeg">Left Leg</option>
+          <option value="rightLeg">Right Leg</option>
+        </select>
+        
+        <div class="color-palette">
+          <div class="color-dot" style="background: #ffcd3a;" onclick="changeBodyColor('#ffcd3a')"></div>
+          <div class="color-dot" style="background: #0055ff;" onclick="changeBodyColor('#0055ff')"></div>
+          <div class="color-dot" style="background: #11AD36;" onclick="changeBodyColor('#11AD36')"></div>
+          <div class="color-dot" style="background: #ff3b30;" onclick="changeBodyColor('#ff3b30')"></div>
+          <div class="color-dot" style="background: #ffffff;" onclick="changeBodyColor('#ffffff')"></div>
+          <div class="color-dot" style="background: #222222;" onclick="changeBodyColor('#222222')"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-box">
+        <h3>Categories</h3>
+        <button class="filter-btn" onclick="loadCatalog('All')">All Items</button>
+        <button class="filter-btn" onclick="loadCatalog('Shirt')">Shirts</button>
+        <button class="filter-btn" onclick="loadCatalog('Pants')">Pants</button>
+      </div>
+    </aside>
+
+    <main class="catalog-main">
+      <h2>DynaDuck Clothing Marketplace</h2>
+      <div class="catalog-grid" id="catalogGrid">
+        </div>
+    </main>
+
   </div>
 
-  <div class="search-container">
-    <input type="text" class="search-bar" placeholder="Search...">
-  </div>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <div id="authButtons">
-    <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-    <a href="login.html"><button class="green-btn">Log In</button></a>
-  </div>
-</header>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+      authDomain: "dynaduck-19dbb.firebaseapp.com",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dynaduck-19dbb",
+      storageBucket: "dynaduck-19dbb.firebasestorage.app",
+      messagingSenderId: "777148453502",
+      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+    };
 
-<main>
-  <h1>Catalog</h1>
-  <p>No items yet.</p>
-</main>
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
 
+    // HEADER MANAGEMENT
+    function updateHeader() {
+      const authDiv = document.getElementById('authButtons');
+      const loggedInUser = localStorage.getItem('loggedInUser');
+
+      if (loggedInUser) {
+        authDiv.innerHTML = `
+          <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+          <a href="settings.html"><button class="green-btn">Settings</button></a>
+          <button class="green-btn" onclick="logout()">Logout</button>
+        `;
+      } else {
+        authDiv.innerHTML = `
+          <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+          <a href="login.html"><button class="green-btn">Log In</button></a>
+        `;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedInUser');
+      localStorage.removeItem('isAdmin');
+      updateHeader();
+      loadCatalog('All'); // Reload to show logout states
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateHeader();
+      loadCatalog('All');
+    });
+
+    // DYNAMIC CATALOG DISPLAY
+    function loadCatalog(filterType = 'All') {
+      const grid = document.getElementById('catalogGrid');
+      grid.innerHTML = "<p>Loading store assets...</p>";
+
+      db.ref('catalog').get().then((snapshot) => {
+        if (snapshot.exists()) {
+          grid.innerHTML = "";
+          
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val();
+            const itemId = childSnapshot.key;
+
+            if (filterType !== 'All' && item.type !== filterType) {
+              return;
+            }
+
+            const cardHTML = `
+              <div class="item-card">
+                <div class="item-placeholder-box" style="background-color: ${item.color || '#ccc'}">
+                  <span>${item.type.toUpperCase()}</span>
+                </div>
+                <h4>${item.name}</h4>
+                <div class="item-price">${item.price} Dynamites</div>
+                <button class="green-btn" onclick="buyItem('${itemId}', ${item.price})">Buy</button>
+              </div>
+            `;
+            grid.innerHTML += cardHTML;
+          });
+          
+          if (grid.innerHTML === "") {
+            grid.innerHTML = "<p>No products available in this category.</p>";
+          }
+        } else {
+          grid.innerHTML = "<p>Marketplace database is empty.</p>";
+        }
+      }).catch(err => {
+        console.error(err);
+        grid.innerHTML = "<p>Error loading catalog data.</p>";
+      });
+    }
+
+    // BODY COLOR EDITOR ENGINE
+    function changeBodyColor(hexColor) {
+      const username = localStorage.getItem('loggedInUser');
+      const selectedPart = document.getElementById('bodyPartSelect').value;
+
+      if (!username) {
+        alert("Please register or log in to adjust character layout dimensions!");
+        return;
+      }
+
+      db.ref(`users/${username}/avatar/colors/${selectedPart}`).set(hexColor)
+        .then(() => {
+          alert(`Success! Saved ${hexColor} color assignment to your ${selectedPart}.`);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Database configuration sync error.");
+        });
+    }
+
+    // TRANSACTION PROCESSING ALGORITHM
+    function buyItem(itemId, price) {
+      const username = localStorage.getItem('loggedInUser');
+
+      if (!username) {
+        alert("You must log in to purchase platform utilities!");
+        return;
+      }
+
+      // 1. Fetch user data
+      db.ref('users/' + username).get().then((snapshot) => {
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          // Admin account handles checks smoothly with custom allocations
+          const currentBalance = userData.currency !== undefined ? userData.currency : 0;
+
+          // 2. Check funds condition (If Admin, balance check passes safely)
+          if (currentBalance < price && username !== "Admin") {
+            alert(`Insufficient funds! You need ${price} Dynamites, but only have ${currentBalance}.`);
+            return;
+          }
+
+          // 3. Prevent duplicate ownership loops
+          if (userData.inventory && userData.inventory[itemId]) {
+            alert("You already own this clothing asset!");
+            return;
+          }
+
+          // 4. Subtract balances safely (Admin retains full count values)
+          const newBalance = username === "Admin" ? currentBalance : (currentBalance - price);
+
+          // 5. Atomic write changes safely to user nodes
+          const updates = {};
+          updates[`users/${username}/currency`] = newBalance;
+          updates[`users/${username}/inventory/${itemId}`] = true;
+
+          db.ref().update(updates).then(() => {
+            alert("Purchase successful! Item appended to your character profile.");
+          });
+        }
+      }).catch(err => {
+        console.error(err);
+        alert("Failed to confirm wallet status against database rules.");
+      });
+    }
+  </script>
 </body>
 </html>
-<script>
-function updateHeader() {
-  const authDiv = document.getElementById('authButtons');
-  const loggedInUser = localStorage.getItem('loggedInUser');
-
-  if(loggedInUser){
-    authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
-      <a href="settings.html"><button class="green-btn">Settings</button></a>
-      <button class="green-btn" onclick="logout()">Logout</button>
-    `;
-  } else {
-    authDiv.innerHTML = `
-      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-      <a href="login.html"><button class="green-btn">Log In</button></a>
-    `;
-  }
-}
-
-function logout(){
-  localStorage.removeItem('loggedInUser');
-  updateHeader();
-}
-
-window.addEventListener('DOMContentLoaded', updateHeader);
-</script>
