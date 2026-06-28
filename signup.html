@@ -126,20 +126,111 @@
       updateHeader();
     }
     window.addEventListener('DOMContentLoaded', updateHeader);
+
+    // ---------------------------------------------------------------------
+    // MODERATION ENGINE
+    // Goal: catch common bypass tricks (leetspeak, separators, lookalike
+    // characters from other scripts, accents, repeated-letter spam,
+    // zero-width characters) by normalizing the username down to a plain
+    // a-z string BEFORE running it against the banned word list.
+    //
+    // Note: this is a stronger filter, not an unbeatable one. Any
+    // client-side keyword list can eventually be bypassed (creative
+    // spacing, new lookalikes, etc). For real coverage you'd also want
+    // server-side checks (Firebase Security Rules / Cloud Function) so
+    // people can't just edit the JS to skip this entirely - see comment
+    // at the bottom of this script for more.
+    // ---------------------------------------------------------------------
+
+    // Lookalike characters from other scripts/symbol sets that visually or
+    // phonetically resemble Latin letters. Mapped back to their Latin
+    // equivalent before matching.
+    const LOOKALIKE_MAP = {
+      // Cyrillic
+      "а": "a", "А": "a", "в": "b", "В": "b", "с": "c", "С": "c",
+      "е": "e", "Е": "e", "н": "h", "Н": "h", "і": "i", "І": "i",
+      "к": "k", "К": "k", "м": "m", "М": "m", "о": "o", "О": "o",
+      "р": "p", "Р": "p", "т": "t", "Т": "t", "х": "x", "Х": "x",
+      "у": "y", "У": "y", "ѕ": "s", "Ѕ": "s", "г": "r", "Г": "r",
+      "ӓ": "a", "ё": "e",
+      // Greek
+      "α": "a", "Α": "a", "β": "b", "Β": "b", "ε": "e", "Ε": "e",
+      "ι": "i", "Ι": "i", "κ": "k", "Κ": "k", "ο": "o", "Ο": "o",
+      "ρ": "p", "Ρ": "p", "τ": "t", "Τ": "t", "υ": "y", "Υ": "y",
+      "χ": "x", "Χ": "x", "ν": "v", "Ν": "n",
+      // Fullwidth / common symbol lookalikes
+      "ⓐ": "a", "ⓑ": "b", "ⓒ": "c", "ⓓ": "d", "ⓔ": "e", "ⓖ": "g",
+      "ⓘ": "i", "ⓛ": "l", "ⓞ": "o", "ⓡ": "r", "ⓣ": "t", "ⓨ": "y",
+      // Leetspeak / common substitutions
+      "4": "a", "@": "a", "8": "b", "3": "e", "€": "e", "9": "g",
+      "1": "i", "!": "i", "|": "i", "0": "o", "5": "s", "$": "s",
+      "7": "t", "+": "t", "2": "z"
+    };
+
+    function normalizeForModeration(input) {
+      let s = input;
+
+      // Strip zero-width and other invisible/formatting characters used to
+      // split up banned words (e.g. "f\u200Buck").
+      s = s.replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, "");
+
+      // Decompose accented Latin letters and strip the accent marks
+      // (café -> cafe, fück -> fuck).
+      s = s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+
+      s = s.toLowerCase();
+
+      // Map known lookalike characters back to plain Latin letters.
+      s = s.split("").map(ch => LOOKALIKE_MAP[ch] || ch).join("");
+
+      // Strip separators people use to break up a word (f.u.c.k, f_u-c.k,
+      // f u c k) - anything that isn't a-z or a digit at this point.
+      s = s.replace(/[^a-z0-9]/g, "");
+
+      // Collapse runs of 3+ repeated characters down to 1
+      // (fuuuuuck -> fuck, ssshit -> shit) without merging intentional
+      // doubled letters in normal words.
+      s = s.replace(/(.)\1{2,}/g, "$1");
+
+      return s;
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+
+    const bannedWords = [
+      "gay", "lesbian", "bi", "bisexual", 
+      "nigga", "nigger", "fag", "faggot", "retard",
+      "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
+      "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
+      "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
+    ].map(normalizeForModeration);
+
+    const reservedWords = ["admin", "system", "dynaduck"].map(normalizeForModeration);
+
+    function isUsernameBlocked(rawUsername) {
+      const normalized = normalizeForModeration(rawUsername);
+
+      for (const word of reservedWords) {
+        if (normalized.includes(word)) {
+          return "You cannot register usernames containing 'Admin', 'System', or 'DynaDuck'.";
+        }
+      }
+
+      for (const word of bannedWords) {
+        if (normalized.includes(word)) {
+          return "This username contains restricted text or social media terms. Please choose another.";
+        }
+      }
+
+      return null;
+    }
+
     document.getElementById('signupForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const user = document.getElementById('username').value.trim();
       const mail = document.getElementById('email').value.trim();
       const pass = document.getElementById('password').value;
-      const usernameRegex = /^[a-zA-Z0-9_]+$/;
-      const lowerUser = user.toLowerCase()
-      const bannedWords = [
-        "gay", "lesbian", "bi", "bisexual", 
-        "nigga", "nigger", "fag", "faggot", "retard",
-        "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
-        "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
-        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
-      ];
+
       if (user.length < 3 || user.length > 15) {
         alert("Username must be between 3 and 15 characters long!");
         return;
@@ -148,16 +239,13 @@
         alert("Usernames can only contain letters, numbers, and underscores!");
         return;
       }
-      if (lowerUser.includes("admin") || lowerUser.includes("system") || lowerUser.includes("dynaduck")) {
-        alert("You cannot register usernames containing 'Admin', 'System', or 'DynaDuck'.");
+
+      const blockReason = isUsernameBlocked(user);
+      if (blockReason) {
+        alert(blockReason);
         return;
       }
-      for (let word of bannedWords) {
-        if (lowerUser.includes(word)) {
-          alert("This username contains restricted text or social media terms. Please choose another.");
-          return;
-        }
-      }
+
       db.ref('users/' + user).get().then((snapshot) => {
         if (snapshot.exists()) {
           alert('This username is already taken! Please choose a different one.');
@@ -177,6 +265,21 @@
         alert("Verification failed against server endpoints.");
       });
     });
+
+    // ---------------------------------------------------------------------
+    // IMPORTANT LIMITATION:
+    // This entire check runs in the visitor's browser. Anyone can open dev
+    // tools and call db.ref('users/...').set(...) directly, skipping this
+    // form (and this filter) completely. The same applies to anyone who
+    // disables JavaScript or edits the page locally before submitting.
+    //
+    // A determined person can always bypass a purely client-side filter.
+    // The only way to actually enforce this is server-side, e.g. with
+    // Firebase Realtime Database Security Rules that validate the
+    // username against a pattern, or a Cloud Function that runs this same
+    // normalization + check before allowing the write. Happy to help set
+    // that up if you want real enforcement instead of just a UI nicety.
+    // ---------------------------------------------------------------------
   </script>
 </body>
 </html>
