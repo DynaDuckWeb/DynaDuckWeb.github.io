@@ -36,6 +36,7 @@
         height: 48px;
         width: auto;
         display: block;
+        cursor: pointer;
     }
 
     nav {
@@ -228,10 +229,16 @@
       cursor: pointer;
       text-align: center;
       color: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-sizing: border-box;
     }
     .item-btn:hover { background: #218838; }
-    .btn-text-buy { font-weight: bold; font-size: 20px; display: block; margin-bottom: 2px; }
-    .btn-text-price { font-size: 13px; font-weight: bold; }
+    .btn-text-buy { font-weight: bold; font-size: 20px; line-height: 1; }
+    .btn-text-price { font-size: 13px; font-weight: bold; line-height: 1; }
 
     .right-section {
       background: white;
@@ -266,7 +273,7 @@
 
   <header>
     <div class="header-left">
-      <a href="#"><img src="logo.png" class="logo" alt="Logo"></a>
+      <img src="logo.png" class="logo" alt="DynaDuck" onclick="window.location.href='index.html'">
       <nav>
         <a href="catalog.html" class="active">Catalog</a>
         <a href="ideas.html">Ideas</a>
@@ -277,10 +284,7 @@
     <div>
       <input type="text" class="search-bar" placeholder="Search...">
     </div>
-    <div class="header-right">
-      <span>Welcome, Admin!</span>
-      <button class="header-btn">Settings</button>
-      <button class="header-btn">Logout</button>
+    <div class="header-right" id="authButtons">
     </div>
   </header>
 
@@ -353,11 +357,19 @@
       appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
 
     const db = firebase.database();
 
-    const username = "Admin";
+    // Same username system as login.html: identity lives in localStorage,
+    // and the Realtime Database is keyed by that username (not a Firebase UID).
+    const username = localStorage.getItem('loggedInUser');
+
+    if (!username) {
+        window.location.href = 'login.html';
+    }
 
     const defaultColors = {
         head: "#ffcd3a",
@@ -368,27 +380,56 @@
         "r-leg": "#ffcd3a"
     };
 
+    // DYNAMIC HEADER ENGINE (same pattern as login.html, so the header matches everywhere)
+    function updateHeader() {
+        const authDiv = document.getElementById('authButtons');
+        if (username) {
+            authDiv.innerHTML = `
+                <span style="color:white;font-weight:bold;margin-right:5px;">Welcome, ${username}!</span>
+                <a href="settings.html"><button class="header-btn">Settings</button></a>
+                <button class="header-btn" onclick="logout()">Logout</button>
+            `;
+        } else {
+            authDiv.innerHTML = `
+                <a href="signup.html"><button class="header-btn">Sign Up</button></a>
+                <a href="login.html"><button class="header-btn">Log In</button></a>
+            `;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedInUser');
+        localStorage.removeItem('isAdmin');
+        window.location.href = 'login.html';
+    }
+
     async function initApp() {
+        updateHeader();
+
+        if (!username) return;
+
         const userRef = db.ref("users/" + username);
 
         const snapshot = await userRef.once("value");
+        const user = snapshot.val() || {};
 
-        if (!snapshot.exists()) {
-            await userRef.set({
-                Dynamites: 100000,
-                inventory: {
-                    "Starter Pack": true
-                },
-                colors: defaultColors,
-                equipped: {}
-            });
+        // Don't stomp on existing fields (e.g. password) - only fill in
+        // catalog-related fields if this account doesn't have them yet.
+        const updates = {};
+        if (user.Dynamites === undefined) updates.Dynamites = 1000;
+        if (!user.inventory) updates.inventory = { "Starter Pack": true };
+        if (!user.colors) updates.colors = defaultColors;
+        if (!user.equipped) updates.equipped = {};
+
+        if (Object.keys(updates).length > 0) {
+            await userRef.update(updates);
         }
 
-        const user = (await userRef.once("value")).val() || {};
+        const finalUser = (await userRef.once("value")).val() || {};
 
-        loadColors(user.colors || defaultColors);
+        loadColors(finalUser.colors || defaultColors);
         loadCatalog();
-        updateInventoryUI(user.inventory || {}, user.equipped || {});
+        updateInventoryUI(finalUser.inventory || {}, finalUser.equipped || {});
     }
 
     function loadCatalog() {
@@ -561,7 +602,7 @@
         });
     }
 
-    window.onload = initApp;
+    window.addEventListener('DOMContentLoaded', initApp);
   </script>
 
 </body>
