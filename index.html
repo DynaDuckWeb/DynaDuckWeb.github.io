@@ -620,5 +620,111 @@
         db.ref('users/' + currentUser + '/presence').set("online");
         db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
         loadSocial();
+    } else {
+        if (authDiv) {
+          authDiv.innerHTML = 
+            '<a href="signup.html" class="header-btn">Sign Up</a>' +
+            '<a href="login.html" class="header-btn">Log In</a>';
+        }
+      }
+    }
+
+    function logout() {
+      if (currentUser && db) {
+        db.ref('users/' + currentUser + '/presence').set("offline").then(function() {
+          localStorage.removeItem('loggedInUser');
+          location.reload();
+        }).catch(function() {
+          localStorage.removeItem('loggedInUser');
+          location.reload();
+        });
       } else {
-        if (authDi
+        localStorage.removeItem('loggedInUser');
+        location.reload();
+      }
+    }
+
+    function sendRequest() {
+      var targetInput = document.getElementById('friendInput');
+      if (!targetInput || !db) return;
+      var target = targetInput.value.trim();
+      if (!currentUser || !target || target === currentUser) return;
+      
+      db.ref('users/' + target).get().then(function(s) {
+        if (s.exists()) {
+          db.ref('users/' + target + '/requests/' + currentUser).set(true);
+          alert("Friend request sent to " + target + "!");
+          targetInput.value = "";
+        } else { 
+          alert("User not found."); 
+        }
+      });
+    }
+
+    function accept(name) {
+      if(!currentUser || !db) return;
+      var updates = {};
+      updates['users/' + currentUser + '/friends/' + name] = true;
+      updates['users/' + name + '/friends/' + currentUser] = true;
+      updates['users/' + currentUser + '/requests/' + name] = null;
+      
+      db.ref().update(updates, function(err) {
+        if(!err) alert("Friend connection synced!");
+      });
+    }
+
+    function loadSocial() {
+      if (!db || !currentUser) return;
+
+      db.ref('users/' + currentUser + '/requests').on('value', function(snap) {
+        var list = document.getElementById('requestList');
+        var box = document.getElementById('pendingSection');
+        if (!list || !box) return;
+
+        if (snap.exists()) {
+          box.style.display = "block";
+          list.innerHTML = "";
+          Object.keys(snap.val()).forEach(function(name) {
+            list.innerHTML += 
+              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+                '<span style="font-size:0.9em; font-weight:bold; color:#333;">' + name + '</span>' +
+                '<button class="modern-auth-btn" style="padding: 3px 8px; font-size:0.8em;" onclick="accept(\'' + name + '\')">Accept</button>' +
+              '</div>';
+          });
+        } else { 
+          box.style.display = "none"; 
+        }
+      });
+
+      db.ref('users/' + currentUser + '/friends').on('value', function(snap) {
+        var listDiv = document.getElementById('friendsList');
+        if (!listDiv) return;
+        
+        listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#999; text-align:center; padding:10px 0;'>No friends added yet.</p>";
+        
+        if (snap.exists()) {
+          Object.keys(snap.val()).forEach(function(fName) {
+            db.ref('users/' + fName + '/presence').on('value', function(sSnap) {
+              var status = sSnap.val() || "offline";
+              var color = status === "online" ? "#11AD36" : "#888";
+              
+              var el = document.getElementById('f-' + fName);
+              if (!el) {
+                el = document.createElement('div');
+                el.id = 'f-' + fName;
+                el.className = 'friend-item';
+                listDiv.appendChild(el);
+              }
+              el.innerHTML = 
+                '<div class="status-dot" style="background:' + color + '"></div>' +
+                '<strong style="font-size:0.95em; color:#444;">' + fName + ' (' + status + ')</strong>';
+            });
+          });
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
