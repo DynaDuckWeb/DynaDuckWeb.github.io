@@ -2,125 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Create - DynaDuck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    /* Main Layout Grid */
     main {
-      max-width: 750px;
-      margin: 40px auto;
+      max-width: 1100px;
+      margin: 30px auto;
       padding: 0 20px;
       font-family: sans-serif;
     }
 
-    h1 {
-      font-size: 2em;
-      border-bottom: 2px solid #11AD36;
-      padding-bottom: 10px;
-      color: #222;
-      margin-top: 0;
-    }
-
-    /* Studio Download Section */
-    .download-section {
-      background: #f4fbf6;
-      border: 1px dashed #11AD36;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 35px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .download-info h3 {
-      margin: 0 0 5px 0;
-      color: #11AD36;
-    }
-
-    .download-info p {
-      margin: 0;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    .studio-btn {
-      background: #11AD36;
+    .hero-banner {
+      background: linear-gradient(135deg, #11AD36 0%, #0c7a26 100%);
       color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 1em;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-
-    .studio-btn:hover {
-      background: #0e912d;
-    }
-
-    /* Publish Form Styling */
-    .publish-box {
-      background: white;
-      padding: 30px;
+      padding: 40px;
       border-radius: 12px;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .hero-banner h1 { margin: 0 0 10px 0; font-size: 2.3em; }
+    .hero-banner p { margin: 0; font-size: 1.1em; opacity: 0.9; }
+
+    /* Games Grid Container */
+    .section-title {
+      font-size: 1.5em;
+      color: #222;
+      border-bottom: 2px solid #11AD36;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
     }
 
-    .form-group {
-      margin-bottom: 20px;
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    /* Game Card Box Styling */
+    .game-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }
 
-    .form-group label {
-      font-weight: bold;
-      color: #333;
-      font-size: 0.95em;
+    .game-thumb {
+      background: #e2e8f0;
+      height: 135px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3em;
+      border-bottom: 1px solid #eee;
     }
 
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1em;
-      box-sizing: border-box;
+    .game-details {
+      padding: 15px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
+    .game-details h3 { margin: 0 0 5px 0; font-size: 1.1em; color: #333; }
+    .game-details .creator { font-size: 0.85em; color: #777; margin-bottom: 8px; }
+    .game-details .desc { font-size: 0.9em; color: #555; margin-bottom: 15px; flex-grow: 1; }
 
-    .form-control:focus {
-      outline: none;
-      border-color: #11AD36;
-    }
-
-    .roblox-publish-btn {
+    .roblox-play-btn {
       background: #00b06f; 
       color: white;
       border: none;
-      border-bottom: 5px solid #008252; 
-      border-radius: 8px;
+      border-bottom: 4px solid #008252; 
+      border-radius: 6px;
       width: 100%;
-      padding: 14px 0;
-      font-size: 18px;
+      padding: 10px 0;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      text-align: center;
     }
+    .roblox-play-btn:hover { background: #00c47c; }
+    .roblox-play-btn:active { border-bottom: 1px solid #008252; transform: translateY(3px); }
 
-    .roblox-publish-btn:hover {
-      background: #00c47c;
+    /* Rules Modal Overlay Styles */
+    #rulesPanel {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: none; /* Managed via script */
     }
-
-    .roblox-publish-btn:active {
-      border-bottom: 1px solid #008252;
-      transform: translateY(4px);
+    .modal-content {
+      background: white;
+      max-width: 550px;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
+    .rules-list { text-align: left; padding-left: 20px; line-height: 1.6; margin: 20px 0; }
+    .rules-list li { margin-bottom: 10px; color: #333; }
   </style>
 </head>
 <body>
+
+<div id="rulesPanel">
+  <div class="modal-content">
+    <div style="text-align: center;">
+      <h1 style="margin-top:0; color:#11AD36;">Welcome to DynaDuck! 🦆</h1>
+      <p style="color: #666; margin-top: 5px;">Please agree to our sandbox community guidelines before playing:</p>
+    </div>
+    <ul class="rules-list">
+      <li><strong>Rule 1: Safe Chat Mode</strong> — Keep text conversations clean, friendly, and appropriate for everyone. No insults or heavy swearing.</li>
+      <li><strong>Rule 2: Scripting & Exploits Welcome</strong> — Modding, exploiting, and client hacking are completely allowed! Experimenting with scripts on your custom servers is part of the fun. Just don't crash the main database clusters.</li>
+      <li><strong>Rule 3: Respect Boundaries</strong> — No back shots please. Keep animations, avatar models, and jokes respectful and fun.</li>
+    </ul>
+    <button class="roblox-play-btn" style="font-size: 18px; padding: 12px 0;" onclick="acceptRules()">I Agree & Enter Sandbox</button>
+  </div>
+</div>
 
 <header>
   <div class="header-left">
@@ -136,7 +145,7 @@
   </div>
 
   <div class="search-container">
-    <input type="text" class="search-bar" placeholder="Search...">
+    <input type="text" class="search-bar" id="gameSearch" placeholder="Search places..." onkeyup="filterGames()">
   </div>
 
   <div id="authButtons">
@@ -146,49 +155,20 @@
 </header>
 
 <main>
-  <h1>Create & Publish</h1>
-  
-  <!-- 1. Download Studio Asset Kit -->
-  <div class="download-section">
-    <div class="download-info">
-      <h3>DynaDuck Engine Editor</h3>
-      <p>Build worlds inside our custom offline software tool, then export them.</p>
-    </div>
-    <a href="dynaduck.zip" download class="studio-btn">⬇ Download Studio (.ZIP)</a>
+  <div class="hero-banner">
+    <h1>Discover Universe Timelines</h1>
+    <p>Welcome back to the golden sandbox era. Run Duck++ scripts, deploy custom clients, and build together.</p>
   </div>
 
-  <!-- 2. Creation Ingestion Module -->
-  <div class="publish-box">
-    <h2 style="margin-top:0; font-size: 1.3em; margin-bottom: 20px; color:#444;">Deploy New Map Card</h2>
-    
-    <div class="form-group">
-      <label for="gameTitle">Game Name</label>
-      <input type="text" id="gameTitle" class="form-control" placeholder="My cool game location...">
-    </div>
-
-    <div class="form-group">
-      <label for="gameDesc">Description</label>
-      <textarea id="gameDesc" class="form-control" rows="4" placeholder="Tell users what your place is about..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="maxPlayers">Max Server Size (Limit: 20)</label>
-      <input type="number" id="maxPlayers" class="form-control" min="1" max="20" value="12">
-    </div>
-
-    <div class="form-group">
-      <label for="duckFile">Upload .duck File</label>
-      <input type="file" id="duckFile" accept=".duck" class="form-control" style="padding: 8px;">
-    </div>
-
-    <button class="roblox-publish-btn" onclick="submitGame()">PUBLISH PLACE</button>
+  <h2 class="section-title">Active Server Locations</h2>
+  <div class="games-grid" id="gamesContainer">
+    <p id="loadingText" style="color: #666;">Synchronizing cluster nodes...</p>
   </div>
 </main>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-// Initialize Firebase using index configuration mapping target rules
 var firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
   authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -201,34 +181,17 @@ var firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 var db = firebase.database();
 const loggedInUser = localStorage.getItem('loggedInUser');
+var allGamesCache = [];
 
-// Multi-language filtering system (English, Romanian, French bad words)
-const BANNED_WORDS = [
-  // English
-  "fuck", "shit", "ass", "bitch", "bastard", "cunt", "dick", "idiot", "stupid",
-  // Romanian
-  "pula", "pizda", "coie", "cur", "drac", "cacat", "muta", "prost", "proasta", "tampit", "muie",
-  // French
-  "merde", "con", "connard", "putain", "salope", "chier", "cul", "bâtard"
-];
-
-function containsSwears(text) {
-  if (!text) return false;
-  const cleanText = text.toLowerCase().replace(/[\.\-\_\,\?\!\@\#\$\%\^\&\*\(\)]/g, "");
-  const words = cleanText.split(/\s+/);
-
-  for (let word of words) {
-    if (BANNED_WORDS.includes(word)) {
-      return true;
-    }
+// Rule Enforcer Logic Layer
+function checkRulesGate() {
+  if (localStorage.getItem('rulesAccepted') !== 'true') {
+    document.getElementById('rulesPanel').style.display = 'block';
   }
-  
-  for (let badWord of BANNED_WORDS) {
-    if (cleanText.includes(badWord)) {
-      return true;
-    }
-  }
-  return false;
+}
+function acceptRules() {
+  localStorage.setItem('rulesAccepted', 'true');
+  document.getElementById('rulesPanel').style.display = 'none';
 }
 
 function updateHeader() {
@@ -239,11 +202,6 @@ function updateHeader() {
       <a href="settings.html"><button class="green-btn">Settings</button></a>
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
-  } else {
-    authDiv.innerHTML = `
-      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-      <a href="login.html"><button class="green-btn">Log In</button></a>
-    `;
   }
 }
 
@@ -252,78 +210,84 @@ function logout(){
   location.reload();
 }
 
-function submitGame() {
-  if (!loggedInUser) {
-    alert("You must be logged in to create and publish game instances!");
-    return;
-  }
+// Pull Game Entries directly from Firebase Registry Tree
+function loadGames() {
+  db.ref('games').on('value', function(snapshot) {
+    const container = document.getElementById('gamesContainer');
+    container.innerHTML = "";
+    allGamesCache = [];
 
-  var title = document.getElementById('gameTitle').value.trim();
-  var desc = document.getElementById('gameDesc').value.trim();
-  var maxPlayers = parseInt(document.getElementById('maxPlayers').value, 10);
-  var fileInput = document.getElementById('duckFile');
+    if (!snapshot.exists()) {
+      container.innerHTML = "<p style='color:#777;'>No active maps deployed yet. Go to Create to publish one!</p>";
+      return;
+    }
 
-  if (!title || !desc || fileInput.files.length === 0) {
-    alert("Please fill in all options and upload a .duck file map metadata frame.");
-    return;
-  }
-
-  // Server size strict validation constraint
-  if (isNaN(maxPlayers) || maxPlayers < 1 || maxPlayers > 20) {
-    alert("Maximum player capacity boundary constraint error. Must be an integer between 1 and 20.");
-    return;
-  }
-
-  // Moderation Check pass
-  if (containsSwears(title) || containsSwears(desc)) {
-    alert("⚠️ Text input flag exception: Your Title or Description contains inappropriate language/insults blocked by our multi-language filters.");
-    return;
-  }
-
-  var file = fileInput.files[0];
-
-  // 🔒 STRICT FILE EXTENSION VALIDATION
-  var fileName = file.name.toLowerCase();
-  if (!fileName.endsWith('.duck')) {
-    alert("❌ Security Block: Invalid file format detected! You can only upload official engine export structures (.duck). Files like .mp4, .exe, or .html are strictly blocked.");
-    fileInput.value = ""; // Clear the bad file immediately
-    return;
-  }
-
-  // 🛑 SIZE BOUNDARY CHECK (Max 2 Megabytes)
-  if (file.size > 2 * 1024 * 1024) { 
-    alert("❌ File size limit exceeded! Your map data must be smaller than 2MB.");
-    fileInput.value = ""; // Clear the heavy file
-    return;
-  }
-
-  var reader = new FileReader();
-
-  reader.onload = function(e) {
-    var fileContents = e.target.result;
-
-    var newGameRef = db.ref('games').push();
-    newGameRef.set({
-      title: title,
-      description: desc,
-      creator: loggedInUser,
-      maxPlayers: maxPlayers,
-      fileData: fileContents,
-      timestamp: Date.now()
-    }, function(error) {
-      if (error) {
-        alert("Database cluster rejected upload payload configuration frame data.");
-      } else {
-        alert("Game node successfully compiled onto homepage directory!");
-        window.location.href = "index.html";
-      }
+    snapshot.forEach(function(childSnapshot) {
+      var game = childSnapshot.val();
+      game.key = childSnapshot.key;
+      allGamesCache.push(game);
     });
-  };
 
-  reader.readAsText(file);
+    // Reverse order to show newest games at the top
+    allGamesCache.reverse();
+    renderGamesList(allGamesCache);
+  });
 }
 
-window.addEventListener('DOMContentLoaded', updateHeader);
+function renderGamesList(gamesArray) {
+  const container = document.getElementById('gamesContainer');
+  container.innerHTML = "";
+
+  if(gamesArray.length === 0) {
+    container.innerHTML = "<p style='color:#777;'>No matches found matching your search matrix query.</p>";
+    return;
+  }
+
+  gamesArray.forEach(function(game) {
+    var card = document.createElement('div');
+    card.className = 'game-card';
+    card.innerHTML = `
+      <div class="game-thumb">🦆</div>
+      <div class="game-details">
+        <h3>${escapeHTML(game.title)}</h3>
+        <div class="creator">By: ${escapeHTML(game.creator || 'Unknown')}</div>
+        <div class="desc">${escapeHTML(game.description || 'No description provided.')}</div>
+        <button class="roblox-play-btn" onclick="launchGame('${game.key}')">PLAY (Max: ${game.maxPlayers || 12})</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Live local sorting filter loop
+function filterGames() {
+  var query = document.getElementById('gameSearch').value.toLowerCase().trim();
+  var filtered = allGamesCache.filter(function(game) {
+    return game.title.toLowerCase().includes(query) || 
+           (game.description && game.description.toLowerCase().includes(query)) ||
+           game.creator.toLowerCase().includes(query);
+  });
+  renderGamesList(filtered);
+}
+
+// Launch application custom handler trigger logic
+function launchGame(gameKey) {
+  alert("Initiating client hook handshake protocol framework! Connecting to game node payload: " + gameKey);
+  // Future deployment framework target:
+  // window.location.href = "dynaduck://placeid=" + gameKey;
+}
+
+// Basic security sanitization string helper function
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  checkRulesGate();
+  updateHeader();
+  loadGames();
+});
 </script>
 </body>
 </html>
