@@ -2,8 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dynamites - DynaDuck</title>
+  <title>Create - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    main {
+      max-width: 750px;
+      margin: 40px auto;
+      padding: 0 20px;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      font-size: 2em;
+      border-bottom: 2px solid #11AD36;
+      padding-bottom: 10px;
+      color: #222;
+      margin-top: 0;
+    }
+
+    /* Studio Download Section */
+    .download-section {
+      background: #f4fbf6;
+      border: 1px dashed #11AD36;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .download-info h3 {
+      margin: 0 0 5px 0;
+      color: #11AD36;
+    }
+
+    .download-info p {
+      margin: 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .studio-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .studio-btn:hover {
+      background: #0e912d;
+    }
+
+    /* Publish Form Styling */
+    .publish-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #11AD36;
+    }
+
+    .roblox-publish-btn {
+      background: #00b06f; 
+      color: white;
+      border: none;
+      border-bottom: 5px solid #008252; 
+      border-radius: 8px;
+      width: 100%;
+      padding: 14px 0;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .roblox-publish-btn:hover {
+      background: #00c47c;
+    }
+
+    .roblox-publish-btn:active {
+      border-bottom: 1px solid #008252;
+      transform: translateY(4px);
+    }
+  </style>
 </head>
 <body>
 
@@ -31,20 +146,96 @@
 </header>
 
 <main>
-  <h1>Create</h1>
-  <p>Release Date: Never </p>
+  <h1>Create & Publish</h1>
+  
+  <div class="download-section">
+    <div class="download-info">
+      <h3>DynaDuck Engine Editor</h3>
+      <p>Build worlds inside our custom offline software tool, then export them.</p>
+    </div>
+    <a href="dynaduck.zip" download class="studio-btn">⬇ Download Studio (.ZIP)</a>
+  </div>
+
+  <div class="publish-box">
+    <h2 style="margin-top:0; font-size: 1.3em; margin-bottom: 20px; color:#444;">Deploy New Map Card</h2>
+    
+    <div class="form-group">
+      <label for="gameTitle">Game Name</label>
+      <input type="text" id="gameTitle" class="form-control" placeholder="My cool game location...">
+    </div>
+
+    <div class="form-group">
+      <label for="gameDesc">Description</label>
+      <textarea id="gameDesc" class="form-control" rows="4" placeholder="Tell users what your place is about..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="maxPlayers">Max Server Size (Limit: 20)</label>
+      <input type="number" id="maxPlayers" class="form-control" min="1" max="20" value="12">
+    </div>
+
+    <div class="form-group">
+      <label for="duckFile">Upload .duck File</label>
+      <input type="file" id="duckFile" accept=".duck" class="form-control" style="padding: 8px;">
+    </div>
+
+    <button class="roblox-publish-btn" onclick="submitGame()">PUBLISH PLACE</button>
+  </div>
 </main>
 
-</body>
-</html>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
+// Initialize Firebase using index configuration mapping target rules
+var firebaseConfig = {
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+};
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+var db = firebase.database();
+const loggedInUser = localStorage.getItem('loggedInUser');
+
+// Multi-language filtering system (English, Romanian, French bad words)
+const BANNED_WORDS = [
+  // English
+  "fuck", "shit", "ass", "bitch", "bastard", "cunt", "dick", "idiot", "stupid",
+  // Romanian
+  "pula", "pizda", "coie", "cur", "drac", "cacat", "muta", "prost", "proasta", "tampit", "muie",
+  // French
+  "merde", "con", "connard", "putain", "salope", "chier", "cul", "bâtard"
+];
+
+function containsSwears(text) {
+  if (!text) return false;
+  // Clear common punctuation markers to prevent bypass attempts (e.g., "p.u.l.a")
+  const cleanText = text.toLowerCase().replace(/[\.\-\_\,\?\!\@\#\$\%\^\&\*\(\)]/g, "");
+  const words = cleanText.split(/\s+/);
+
+  for (let word of words) {
+    if (BANNED_WORDS.includes(word)) {
+      return true;
+    }
+  }
+  
+  // Also check for sub-string occurrences just in case strings are packed tightly together
+  for (let badWord of BANNED_WORDS) {
+    if (cleanText.includes(badWord)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function updateHeader() {
   const authDiv = document.getElementById('authButtons');
-  const loggedInUser = localStorage.getItem('loggedInUser');
-
   if(loggedInUser){
     authDiv.innerHTML = `
-      <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+      <span style="color:#333;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
       <a href="settings.html"><button class="green-btn">Settings</button></a>
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
@@ -58,8 +249,65 @@ function updateHeader() {
 
 function logout(){
   localStorage.removeItem('loggedInUser');
-  updateHeader();
+  location.reload();
+}
+
+function submitGame() {
+  if (!loggedInUser) {
+    alert("You must be logged in to create and publish game instances!");
+    return;
+  }
+
+  var title = document.getElementById('gameTitle').value.trim();
+  var desc = document.getElementById('gameDesc').value.trim();
+  var maxPlayers = parseInt(document.getElementById('maxPlayers').value, 10);
+  var fileInput = document.getElementById('duckFile');
+
+  if (!title || !desc || fileInput.files.length === 0) {
+    alert("Please fill in all options and upload a .duck file map metadata frame.");
+    return;
+  }
+
+  // Server size strict validation constraint
+  if (isNaN(maxPlayers) || maxPlayers < 1 || maxPlayers > 20) {
+    alert("Maximum player capacity boundary constraint error. Must be an integer between 1 and 20.");
+    return;
+  }
+
+  // Moderation Check pass
+  if (containsSwears(title) || containsSwears(desc)) {
+    alert("⚠️ Text input flag exception: Your Title or Description contains inappropriate language/insults blocked by our multi-language filters.");
+    return;
+  }
+
+  var file = fileInput.files[0];
+  var reader = new FileReader();
+
+  reader.onload = function(e) {
+    var fileContents = e.target.result;
+
+    var newGameRef = db.ref('games').push();
+    newGameRef.set({
+      title: title,
+      description: desc,
+      creator: loggedInUser,
+      maxPlayers: maxPlayers,
+      fileData: fileContents,
+      timestamp: Date.now()
+    }, function(error) {
+      if (error) {
+        alert("Database cluster rejected upload payload configuration frame data.");
+      } else {
+        alert("Game node successfully compiled onto homepage directory!");
+        window.location.href = "index.html";
+      }
+    });
+  };
+
+  reader.readAsText(file);
 }
 
 window.addEventListener('DOMContentLoaded', updateHeader);
 </script>
+</body>
+</html>
