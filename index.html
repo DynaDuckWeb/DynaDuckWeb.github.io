@@ -167,7 +167,10 @@
       background: rgba(0, 0, 0, 0.25);
       color: white;
       font-weight: bold;
-      font-size: 1.3em;
+      font-size: 1.1em;
+      padding: 10px;
+      box-sizing: border-box;
+      text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -179,7 +182,8 @@
       opacity: 1;
     }
 
-    #gamePanel {
+    /* Modals Layout */
+    #gamePanel, #rulesPanel {
       display: none; 
       position: fixed; 
       top: 0; 
@@ -252,6 +256,9 @@
       color: white;
       font-weight: bold;
       font-size: 1.5em;
+      text-align: center;
+      padding: 10px;
+      box-sizing: border-box;
     }
 
     .modal-actions {
@@ -311,35 +318,63 @@
     .stat-row b {
       color: #333;
     }
+
+    /* Rules Rules Style */
+    .rules-list {
+      text-align: left;
+      padding-left: 20px;
+      line-height: 1.6;
+    }
+    .rules-list li {
+      margin-bottom: 10px;
+      color: #444;
+    }
   </style>
 </head>
 <body>
+
+  <div id="rulesPanel">
+    <div class="modal-content" style="width: 550px; margin: 120px auto; text-align: center;">
+      <div class="modal-header">
+        <h1>Welcome to DynaDuck! 🦆</h1>
+        <p style="color: #666; margin-top: 5px;">Please read and agree to our community guidelines before proceeding:</p>
+      </div>
+      <ul class="rules-list">
+        <li><strong>Rule 1:</strong> Be respectful to other builders and players. No harassment.</li>
+        <li><strong>Rule 2:</strong> Do not exploit, cheat, or try to break other users' server spaces.</li>
+        <li><strong>Rule 3:</strong> Keep your map contents clean and safe for all community members.</li>
+        <li><strong>Rule 4:</strong> Do not copy or publish another creator's exact code files without permission.</li>
+      </ul>
+      <button class="roblox-play-btn" style="font-size: 18px; padding: 10px 0;" onclick="acceptRules()">I Agree & Continue</button>
+    </div>
+  </div>
+
   <div id="gamePanel">
     <div class="modal-content">
       <span class="close-x" onclick="closeGame()">&times;</span>
       <div class="modal-header">
-        <h1>Baseplate</h1>
-        <p class="modal-creator">by DynaDuck Team</p>
+        <h1 id="panelGameTitle">Baseplate</h1>
+        <p class="modal-creator" id="panelGameCreator">by DynaDuck Team</p>
       </div>
       <div class="modal-body">
-        <div class="modal-showcase">BASEPLATE</div>
+        <div class="modal-showcase" id="panelGameShowcase">BASEPLATE</div>
         <div class="modal-actions">
-          <button class="roblox-play-btn" onclick="launchGame()">
+          <button class="roblox-play-btn" id="panelPlayBtn">
             <span class="play-arrow"></span> PLAY
           </button>
-          <p style="color:#555; font-size:0.85em; margin:0; line-height:1.45;">
-            A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.
+          <p id="panelGameDesc" style="color:#555; font-size:0.85em; margin:0; line-height:1.45;">
+            A simple sandbox world.
           </p>
           <div class="game-stats">
             <div class="stat-row">Active: <b>0</b></div>
             <div class="stat-row">Visits: <b>0</b></div>
-            <div class="stat-row">Created: <b>3/10/2025</b></div>
             <div class="stat-row">Max Players: <b>12</b></div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
     <div class="header-left">
       <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
@@ -347,7 +382,7 @@
         <a href="catalog.html">Catalog</a>
         <a href="ideas.html">Ideas</a>
         <a href="create.html">Create</a>
-        <a href="dynamites.html">Dynamites</a>
+        <a href="publish.html" style="font-weight: bold; color: #11AD36;">Publish</a>
       </nav>
     </div>
     <div class="search-container">
@@ -355,19 +390,16 @@
     </div>
     <div id="authButtons" style="display: flex; align-items: center; gap: 10px;"></div>
   </header>
+
   <div class="container">
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
       <p style="color: #666; margin-bottom: 30px;">Explore worlds, build dreams, and hang out with friends.</p>
       <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
-      <div class="games-grid">
-        <div class="game-card" onclick="openGame('baseplate')">
-          <div class="game-thumb">
-            <div class="play-overlay">BASEPLATE</div>
-          </div>
-        </div>
-      </div>
+      
+      <div class="games-grid" id="gamesGridContainer"></div>
     </div>
+
     <div class="sidebar">
       <div id="userCard" class="user-profile-card">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
@@ -389,6 +421,7 @@
       </div>
     </div>
   </div>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
@@ -404,22 +437,92 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     var db = firebase.database();
     var currentUser = localStorage.getItem('loggedInUser');
-    function openGame(game) {
-      if (game === 'baseplate') {
-        document.getElementById('gamePanel').style.display = 'block';
+
+    // RULES LOGIC: Show popup if NOT logged in and hasn't explicitly accepted rules yet
+    function checkRulesCondition() {
+      if (!currentUser) {
+        var rulesAccepted = sessionStorage.getItem('rulesAccepted');
+        if (!rulesAccepted) {
+          document.getElementById('rulesPanel').style.display = 'block';
+        }
       }
     }
+
+    function acceptRules() {
+      sessionStorage.setItem('rulesAccepted', 'true');
+      document.getElementById('rulesPanel').style.display = 'none';
+    }
+
+    // Dynamic Database Content Loader Loop
+    function listenForGames() {
+      var grid = document.getElementById('gamesGridContainer');
+      db.ref('games').on('value', function(snapshot) {
+        grid.innerHTML = ""; // Clear loader loop entries
+        
+        // Always render default baseplate fallback
+        grid.innerHTML += `
+          <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.', '')">
+            <div class="game-thumb">
+              <div class="play-overlay">BASEPLATE</div>
+            </div>
+          </div>`;
+
+        if (snapshot.exists()) {
+          snapshot.forEach(function(childSnapshot) {
+            var gameData = childSnapshot.val();
+            var title = gameData.title || "Unfinished Map";
+            var creator = gameData.creator || "Anonymous";
+            var description = gameData.description || "No description provided.";
+            var rawDataString = gameData.fileData || "";
+
+            // Dynamic safe template generation
+            var safeTitle = title.replace(/'/g, "\\'");
+            var safeCreator = creator.replace(/'/g, "\\'");
+            var safeDesc = description.replace(/'/g, "\\'");
+            var safeData = encodeURIComponent(rawDataString);
+
+            grid.innerHTML += `
+              <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
+                <div class="game-thumb" style="background-color: #ff6b6b; background-image: none;">
+                  <div class="play-overlay">${title.toUpperCase()}</div>
+                </div>
+              </div>`;
+          });
+        }
+      });
+    }
+
+    function openGame(title, creator, description, fileData) {
+      document.getElementById('panelGameTitle').innerText = title;
+      document.getElementById('panelGameCreator').innerText = "by " + creator;
+      document.getElementById('panelGameShowcase').innerText = title.toUpperCase();
+      document.getElementById('panelGameDesc').innerText = description;
+      
+      // Pass the actual file text directly into custom custom application loader
+      document.getElementById('panelPlayBtn').onclick = function() {
+        launchGame(fileData);
+      };
+
+      document.getElementById('gamePanel').style.display = 'block';
+    }
+
     function closeGame() {
       document.getElementById('gamePanel').style.display = 'none';
     }
-    function launchGame() {
+
+    function launchGame(fileData) {
       var launchUser = currentUser ? currentUser : "GuestPlayer";
-      var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser);     
+      // Send username alongside raw map parsing string data string context parameters
+      var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser) + "&mapData=" + fileData;     
       console.log("Attempting native application engine launch:", customProtocolUri);    
       window.location.href = customProtocolUri;
     }
+
     function initApp() {
       var authDiv = document.getElementById('authButtons');
+      checkRulesCondition();
+      listenForGames();
+
       if (currentUser) {
         var userCard = document.getElementById('userCard');
         if (userCard) userCard.style.display = "block"; 
@@ -442,6 +545,7 @@
         }
       }
     }
+
     function logout() {
       if (currentUser) {
         db.ref('users/' + currentUser + '/presence').set("offline").then(function() {
@@ -456,6 +560,7 @@
         location.reload();
       }
     }
+
     function sendRequest() {
       var targetInput = document.getElementById('friendInput');
       if (!targetInput) return;
@@ -472,6 +577,7 @@
         }
       });
     }
+
     function loadSocial() {
       db.ref('users/' + currentUser + '/requests').on('value', function(snap) {
         var list = document.getElementById('requestList');
@@ -525,4 +631,4 @@
     window.onload = initApp;
   </script>
 </body>
-</html>s
+</html>
