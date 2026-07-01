@@ -174,10 +174,24 @@
       <input type="number" id="maxPlayers" class="form-control" min="1" max="20" value="12">
     </div>
 
-    <div class="form-group">
-      <label for="duckFile">Upload .duck File</label>
-      <input type="file" id="duckFile" accept=".duck" class="form-control" style="padding: 8px;">
-    </div>
+  var file = fileInput.files[0];
+  
+  // STRICT FILE EXTENSION VALIDATION ENFORCEMENT
+  var fileName = file.name.toLowerCase();
+  if (!fileName.endsWith('.duck')) {
+    alert("❌ Security Block: Invalid file format detected! You can only upload official engine export structures (.duck). Files like .mp4, .exe, or .html are strictly blocked.");
+    fileInput.value = ""; // Clear the malicious input field data immediately
+    return;
+  }
+
+  // Double check file size boundary to protect database clusters from huge videos
+  if (file.size > 2 * 1024 * 1024) { // Limit: 2 Megabytes (plenty for map text)
+    alert("❌ File size limit exceeded! Your map profile data must be smaller than 2MB.");
+    fileInput.value = "";
+    return;
+  }
+
+  var reader = new FileReader();
 
     <button class="roblox-publish-btn" onclick="submitGame()">PUBLISH PLACE</button>
   </div>
