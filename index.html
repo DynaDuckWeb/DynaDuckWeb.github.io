@@ -5,6 +5,7 @@
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    /* Main Layout Grid */
     .container {
       max-width: 1100px;
       margin: 30px auto;
@@ -66,11 +67,13 @@
       background: #11AD36;
       color: white;
       border: none;
-      padding: 10px 24px;
+      padding: 8px 18px;
       border-radius: 50px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.95em;
+      font-size: 0.90em;
+      text-decoration: none;
+      display: inline-block;
       transition: background 0.2s, transform 0.1s;
     }
 
@@ -116,7 +119,6 @@
       padding: 15px;
       border-radius: 12px;
       text-align: center;
-      display: none;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
@@ -164,10 +166,10 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.4);
       color: white;
       font-weight: bold;
-      font-size: 1.1em;
+      font-size: 1em;
       padding: 10px;
       box-sizing: border-box;
       text-align: center;
@@ -319,7 +321,6 @@
       color: #333;
     }
 
-    /* Rules Rules Style */
     .rules-list {
       text-align: left;
       padding-left: 20px;
@@ -381,13 +382,14 @@
         <a href="catalog.html">Catalog</a>
         <a href="ideas.html">Ideas</a>
         <a href="create.html">Create</a>
-        <a href="dynamites.htnl" style="font-weight: bold; color: #11AD36;">Dynamites</a>
+        <a href="dynamites.html">Dynamites</a>
       </nav>
     </div>
     <div class="search-container">
-      <input type="text" placeholder="Search for games..." class="search-bar">
+      <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
     </div>
-    <div id="authButtons" style="display: flex; align-items: center; gap: 10px;"></div>
+    <div id="authButtons" style="display: flex; align-items: center; gap: 10px;">
+      </div>
   </header>
 
   <div class="container">
@@ -396,18 +398,21 @@
       <p style="color: #666; margin-bottom: 30px;">Explore worlds, build dreams, and hang out with friends.</p>
       <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
       
-      <div class="games-grid" id="gamesGridContainer"></div>
+      <div class="games-grid" id="gamesGridContainer">
+        </div>
     </div>
 
     <div class="sidebar">
-      <div id="userCard" class="user-profile-card">
+      <div id="userCard" class="user-profile-card" style="display: none;">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
          <div style="font-size: 0.85em; color: #11AD36; margin-top: 4px; font-weight: bold;">● Online</div>
       </div>
+
       <div id="pendingSection" class="social-box" style="display: none;">
         <h3 style="border-color: #fadb14;">Requests</h3>
         <div id="requestList"></div>
       </div>
+
       <div class="social-box">
         <h3>Friends List</h3>
         <div class="search-friend-box" style="display:flex; gap:6px; margin-bottom:15px;">
@@ -436,8 +441,8 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     var db = firebase.database();
     var currentUser = localStorage.getItem('loggedInUser');
+    var rawGamesCache = [];
 
-    // RULES LOGIC: Show popup if NOT logged in and hasn't explicitly accepted rules yet
     function checkRulesCondition() {
       if (!currentUser) {
         var rulesAccepted = sessionStorage.getItem('rulesAccepted');
@@ -452,29 +457,32 @@
       document.getElementById('rulesPanel').style.display = 'none';
     }
 
-    // Dynamic Database Content Loader Loop
     function listenForGames() {
       var grid = document.getElementById('gamesGridContainer');
       db.ref('games').on('value', function(snapshot) {
-        grid.innerHTML = ""; // Clear loader loop entries
+        rawGamesCache = [];
+        grid.innerHTML = "";
         
-        // Always render default baseplate fallback
+        // Default baseplate installation mapping fallback
         grid.innerHTML += `
           <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.', '')">
             <div class="game-thumb">
-              <div class="play-overlay">BASEPLATE</div>
+              <span style="color:white; font-weight:bold; font-size:1.1em; text-align:center; padding:10px;">BASEPLATE</span>
+              <div class="play-overlay">PLAY BASEPLATE</div>
             </div>
           </div>`;
 
         if (snapshot.exists()) {
           snapshot.forEach(function(childSnapshot) {
             var gameData = childSnapshot.val();
+            gameData.key = childSnapshot.key;
+            rawGamesCache.push(gameData);
+
             var title = gameData.title || "Unfinished Map";
             var creator = gameData.creator || "Anonymous";
             var description = gameData.description || "No description provided.";
             var rawDataString = gameData.fileData || "";
 
-            // Dynamic safe template generation
             var safeTitle = title.replace(/'/g, "\\'");
             var safeCreator = creator.replace(/'/g, "\\'");
             var safeDesc = description.replace(/'/g, "\\'");
@@ -482,11 +490,46 @@
 
             grid.innerHTML += `
               <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
-                <div class="game-thumb" style="background-color: #ff6b6b; background-image: none;">
-                  <div class="play-overlay">${title.toUpperCase()}</div>
+                <div class="game-thumb" style="background-color: #ff6b6b; background-image: none; flex-direction: column;">
+                  <span style="color:white; font-weight:bold; font-size:1.1em; text-align:center; padding:10px;">${title.toUpperCase()}</span>
+                  <div class="play-overlay">PLAY NOW</div>
                 </div>
               </div>`;
           });
+        }
+      });
+    }
+
+    function filterGamesLocal() {
+      var q = document.getElementById('mainSearchInput').value.toLowerCase().trim();
+      var grid = document.getElementById('gamesGridContainer');
+      grid.innerHTML = "";
+      
+      // Always keep baseplate on lookups
+      grid.innerHTML += `
+        <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
+          <div class="game-thumb">
+            <span style="color:white; font-weight:bold;">BASEPLATE</span>
+            <div class="play-overlay">PLAY BASEPLATE</div>
+          </div>
+        </div>`;
+
+      rawGamesCache.forEach(function(gameData) {
+        var title = gameData.title || "";
+        var creator = gameData.creator || "";
+        if (title.toLowerCase().includes(q) || creator.toLowerCase().includes(q)) {
+          var safeTitle = title.replace(/'/g, "\\'");
+          var safeCreator = creator.replace(/'/g, "\\'");
+          var safeDesc = (gameData.description || "").replace(/'/g, "\\'");
+          var safeData = encodeURIComponent(gameData.fileData || "");
+
+          grid.innerHTML += `
+            <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
+              <div class="game-thumb" style="background-color: #ff6b6b; background-image: none;">
+                <span style="color:white; font-weight:bold;">${title.toUpperCase()}</span>
+                <div class="play-overlay">PLAY NOW</div>
+              </div>
+            </div>`;
         }
       });
     }
@@ -497,23 +540,21 @@
       document.getElementById('panelGameShowcase').innerText = title.toUpperCase();
       document.getElementById('panelGameDesc').innerText = description;
       
-      // Pass the actual file text directly into custom custom application loader
       document.getElementById('panelPlayBtn').onclick = function() {
         launchGame(fileData);
       };
-
       document.getElementById('gamePanel').style.display = 'block';
     }
 
+     Moreton structural file frame close
     function closeGame() {
       document.getElementById('gamePanel').style.display = 'none';
     }
 
     function launchGame(fileData) {
       var launchUser = currentUser ? currentUser : "GuestPlayer";
-      // Send username alongside raw map parsing string data string context parameters
       var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser) + "&mapData=" + fileData;     
-      console.log("Attempting native application engine launch:", customProtocolUri);    
+      console.log("Attempting application call:", customProtocolUri);    
       window.location.href = customProtocolUri;
     }
 
@@ -523,24 +564,28 @@
       listenForGames();
 
       if (currentUser) {
-        var userCard = document.getElementById('userCard');
-        if (userCard) userCard.style.display = "block"; 
-        var displayUsername = document.getElementById('displayUsername');
-        if (displayUsername) displayUsername.innerText = currentUser;
+        // Authenticated State View Engine Shifts
+        document.getElementById('userCard').style.display = "block"; 
+        document.getElementById('displayUsername').innerText = currentUser;
+        
+        var fallbackText = document.getElementById('fallbackFriendsText');
+        if(fallbackText) fallbackText.style.display = "none";
+
         if (authDiv) {
           authDiv.innerHTML = 
-            '<span style="color:#333; font-weight:bold; margin-right:12px;">Welcome, ' + currentUser + '</span>' +
-            '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
+            '<span style="color:#333; font-weight:bold; margin-right:4px;">Hi, ' + currentUser + '</span>' +
+            '<a href="settings.html" class="header-btn">Settings</a>' +
             '<button class="header-btn" onclick="logout()">Logout</button>';
         }        
         db.ref('users/' + currentUser + '/presence').set("online");
         db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
         loadSocial();
       } else {
+        // Guest State Header Buttons Injection
         if (authDiv) {
           authDiv.innerHTML = 
-            '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
-            '<a href="login.html"><button class="header-btn">Log In</button></a>';
+            '<a href="signup.html" class="header-btn">Sign Up</a>' +
+            '<a href="login.html" class="header-btn">Log In</a>';
         }
       }
     }
@@ -569,60 +614,16 @@
       db.ref('users/' + target).get().then(function(s) {
         if (s.exists()) {
           db.ref('users/' + target + '/requests/' + currentUser).set(true);
-          alert("Friend request sent!");
+          alert("Friend request sent to " + target + "!");
           targetInput.value = "";
         } else { 
-          alert("User not found."); 
+          alert("User profile node target not found."); 
         }
       });
     }
 
-    function loadSocial() {
-      db.ref('users/' + currentUser + '/requests').on('value', function(snap) {
-        var list = document.getElementById('requestList');
-        var box = document.getElementById('pendingSection');
-        if (!list || !box) return;
-
-        if (snap.exists()) {
-          box.style.display = "block";
-          list.innerHTML = "";
-          Object.keys(snap.val()).forEach(function(name) {
-            list.innerHTML += 
-              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                '<span style="font-size:0.9em; font-weight:bold; color:#333;">' + name + '</span>' +
-                '<button class="modern-auth-btn" style="padding: 3px 8px; font-size:0.8em;" onclick="accept(\'' + name + '\')">Accept</button>' +
-              '</div>';
-          });
-        } else { 
-          box.style.display = "none"; 
-        }
-      });
-      db.ref('users/' + currentUser + '/friends').on('value', function(snap) {
-        var listDiv = document.getElementById('friendsList');
-        if (!listDiv) return;
-        listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#999; text-align:center; padding:10px 0;'>No friends added yet.</p>";
-        if (snap.exists()) {
-          Object.keys(snap.val()).forEach(function(fName) {
-            db.ref('users/' + fName + '/presence').on('value', function(sSnap) {
-              var status = sSnap.val() || "offline";
-              var color = status === "online" ? "#11AD36" : "#888";
-              
-              var el = document.getElementById('f-' + fName);
-              if (!el) {
-                el = document.createElement('div');
-                el.id = 'f-' + fName;
-                el.className = 'friend-item';
-                listDiv.appendChild(el);
-              }
-              el.innerHTML = 
-                '<div class="status-dot" style="background:' + color + '"></div>' +
-                '<strong style="font-size:0.95em; color:#444;">' + fName + '</strong>';
-            });
-          });
-        }
-      });
-    }
-    function accept(n) {
-      db.ref('users/' + currentUser + '/friends/' + n).set(true);
-      db.ref('users/' + n + '/friends/' + currentUser).set(true);
-      db.ref
+    function accept(name) {
+      if(!currentUser) return;
+      // Set transactional references across bidirectional relationship nodes
+      var updates = {};
+      updates['users/' + currentUser + '/friends/
