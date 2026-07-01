@@ -174,24 +174,10 @@
       <input type="number" id="maxPlayers" class="form-control" min="1" max="20" value="12">
     </div>
 
-  var file = fileInput.files[0];
-  
-  // STRICT FILE EXTENSION VALIDATION ENFORCEMENT
-  var fileName = file.name.toLowerCase();
-  if (!fileName.endsWith('.duck')) {
-    alert("❌ Security Block: Invalid file format detected! You can only upload official engine export structures (.duck). Files like .mp4, .exe, or .html are strictly blocked.");
-    fileInput.value = ""; // Clear the malicious input field data immediately
-    return;
-  }
-
-  // Double check file size boundary to protect database clusters from huge videos
-  if (file.size > 2 * 1024 * 1024) { // Limit: 2 Megabytes (plenty for map text)
-    alert("❌ File size limit exceeded! Your map profile data must be smaller than 2MB.");
-    fileInput.value = "";
-    return;
-  }
-
-  var reader = new FileReader();
+    <div class="form-group">
+      <label for="duckFile">Upload .duck File</label>
+      <input type="file" id="duckFile" accept=".duck" class="form-control" style="padding: 8px;">
+    </div>
 
     <button class="roblox-publish-btn" onclick="submitGame()">PUBLISH PLACE</button>
   </div>
@@ -226,7 +212,6 @@ const BANNED_WORDS = [
 
 function containsSwears(text) {
   if (!text) return false;
-  // Clear common punctuation markers to prevent bypass attempts (e.g., "p.u.l.a")
   const cleanText = text.toLowerCase().replace(/[\.\-\_\,\?\!\@\#\$\%\^\&\*\(\)]/g, "");
   const words = cleanText.split(/\s+/);
 
@@ -236,7 +221,6 @@ function containsSwears(text) {
     }
   }
   
-  // Also check for sub-string occurrences just in case strings are packed tightly together
   for (let badWord of BANNED_WORDS) {
     if (cleanText.includes(badWord)) {
       return true;
@@ -295,6 +279,22 @@ function submitGame() {
   }
 
   var file = fileInput.files[0];
+
+  // 🔒 STRICT FILE EXTENSION VALIDATION
+  var fileName = file.name.toLowerCase();
+  if (!fileName.endsWith('.duck')) {
+    alert("❌ Security Block: Invalid file format detected! You can only upload official engine export structures (.duck). Files like .mp4, .exe, or .html are strictly blocked.");
+    fileInput.value = ""; // Clear the bad file immediately
+    return;
+  }
+
+  // 🛑 SIZE BOUNDARY CHECK (Max 2 Megabytes)
+  if (file.size > 2 * 1024 * 1024) { 
+    alert("❌ File size limit exceeded! Your map data must be smaller than 2MB.");
+    fileInput.value = ""; // Clear the heavy file
+    return;
+  }
+
   var reader = new FileReader();
 
   reader.onload = function(e) {
