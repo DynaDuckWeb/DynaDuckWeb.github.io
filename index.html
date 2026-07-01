@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
@@ -14,6 +15,7 @@
       gap: 25px;
       padding: 0 20px;
       align-items: start;
+      font-family: sans-serif;
     }
 
     .main-section {
@@ -198,15 +200,17 @@
 
     .modal-content {
       background: white; 
-      width: 720px; 
-      margin: 100px auto; 
-      padding: 30px; 
+      width: 90%;
+      max-width: 720px; 
+      margin: 50px auto; 
+      padding: 25px; 
       border-radius: 12px; 
       box-shadow: 0 10px 35px rgba(0,0,0,0.3);
       position: relative;
       display: flex;
       flex-direction: column;
       gap: 20px;
+      box-sizing: border-box;
     }
 
     .close-x {
@@ -227,7 +231,7 @@
 
     .modal-header h1 {
       margin: 0;
-      font-size: 1.9em;
+      font-size: 1.6em;
       color: #222;
     }
 
@@ -240,14 +244,19 @@
 
     .modal-body {
       display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 25px;
+      grid-template-columns: 1fr;
+      gap: 20px;
       align-items: start;
+    }
+    @media (min-width: 600px) {
+      .modal-body {
+        grid-template-columns: 320px 1fr;
+      }
     }
 
     .modal-showcase {
       width: 100%;
-      height: 220px;
+      height: 180px;
       background-color: #11AD36;
       background-image: linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
       background-size: 15px 15px;
@@ -257,7 +266,7 @@
       justify-content: center;
       color: white;
       font-weight: bold;
-      font-size: 1.5em;
+      font-size: 1.3em;
       text-align: center;
       padding: 10px;
       box-sizing: border-box;
@@ -267,7 +276,7 @@
       background: #f9f9f9;
       border: 1px solid #eee;
       border-radius: 10px;
-      padding: 20px;
+      padding: 15px;
       display: flex;
       flex-direction: column;
       gap: 15px;
@@ -281,7 +290,7 @@
       border-radius: 8px;
       width: 100%;
       padding: 12px 0;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -335,15 +344,15 @@
 <body>
 
   <div id="rulesPanel">
-    <div class="modal-content" style="width: 550px; margin: 120px auto; text-align: center;">
+    <div class="modal-content" style="max-width: 550px; text-align: center;">
       <div class="modal-header">
         <h1>Welcome to DynaDuck! 🦆</h1>
         <p style="color: #666; margin-top: 5px;">Please read and agree to our sandbox community guidelines:</p>
       </div>
-      <ul class="rules-list" style="text-align: left; padding: 0 30px; line-height: 1.6;">
+      <ul class="rules-list" style="padding: 0 20px;">
         <li><strong>Rule 1: Safe Chat Mode</strong> — Keep text conversations clean, friendly, and appropriate for everyone. No insults or heavy swearing.</li>
         <li><strong>Rule 2: Scripting & Exploits Welcome</strong> — Modding, exploiting, and client hacking are completely allowed! Experimenting with scripts on your custom servers is part of the fun. Just don't crash the main database clusters.</li>
-        <li><strong>Rule 3: Respect Boundaries</strong> — No back shots please. Keep animations, avatar models, and jokes respectful and fun.</li>
+        <li><strong>Rule 3: Respect Boundaries</strong> — Keep animations, avatar models, and jokes respectful and fun.</li>
       </ul>
       <button class="roblox-play-btn" style="font-size: 18px; padding: 10px 0; margin-top: 20px;" onclick="acceptRules()">I Agree & Enter Sandbox</button>
     </div>
@@ -375,21 +384,23 @@
     </div>
   </div>
 
-  <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
-    <div class="header-left">
-      <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
-      <nav>
-        <a href="catalog.html">Catalog</a>
-        <a href="ideas.html">Ideas</a>
-        <a href="create.html">Create</a>
-        <a href="dynamites.html">Dynamites</a>
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: #fdfdfd; border-bottom: 1px solid #eee;">
+    <div class="header-left" style="display: flex; align-items: center; gap: 20px;">
+      <a href="index.html"><img src="logo.png" class="logo" alt="Logo" style="height: 40px; display: block;"></a>
+      <nav style="display: flex; gap: 15px;">
+        <a href="catalog.html" style="text-decoration: none; color: #444;">Catalog</a>
+        <a href="ideas.html" style="text-decoration: none; color: #444;">Ideas</a>
+        <a href="create.html" style="text-decoration: none; color: #444;">Create</a>
+        <a href="dynamites.html" style="text-decoration: none; color: #444;">Dynamites</a>
       </nav>
     </div>
     <div class="search-container">
-      <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
+      <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()" style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
     <div id="authButtons" style="display: flex; align-items: center; gap: 10px;">
-      </div>
+      <a href="signup.html" class="header-btn">Sign Up</a>
+      <a href="login.html" class="header-btn">Log In</a>
+    </div>
   </header>
 
   <div class="container">
@@ -399,7 +410,13 @@
       <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
       
       <div class="games-grid" id="gamesGridContainer">
+        <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
+          <div class="game-thumb">
+            <span style="color:white; font-weight:bold; font-size:1.1em;">BASEPLATE</span>
+            <div class="play-overlay">PLAY BASEPLATE</div>
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="sidebar">
@@ -429,6 +446,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
+    // Safeguard configuration variables
     var firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
       authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -438,36 +456,46 @@
       messagingSenderId: "777148453502",
       appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
     };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    var db = firebase.database();
-    var currentUser = localStorage.getItem('loggedInUser');
+    
+    // Safety check window libraries wrapper
+    try {
+      if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+      var db = firebase.database();
+    } catch (e) {
+      console.error("Firebase startup halted:", e);
+    }
+
+    var currentUser = localStorage.getItem('loggedInUser') || null;
     var rawGamesCache = [];
 
     function checkRulesCondition() {
       if (!currentUser) {
         var rulesAccepted = sessionStorage.getItem('rulesAccepted');
         if (!rulesAccepted) {
-          document.getElementById('rulesPanel').style.display = 'block';
+          var panel = document.getElementById('rulesPanel');
+          if (panel) panel.style.display = 'block';
         }
       }
     }
 
     function acceptRules() {
       sessionStorage.setItem('rulesAccepted', 'true');
-      document.getElementById('rulesPanel').style.display = 'none';
+      var panel = document.getElementById('rulesPanel');
+      if (panel) panel.style.display = 'none';
     }
 
     function listenForGames() {
       var grid = document.getElementById('gamesGridContainer');
+      if (!grid || !db) return;
+
       db.ref('games').on('value', function(snapshot) {
         rawGamesCache = [];
         grid.innerHTML = "";
         
-        // Default baseplate installation mapping fallback
         grid.innerHTML += `
-          <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds, experiment with environment items, and explore physics mechanics live with your friends.', '')">
+          <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
             <div class="game-thumb">
-              <span style="color:white; font-weight:bold; font-size:1.1em; text-align:center; padding:10px;">BASEPLATE</span>
+              <span style="color:white; font-weight:bold; font-size:1.1em;">BASEPLATE</span>
               <div class="play-overlay">PLAY BASEPLATE</div>
             </div>
           </div>`;
@@ -497,15 +525,17 @@
               </div>`;
           });
         }
+      }, function(error) {
+        console.log("Database reading throttled:", error);
       });
     }
 
     function filterGamesLocal() {
       var q = document.getElementById('mainSearchInput').value.toLowerCase().trim();
       var grid = document.getElementById('gamesGridContainer');
+      if (!grid) return;
       grid.innerHTML = "";
       
-      // Always keep baseplate on lookups
       grid.innerHTML += `
         <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
           <div class="game-thumb">
@@ -535,26 +565,35 @@
     }
 
     function openGame(title, creator, description, fileData) {
-      document.getElementById('panelGameTitle').innerText = title;
-      document.getElementById('panelGameCreator').innerText = "by " + creator;
-      document.getElementById('panelGameShowcase').innerText = title.toUpperCase();
-      document.getElementById('panelGameDesc').innerText = description;
+      var tNode = document.getElementById('panelGameTitle');
+      var cNode = document.getElementById('panelGameCreator');
+      var sNode = document.getElementById('panelGameShowcase');
+      var dNode = document.getElementById('panelGameDesc');
+      var pBtn = document.getElementById('panelPlayBtn');
+
+      if (tNode) tNode.innerText = title;
+      if (cNode) cNode.innerText = "by " + creator;
+      if (sNode) sNode.innerText = title.toUpperCase();
+      if (dNode) dNode.innerText = description;
       
-      document.getElementById('panelPlayBtn').onclick = function() {
-        launchGame(fileData);
-      };
-      document.getElementById('gamePanel').style.display = 'block';
+      if (pBtn) {
+        pBtn.onclick = function() {
+          launchGame(fileData);
+        };
+      }
+      var panel = document.getElementById('gamePanel');
+      if (panel) panel.style.display = 'block';
     }
 
-    // Modal view window tracking close trigger routine
     function closeGame() {
-      document.getElementById('gamePanel').style.display = 'none';
+      var panel = document.getElementById('gamePanel');
+      if (panel) panel.style.display = 'none';
     }
 
     function launchGame(fileData) {
       var launchUser = currentUser ? currentUser : "GuestPlayer";
       var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser) + "&mapData=" + fileData;     
-      console.log("Attempting application call:", customProtocolUri);    
+      console.log("Launching application hook:", customProtocolUri);    
       window.location.href = customProtocolUri;
     }
 
@@ -563,13 +602,14 @@
       checkRulesCondition();
       listenForGames();
 
-      if (currentUser) {
-        // Authenticated State View Engine Shifts
-        document.getElementById('userCard').style.display = "block"; 
-        document.getElementById('displayUsername').innerText = currentUser;
-        
-        var fallbackText = document.getElementById('fallbackFriendsText');
-        if(fallbackText) fallbackText.style.display = "none";
+      if (currentUser && db) {
+        var uCard = document.getElementById('userCard');
+        var dUser = document.getElementById('displayUsername');
+        var fText = document.getElementById('fallbackFriendsText');
+
+        if (uCard) uCard.style.display = "block"; 
+        if (dUser) dUser.innerText = currentUser;
+        if (fText) fText.style.display = "none";
 
         if (authDiv) {
           authDiv.innerHTML = 
@@ -581,49 +621,4 @@
         db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
         loadSocial();
       } else {
-        // Guest State Header Buttons Injection
-        if (authDiv) {
-          authDiv.innerHTML = 
-            '<a href="signup.html" class="header-btn">Sign Up</a>' +
-            '<a href="login.html" class="header-btn">Log In</a>';
-        }
-      }
-    }
-
-    function logout() {
-      if (currentUser) {
-        db.ref('users/' + currentUser + '/presence').set("offline").then(function() {
-          localStorage.removeItem('loggedInUser');
-          location.reload();
-        }).catch(function() {
-          localStorage.removeItem('loggedInUser');
-          location.reload();
-        });
-      } else {
-        localStorage.removeItem('loggedInUser');
-        location.reload();
-      }
-    }
-
-    function sendRequest() {
-      var targetInput = document.getElementById('friendInput');
-      if (!targetInput) return;
-      var target = targetInput.value.trim();
-      if (!currentUser || !target || target === currentUser) return;
-      
-      db.ref('users/' + target).get().then(function(s) {
-        if (s.exists()) {
-          db.ref('users/' + target + '/requests/' + currentUser).set(true);
-          alert("Friend request sent to " + target + "!");
-          targetInput.value = "";
-        } else { 
-          alert("User profile node target not found."); 
-        }
-      });
-    }
-
-    function accept(name) {
-      if(!currentUser) return;
-      // Set transactional references across bidirectional relationship nodes
-      var updates = {};
-      updates['users/' + currentUs
+        if (authDi
