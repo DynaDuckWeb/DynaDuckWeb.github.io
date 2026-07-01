@@ -3,69 +3,231 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings</title>
+  <title>DynaDuck - Settings</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .settings-container {
+      max-width: 550px;
+      margin: 40px auto;
+      padding: 0 20px;
+      font-family: sans-serif;
+    }
+
+    .settings-box {
+      background: white;
+      padding: 35px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      font-size: 1.8em;
+      border-bottom: 2px solid #11AD36;
+      padding-bottom: 10px;
+      color: #222;
+      margin-top: 0;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      color: #444;
+      font-size: 0.9em;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #11AD36;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+      display: block;
+    }
+
+    .save-btn {
+      background: #11AD36;
+    }
+    .save-btn:hover {
+      background: #0e912d;
+    }
+
+    .danger-btn {
+      background: #E74C3C;
+      margin-top: 15px;
+    }
+    .danger-btn:hover {
+      background: #c0392b;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+    .back-link:hover {
+      color: #11AD36;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-<header>
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
   <div class="header-left">
-    <img src="logo.png" class="logo" alt="Logo">
+    <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
     <nav>
-      <a href="index.html">Home</a>
       <a href="catalog.html">Catalog</a>
+      <a href="ideas.html">Ideas</a>
+      <a href="create.html">Create</a>
+      <a href="dynamites.html">Dynamites</a>
     </nav>
   </div>
+  <div id="authButtons"></div>
 </header>
-<div class="auth-container">
-  <div class="auth-box">
-    <h1>Settings</h1>
+
+<div class="settings-container">
+  <div class="settings-box">
+    <h1>Account Settings</h1>
+    
     <form id="settingsForm">
-      <input type="text" id="displayName" placeholder="Display Name">
-      <input type="password" id="newPassword" placeholder="New Password">
-      <input type="email" id="confirmEmail" placeholder="Confirm Email">
-      <button type="submit" class="green-btn">Save Changes</button>
+      <div class="form-group">
+        <label for="displayName">Display Nickname</label>
+        <input type="text" id="displayName" class="form-control" placeholder="Loading current settings...">
+      </div>
+
+      <div class="form-group">
+        <label for="newPassword">Update Password</label>
+        <input type="password" id="newPassword" class="form-control" placeholder="•••••••• (Leave blank to keep current)">
+      </div>
+
+      <div class="form-group">
+        <label for="userEmail">Account Email Address</label>
+        <input type="email" id="userEmail" class="form-control" placeholder="name@example.com">
+      </div>
+
+      <button type="submit" class="action-btn save-btn">Save Database Updates</button>
     </form>
-    <button class="green-btn" onclick="deleteAccount()" style="margin-top:15px;background:#E74C3C;">Delete Account</button>
-    <br><br>
-    <a href="index.html" class="green-btn" style="text-decoration:none;">Back to Home</a>
+
+    <button class="action-btn danger-btn" onclick="deleteAccount()">Delete Account Matrix</button>
+    
+    <a href="index.html" class="back-link">← Return to Homepage</a>
   </div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+};
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+var db = firebase.database();
 const loggedInUser = localStorage.getItem('loggedInUser');
+
+// Security Gate Check
 if(!loggedInUser){
-  alert('Please log in to access settings.');
+  alert('Please log in to access your platform configuration panel.');
   window.location.href = 'login.html';
 }
-const settingsForm = document.getElementById('settingsForm');
-settingsForm.addEventListener('submit', function(e){
+
+function initSettings() {
+  // Update header view container structures
+  const authDiv = document.getElementById('authButtons');
+  if(authDiv) {
+    authDiv.innerHTML = '<span style="color:#333; font-weight:bold; margin-right:12px;">Editing Profile: ' + loggedInUser + '</span>';
+  }
+
+  // Pre-load current live user properties from Firebase database
+  db.ref('users/' + loggedInUser).get().then(function(snapshot) {
+    if (snapshot.exists()) {
+      var userData = snapshot.val();
+      if (userData.displayName) document.getElementById('displayName').value = userData.displayName;
+      if (userData.email) document.getElementById('userEmail').value = userData.email;
+    }
+  }).catch(function(err) {
+    console.error("Error pulling live configuration: ", err);
+  });
+}
+
+// Handling form submission writes directly back onto Firebase trees
+document.getElementById('settingsForm').addEventListener('submit', function(e){
   e.preventDefault();
+  
   const displayName = document.getElementById('displayName').value.trim();
   const newPassword = document.getElementById('newPassword').value;
-  const confirmEmail = document.getElementById('confirmEmail').value.trim();
-  const users = JSON.parse(localStorage.getItem('users') || '{}');
-  const userData = users[loggedInUser];
-  if(displayName) userData.displayName = displayName;
-  if(newPassword) userData.password = newPassword;
-  if(confirmEmail) userData.email = confirmEmail;
+  const email = document.getElementById('userEmail').value.trim();
 
-  users[loggedInUser] = userData;
-  localStorage.setItem('users', JSON.stringify(users));
+  var updates = {};
+  if(displayName) updates['/users/' + loggedInUser + '/displayName'] = displayName;
+  if(email) updates['/users/' + loggedInUser + '/email'] = email;
+  
+  // Only change password if user explicitly typed a value into the box
+  if(newPassword && newPassword.trim() !== "") {
+    updates['/users/' + loggedInUser + '/password'] = newPassword;
+  }
 
-  alert('Settings updated!');
-  document.getElementById('displayName').value = '';
-  document.getElementById('newPassword').value = '';
-  document.getElementById('confirmEmail').value = '';
+  db.ref().update(updates, function(error) {
+    if (error) {
+      alert("Error pushing changes directly to clusters.");
+    } else {
+      alert("Firebase live user settings synchronized successfully!");
+      // If display name is updated, you could also update localStorage fallback cache pointers
+      document.getElementById('newPassword').value = ''; // clear password box field for security
+    }
+  });
 });
+
 function deleteAccount(){
-  if(confirm(`Are you sure you want to delete your account "${loggedInUser}"?`)){
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    delete users[loggedInUser];
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.removeItem('loggedInUser');
-    alert('Your account has been deleted.');
-    window.location.href = 'index.html';
+  if(confirm(`⚠️ WARNING: Are you sure you want to permanently delete your profile registry node "${loggedInUser}"? This clears all data and cannot be undone.`)){
+    
+    // Wipe data clean directly out of live tables
+    db.ref('users/' + loggedInUser).remove().then(function() {
+      localStorage.removeItem('loggedInUser');
+      alert('Your profile node has been successfully removed from database paths.');
+      window.location.href = 'index.html';
+    }).catch(function(err) {
+      alert("Error finalizing account wipe structural flags.");
+    });
   }
 }
+
+window.addEventListener('DOMContentLoaded', initSettings);
 </script>
 </body>
 </html>
