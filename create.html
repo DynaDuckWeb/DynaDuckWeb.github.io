@@ -20,7 +20,6 @@
       margin-top: 0;
     }
 
-    /* Studio Download Section */
     .download-section {
       background: #f4fbf6;
       border: 1px dashed #11AD36;
@@ -60,7 +59,6 @@
       background: #0e912d;
     }
 
-    /* Publish Form Styling */
     .publish-box {
       background: white;
       padding: 30px;
@@ -148,7 +146,6 @@
 <main>
   <h1>Create & Publish</h1>
   
-  <!-- 1. Download Studio Asset Kit -->
   <div class="download-section">
     <div class="download-info">
       <h3>DynaDuck Engine Editor</h3>
@@ -157,7 +154,6 @@
     <a href="DynaDuckSetup.exe" download class="studio-btn">⬇ Download Studio</a>
   </div>
 
-  <!-- 2. Creation Ingestion Module -->
   <div class="publish-box">
     <h2 style="margin-top:0; font-size: 1.3em; margin-bottom: 20px; color:#444;">Deploy New Map Card</h2>
     
@@ -188,7 +184,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-// Initialize Firebase using index configuration mapping target rules
 var firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
   authDomain: "dynaduck-19dbb.firebaseapp.com",
@@ -202,13 +197,9 @@ if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 var db = firebase.database();
 const loggedInUser = localStorage.getItem('loggedInUser');
 
-// Multi-language filtering system (English, Romanian, French bad words)
 const BANNED_WORDS = [
-  // English
-  "fuck", "shit", "ass", "bitch", "bastard", "cunt", "dick", "idiot", "stupid",
-  // Romanian
-  "pula", "pizda", "coie", "cur", "drac", "cacat", "muta", "prost", "proasta", "tampit", "muie",
-  // French
+  "fuck", "shit", "ass", "bitch", "bastard", "cunt", "dick", "idiot", "stupid", "discord", "telegram", "whatapp", "twitter", "@", "youtube" 
+  "pula", "pizda", "coie", "cur", "drac", "cacat", "muta", "prost", "proasta", "tampit", "muie", "belit", // XD im trying so hard not to laugh while writing this //
   "merde", "con", "connard", "putain", "salope", "chier", "cul", "bâtard"
 ];
 
@@ -268,13 +259,10 @@ function submitGame() {
     return;
   }
 
-  // Server size strict validation constraint
   if (isNaN(maxPlayers) || maxPlayers < 1 || maxPlayers > 20) {
     alert("Maximum player capacity boundary constraint error. Must be an integer between 1 and 20.");
     return;
   }
-
-  // Moderation Check pass
   if (containsSwears(title) || containsSwears(desc)) {
     alert("⚠️ Text input flag exception: Your Title or Description contains inappropriate language/insults blocked by our multi-language filters.");
     return;
@@ -282,18 +270,16 @@ function submitGame() {
 
   var file = fileInput.files[0];
 
-  // 🔒 STRICT FILE EXTENSION VALIDATION
   var fileName = file.name.toLowerCase();
   if (!fileName.endsWith('.duck')) {
     alert("❌ Security Block: Invalid file format detected! You can only upload official engine export structures (.duck). Files like .mp4, .exe, or .html are strictly blocked.");
-    fileInput.value = ""; // Clear the bad file immediately
+    fileInput.value = ""
     return;
   }
 
-  // 🛑 SIZE BOUNDARY CHECK (Max 2 Megabytes)
   if (file.size > 2 * 1024 * 1024) { 
     alert("❌ File size limit exceeded! Your map data must be smaller than 2MB.");
-    fileInput.value = ""; // Clear the heavy file
+    fileInput.value = "";
     return;
   }
 
