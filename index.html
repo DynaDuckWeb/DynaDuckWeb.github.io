@@ -4,13 +4,89 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
+  <!-- Load Poppins Font to match ideas.html -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f2f2f2;
+    /* Global Style Sync from ideas.html */
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      background: #f2f2f2; 
+      color: #222; 
     }
+
+    /* EXACT Top Bar Style Copy from ideas.html */
+    header { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      background: #333; 
+      padding: 15px 40px; 
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .header-left { 
+      display: flex; 
+      align-items: center; 
+      gap: 20px; 
+    }
+    .logo { 
+      height: 70px; 
+      cursor: pointer; 
+      display: block;
+    }
+    nav { 
+      display: flex; 
+      gap: 25px; 
+    }
+    nav a { 
+      text-decoration: none; 
+      color: white; 
+      font-weight: 600; 
+      font-size: 1.05em; 
+      transition: 0.2s; 
+    }
+    nav a:hover { 
+      color: #11AD36; 
+    }
+    .search-container { 
+      flex: 1; 
+      display: flex; 
+      justify-content: center; 
+    }
+    .search-bar { 
+      width: 320px; 
+      padding: 10px 12px; 
+      border-radius: 8px; 
+      border: none; 
+      outline: none; 
+      font-size: 1em; 
+    }
+    .green-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1em;
+      transition: 0.2s;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .green-btn:hover { 
+      background: #0E8E2C; 
+    }
+    #authButtons { 
+      display: flex; 
+      gap: 15px; 
+      align-items: center; 
+    }
+
+    /* Core Layout Layouts */
     .container {
       max-width: 1100px;
       margin: 30px auto;
@@ -19,7 +95,6 @@
       gap: 25px;
       padding: 0 20px;
       align-items: start;
-      font-family: sans-serif;
     }
     .main-section {
       background: white;
@@ -61,25 +136,6 @@
     }
     .modern-auth-btn:hover {
       background: #0e912d;
-    }
-    .header-btn {
-      background: #11AD36;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 50px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.90em;
-      text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .header-btn:hover {
-      background: #0e912d;
-    }
-    .header-btn:active {
-      transform: scale(0.97);
     }
     .friend-item {
       display: flex;
@@ -169,6 +225,8 @@
     .game-card:hover .play-overlay {
       opacity: 1;
     }
+
+    /* Modal Systems */
     #gamePanel, #rulesPanel {
       display: none; 
       position: fixed; 
@@ -307,93 +365,11 @@
       margin-bottom: 10px;
       color: #444;
     }
-    .download-section {
-      background: #f4fbf6;
-      border: 1px dashed #11AD36;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 35px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .download-info h3 {
-      margin: 0 0 5px 0;
-      color: #11AD36;
-    }
-    .download-info p {
-      margin: 0;
-      font-size: 0.9em;
-      color: #555;
-    }
-    .studio-btn {
-      background: #11AD36;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 1em;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-    .studio-btn:hover {
-      background: #0e912d;
-    }
-    .publish-box {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .form-group {
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .form-group label {
-      font-weight: bold;
-      color: #333;
-      font-size: 0.95em;
-    }
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1em;
-      box-sizing: border-box;
-    }
-    .form-control:focus {
-      outline: none;
-      border-color: #11AD36;
-    }
-    .roblox-publish-btn {
-      background: #00b06f; 
-      color: white;
-      border: none;
-      border-bottom: 5px solid #008252; 
-      border-radius: 8px;
-      width: 100%;
-      padding: 14px 0;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .roblox-publish-btn:hover {
-      background: #00c47c;
-    }
-    .roblox-publish-btn:active {
-      border-bottom: 1px solid #008252;
-      transform: translateY(4px);
-    }
   </style>
 </head>
 <body>
+
+  <!-- Rules Modal -->
   <div id="rulesPanel">
     <div class="modal-content" style="max-width: 550px; text-align: center;">
       <div class="modal-header">
@@ -408,6 +384,8 @@
       <button class="roblox-play-btn" style="font-size: 18px; padding: 10px 0; margin-top: 20px;" onclick="acceptRules()">I Agree & Enter Sandbox</button>
     </div>
   </div>
+
+  <!-- Game Details Modal -->
   <div id="gamePanel">
     <div class="modal-content">
       <span class="close-x" onclick="closeGame()">&times;</span>
@@ -431,24 +409,29 @@
       </div>
     </div>
   </div>
-  <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: #222; border-bottom: 3px solid #11AD36; width: 100%; box-sizing: border-box;">
-    <div class="header-left" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-      <a href="index.html"><img src="logo.png" class="logo" alt="Logo" style="height: 35px; display: block;"></a>
+
+  <!-- PERFECTLY SYNCED TOP BAR FROM IDEAS.HTML -->
+  <header>
+    <div class="header-left">
+      <a href="index.html">
+        <img src="logo.png" class="logo" alt="Logo">
+      </a>
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
     </div>
-    <nav style="display: flex; gap: 15px;">
-      <a href="catalog.html" style="text-decoration: none; color: #fff; font-weight: bold;">Catalog</a>
-      <a href="ideas.html" style="text-decoration: none; color: #fff; font-weight: bold;">Ideas</a>
-      <a href="create.html" style="text-decoration: none; color: #fff; font-weight: bold;">Create</a>
-      <a href="dynamites.html" style="text-decoration: none; color: #fff; font-weight: bold;">Dynamites</a>
-    </nav>
     <div class="search-container">
-      <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()" style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;">
+      <input type="text" placeholder="Search..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
     </div>
-    <div id="authButtons" style="display: flex; align-items: center; gap: 10px;">
-      <a href="signup.html" class="header-btn">Sign Up</a>
-      <a href="login.html" class="header-btn">Log In</a>
+    <div id="authButtons">
+      <!-- Injected accurately by JavaScript to match theme configurations -->
     </div>
   </header>
+
+  <!-- Main Content Body -->
   <div class="container">
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
@@ -463,6 +446,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Sidebar Framework -->
     <div class="sidebar">
       <div id="userCard" class="user-profile-card" style="display: none;">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
@@ -484,6 +469,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Firebase Context Logic Hooks -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
@@ -502,8 +489,10 @@
     } catch (e) {
       console.error("Firebase startup halted:", e);
     }
+
     var currentUser = localStorage.getItem('loggedInUser') || null;
     var rawGamesCache = [];
+
     function checkRulesCondition() {
       if (!currentUser) {
         var rulesAccepted = sessionStorage.getItem('rulesAccepted');
@@ -513,11 +502,14 @@
         }
       }
     }
+
+    /* Fixed Function to match rules handling hooks */
     function acceptRules() {
       sessionStorage.setItem('rulesAccepted', 'true');
       var panel = document.getElementById('rulesPanel');
       if (panel) panel.style.display = 'none';
     }
+
     function listenForGames() {
       var grid = document.getElementById('gamesGridContainer');
       if (!grid || !db) return;
@@ -557,6 +549,7 @@
         console.log("Database reading throttled:", error);
       });
     }
+
     function filterGamesLocal() {
       var q = document.getElementById('mainSearchInput').value.toLowerCase().trim();
       var grid = document.getElementById('gamesGridContainer');
@@ -587,6 +580,7 @@
         }
       });
     }
+
     function openGame(title, creator, description, fileData) {
       var tNode = document.getElementById('panelGameTitle');
       var cNode = document.getElementById('panelGameCreator');
@@ -605,16 +599,20 @@
       var panel = document.getElementById('gamePanel');
       if (panel) panel.style.display = 'block';
     }
+
     function closeGame() {
       var panel = document.getElementById('gamePanel');
       if (panel) panel.style.display = 'none';
     }
+
     function launchGame(fileData) {
       var launchUser = currentUser ? currentUser : "GuestPlayer";
       var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser) + "&mapData=" + fileData;     
       console.log("Launching application hook:", customProtocolUri);    
       window.location.href = customProtocolUri;
     }
+
+    /* Fixed Sync injection values for Top Bar Navigation matching ideas.html */
     function initApp() {
       var authDiv = document.getElementById('authButtons');
       checkRulesCondition();
@@ -628,23 +626,24 @@
         if (fText) fText.style.display = "none";
         if (authDiv) {
           authDiv.innerHTML = 
-            '<span style="color:#333; font-weight:bold; margin-right:4px;">Hi, ' + currentUser + '</span>' +
-            '<a href="settings.html" class="header-btn">Settings</a>' +
-            '<button class="header-btn" onclick="logout()">Logout</button>';
+            '<span style="color:white; font-weight:bold; margin-right:10px;">' + currentUser + '</span>' +
+            '<a href="settings.html"><button class="green-btn" style="margin-right:10px;">Settings</button></a>' +
+            '<button class="green-btn" onclick="logout()">Logout</button>';
         }        
         db.ref('users/' + currentUser + '/presence').set("online");
         db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
         loadSocial();
-    } else {
+      } else {
         if (authDiv) {
           authDiv.innerHTML = 
-            '<a href="signup.html" class="header-btn">Sign Up</a>' +
-            '<a href="login.html" class="header-btn">Log In</a>';
+            '<a href="login.html"><button class="green-btn">Log In</button></a>' +
+            '<a href="signup.html"><button class="green-btn">Sign Up</button></a>';
         }
       }
     }
+
     function logout() {
-     if (currentUser && db) {
+      if (currentUser && db) {
         db.ref('users/' + currentUser + '/presence').set("offline").then(function() {
           localStorage.removeItem('loggedInUser');
           location.reload();
@@ -657,6 +656,7 @@
         location.reload();
       }
     }
+
     function sendRequest() {
       var targetInput = document.getElementById('friendInput');
       if (!targetInput || !db) return;
@@ -672,6 +672,7 @@
         }
       });
     }
+
     function accept(name) {
       if(!currentUser || !db) return;
       var updates = {};
@@ -682,6 +683,7 @@
         if(!err) alert("Friend connection synced!");
       });
     }
+
     function loadSocial() {
       if (!db || !currentUser) return;
       db.ref('users/' + currentUser + '/requests').on('value', function(snap) {
