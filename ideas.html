@@ -4,16 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
+  <!-- Load Poppins Font to match ideas.html -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f2f2f2;
-      font-family: sans-serif;
+    /* Global Style Sync from ideas.html */
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      background: #f2f2f2; 
+      color: #222; 
     }
 
-    /* Integrated Top Bar Styles from ideas.html */
+    /* EXACT Top Bar Style Copy from ideas.html */
     header { 
       display: flex; 
       align-items: center; 
@@ -60,8 +64,29 @@
       outline: none; 
       font-size: 1em; 
     }
+    .green-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1em;
+      transition: 0.2s;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .green-btn:hover { 
+      background: #0E8E2C; 
+    }
+    #authButtons { 
+      display: flex; 
+      gap: 15px; 
+      align-items: center; 
+    }
 
-    /* Core Layout Configurations */
+    /* Core Layout Layouts */
     .container {
       max-width: 1100px;
       margin: 30px auto;
@@ -111,25 +136,6 @@
     }
     .modern-auth-btn:hover {
       background: #0e912d;
-    }
-    .header-btn {
-      background: #11AD36;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 50px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.90em;
-      text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .header-btn:hover {
-      background: #0e912d;
-    }
-    .header-btn:active {
-      transform: scale(0.97);
     }
     .friend-item {
       display: flex;
@@ -363,6 +369,7 @@
 </head>
 <body>
 
+  <!-- Rules Modal -->
   <div id="rulesPanel">
     <div class="modal-content" style="max-width: 550px; text-align: center;">
       <div class="modal-header">
@@ -378,6 +385,7 @@
     </div>
   </div>
 
+  <!-- Game Details Modal -->
   <div id="gamePanel">
     <div class="modal-content">
       <span class="close-x" onclick="closeGame()">&times;</span>
@@ -402,6 +410,7 @@
     </div>
   </div>
 
+  <!-- PERFECTLY SYNCED TOP BAR FROM IDEAS.HTML -->
   <header>
     <div class="header-left">
       <a href="index.html">
@@ -415,14 +424,14 @@
       </nav>
     </div>
     <div class="search-container">
-      <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
+      <input type="text" placeholder="Search..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
     </div>
     <div id="authButtons">
-      <a href="signup.html" class="header-btn">Sign Up</a>
-      <a href="login.html" class="header-btn">Log In</a>
+      <!-- Injected accurately by JavaScript to match theme configurations -->
     </div>
   </header>
 
+  <!-- Main Content Body -->
   <div class="container">
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
@@ -438,6 +447,7 @@
       </div>
     </div>
 
+    <!-- Sidebar Framework -->
     <div class="sidebar">
       <div id="userCard" class="user-profile-card" style="display: none;">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
@@ -460,6 +470,7 @@
     </div>
   </div>
 
+  <!-- Firebase Context Logic Hooks -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
@@ -492,6 +503,7 @@
       }
     }
 
+    /* Fixed Function to match rules handling hooks */
     function acceptRules() {
       sessionStorage.setItem('rulesAccepted', 'true');
       var panel = document.getElementById('rulesPanel');
@@ -600,6 +612,7 @@
       window.location.href = customProtocolUri;
     }
 
+    /* Fixed Sync injection values for Top Bar Navigation matching ideas.html */
     function initApp() {
       var authDiv = document.getElementById('authButtons');
       checkRulesCondition();
@@ -613,9 +626,9 @@
         if (fText) fText.style.display = "none";
         if (authDiv) {
           authDiv.innerHTML = 
-            '<span style="color:white; font-weight:bold; margin-right:10px;">Hi, ' + currentUser + '</span>' +
-            '<a href="settings.html" class="header-btn" style="margin-right:5px;">Settings</a>' +
-            '<button class="header-btn" onclick="logout()">Logout</button>';
+            '<span style="color:white; font-weight:bold; margin-right:10px;">' + currentUser + '</span>' +
+            '<a href="settings.html"><button class="green-btn" style="margin-right:10px;">Settings</button></a>' +
+            '<button class="green-btn" onclick="logout()">Logout</button>';
         }        
         db.ref('users/' + currentUser + '/presence').set("online");
         db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
@@ -623,8 +636,8 @@
       } else {
         if (authDiv) {
           authDiv.innerHTML = 
-            '<a href="signup.html" class="header-btn" style="margin-right:5px;">Sign Up</a>' +
-            '<a href="login.html" class="header-btn">Log In</a>';
+            '<a href="login.html"><button class="green-btn">Log In</button></a>' +
+            '<a href="signup.html"><button class="green-btn">Sign Up</button></a>';
         }
       }
     }
