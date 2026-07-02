@@ -206,6 +206,33 @@ nav a:hover{
 .buy-btn:hover{
   background:#0d8d2b;
 }
+
+/* Secure Admin Processing View Styles */
+#adminPayments {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-top: 50px;
+  border: 1px solid #ddd;
+}
+.payment-card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #fafafa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.payment-info p {
+  margin: 4px 0;
+}
+.payment-actions {
+  display: flex;
+  gap: 10px;
+}
 </style>
 </head>
 <body>
@@ -283,7 +310,17 @@ nav a:hover{
       </div>
     </div>
   </div>
+
+  <!-- Admin Verification Dashboard Container -->
+  <div id="adminPayments" style="display:none;">
+    <h2 style="margin-top:0;">Pending Payment Verification (Admin Only)</h2>
+    <p style="color:#666; font-size:0.9em; margin-bottom:20px;">Check your Revolut mobile application for matching names and notes before hitting Approve.</p>
+    <div id="paymentsContainer">
+      <p style="color:#999; font-size:0.95em;">No pending transfers to process.</p>
+    </div>
+  </div>
 </main>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
@@ -324,31 +361,82 @@ function buyDynamites(amount){
     return;
   }
 
-  // Map amount package variations to Revolut links
   let revolutUrl = "";
+  let priceText = "";
   if (amount === 200) {
     revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=1374&note=Dynamites%20200";
+    priceText = "13.74 RON ($2.99)";
   } else if (amount === 800) {
     revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=3671&note=800%20dynamites%20";
+    priceText = "36.71 RON ($7.99)";
   } else if (amount === 2000) {
     revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=6888&note=2000%20Dynamites";
+    priceText = "68.88 RON ($14.99)";
   }
 
-  // Open the assigned Revolut window link safely in a new tab
-  if (revolutUrl !== "") {
-    window.open(revolutUrl, '_blank');
-  }
+  // Push order metadata to verification database array first
+  db.ref("pending_payments").push().set({
+    username: currentUser,
+    itemAmount: amount,
+    priceCharged: priceText,
+    timestamp: Date.now()
+  }).then(() => {
+    // Open payment target link window safely
+    if (revolutUrl !== "") {
+      window.open(revolutUrl, '_blank');
+    }
+    alert("Opening Revolut payment tab! Your balance will be credited as soon as the Admin approves your transfer confirmation.");
+  });
+}
 
-  const balanceRef = db.ref("users/" + currentUser + "/dynamites");
-  balanceRef.once("value").then(snapshot => {
-    let currentBalance = snapshot.val();
-    if(currentBalance == null) currentBalance = 0;
-    const newBalance = currentBalance + amount;
-    
-    balanceRef.set(newBalance).then(() => {
-      alert("Redirecting to payment! Once complete, your " + amount + " Dynamites will be loaded.");
+/* Secure Engine Logic Listener for Admin Operations */
+function loadAdminPayments() {
+  if (currentUser !== "Admin") return;
+  document.getElementById("adminPayments").style.display = "block";
+  const container = document.getElementById("paymentsContainer");
+
+  db.ref("pending_payments").on("value", snap => {
+    container.innerHTML = "";
+    if(!snap.exists()){
+      container.innerHTML = "<p style='color:#999; font-size:0.95em;'>No pending transfers to process.</p>";
+      return;
+    }
+    snap.forEach(paySnap => {
+      const order = paySnap.val();
+      const orderId = paySnap.key;
+      const div = document.createElement("div");
+      div.className = "payment-card";
+      div.innerHTML = `
+        <div class="payment-info">
+          <p><b>User Account:</b> ${order.username}</p>
+          <p><b>Item Requested:</b> ${order.itemAmount} Dynamites</p>
+          <p><b>Expected Value:</b> ${order.priceCharged}</p>
+        </div>
+        <div class="payment-actions">
+          <button class="green-btn" onclick="approvePayment('${orderId}', '${order.username}', ${order.itemAmount})">Confirm & Add</button>
+          <button class="green-btn" style="background:#ccc; color:#333;" onclick="dismissPayment('${orderId}')">Deny</button>
+        </div>
+      `;
+      container.appendChild(div);
     });
   });
+}
+
+function approvePayment(orderId, targetUser, amountToAdd) {
+  const userRef = db.ref("users/" + targetUser + "/dynamites");
+  userRef.once("value").then(snapshot => {
+    let currentBalance = snapshot.val() || 0;
+    userRef.set(currentBalance + amountToAdd).then(() => {
+      db.ref("pending_payments/" + orderId).remove();
+      alert("Success! Credited " + amountToAdd + " Dynamites to " + targetUser);
+    });
+  });
+}
+
+function dismissPayment(orderId) {
+  if (confirm("Are you sure you want to delete this payment request order?")) {
+    db.ref("pending_payments/" + orderId).remove();
+  }
 }
 
 function updateHeader(){
@@ -391,6 +479,9 @@ function logout(){
 window.addEventListener("DOMContentLoaded", () => {
     updateHeader();
     loadBalance();
+    if (currentUser === "Admin") {
+      loadAdminPayments();
+    }
   }
 );
 </script>
