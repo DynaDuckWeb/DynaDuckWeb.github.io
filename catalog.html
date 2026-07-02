@@ -362,9 +362,6 @@
     }
 
     const db = firebase.database();
-
-    // Same username system as login.html: identity lives in localStorage,
-    // and the Realtime Database is keyed by that username (not a Firebase UID).
     const username = localStorage.getItem('loggedInUser');
 
     if (!username) {
@@ -379,8 +376,6 @@
         "l-leg": "#ffcd3a",
         "r-leg": "#ffcd3a"
     };
-
-    // DYNAMIC HEADER ENGINE (same pattern as login.html, so the header matches everywhere)
     function updateHeader() {
         const authDiv = document.getElementById('authButtons');
         if (username) {
@@ -413,8 +408,6 @@
         const snapshot = await userRef.once("value");
         const user = snapshot.val() || {};
 
-        // Don't stomp on existing fields (e.g. password) - only fill in
-        // catalog-related fields if this account doesn't have them yet.
         const updates = {};
         if (user.Dynamites === undefined) updates.Dynamites = 1000;
         if (!user.inventory) updates.inventory = { "Starter Pack": true };
@@ -567,7 +560,6 @@
                 ["colors/" + slot]: defaultColors[slot]
             });
         } else {
-            // Equip: set the slot, apply item's color
             await userRef.update({
                 ["equipped/" + slot]: itemName,
                 ["colors/" + slot]: itemData.color
