@@ -4,14 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynamites - DynaDuck</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-
 <style>
-  
 body {
   margin:0;
-  font-family:Poppins,sans-serif;
+  font-family:'Poppins', sans-serif;
   background:#f2f2f2;
   color:#222;
 }
@@ -97,6 +95,17 @@ nav a:hover{
   margin-bottom:35px;
 }
 
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px 25px;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
 .dynamites-top h1{
   margin:0;
   font-size:2.5em;
@@ -105,6 +114,26 @@ nav a:hover{
 .dynamites-top p{
   color:#666;
   margin-top:8px;
+  margin-bottom:0;
+}
+
+.balance-box {
+  text-align: right;
+}
+
+.balance-box span {
+  font-size: 0.85em;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-box h2 {
+  margin: 2px 0 0 0;
+  color: #11AD36;
+  font-size: 2.2em;
+  font-weight: 700;
 }
 
 .dynamites-grid{
@@ -271,81 +300,76 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-const currentUser =
-  localStorage.getItem("loggedInUser");
+const currentUser = localStorage.getItem("loggedInUser");
+
 function loadBalance(){
-
   if(!currentUser){
-
-    document.getElementById(
-      "dynamiteBalance"
-    ).innerText = "0";
-
+    document.getElementById("dynamiteBalance").innerText = "0";
     return;
   }
-  const balanceRef =
-    db.ref("users/" + currentUser + "/dynamites");
+  const balanceRef = db.ref("users/" + currentUser + "/dynamites");
   balanceRef.on("value", snapshot => {
     let balance = snapshot.val();
     if(balance == null){
       balance = 0;
       balanceRef.set(0);
     }
-    document.getElementById(
-      "dynamiteBalance"
-    ).innerText = balance;
+    document.getElementById("dynamiteBalance").innerText = balance;
   });
-
 }
+
 function buyDynamites(amount){
   if(!currentUser){
     alert("Please log in first.");
     return;
   }
-  const balanceRef =
-    db.ref("users/" + currentUser + "/dynamites");
+
+  // Map amount package variations to Revolut links
+  let revolutUrl = "";
+  if (amount === 200) {
+    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=1374&note=Dynamites%20200";
+  } else if (amount === 800) {
+    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=3671&note=800%20dynamites%20";
+  } else if (amount === 2000) {
+    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=6888&note=2000%20Dynamites";
+  }
+
+  // Open the assigned Revolut window link safely in a new tab
+  if (revolutUrl !== "") {
+    window.open(revolutUrl, '_blank');
+  }
+
+  const balanceRef = db.ref("users/" + currentUser + "/dynamites");
   balanceRef.once("value").then(snapshot => {
     let currentBalance = snapshot.val();
-    if(currentBalance == null)
-      currentBalance = 0;
-    const newBalance =
-      currentBalance + amount;
+    if(currentBalance == null) currentBalance = 0;
+    const newBalance = currentBalance + amount;
+    
     balanceRef.set(newBalance).then(() => {
-      alert(
-        "You bought " +
-        amount +
-        " Dynamites!"
-      );
+      alert("Redirecting to payment! Once complete, your " + amount + " Dynamites will be loaded.");
     });
   });
 }
+
 function updateHeader(){
-  const authDiv =
-    document.getElementById("authButtons");
+  const authDiv = document.getElementById("authButtons");
   if(currentUser){
     authDiv.innerHTML = `
-      <span style="
-        color:white;
-        font-weight:bold;
-        margin-right:10px;
-      ">
+      <span style="color:white; font-weight:bold; margin-right:10px;">
         Welcome, ${currentUser}!
       </span>
       <a href="settings.html">
-        <button class="green-btn">
+        <button class="green-btn" style="margin-right:10px;">
           Settings
         </button>
       </a>
-      <button
-        class="green-btn"
-        onclick="logout()"
-      >
+      <button class="green-btn" onclick="logout()">
         Logout
       </button>
     `;
   } else {
     authDiv.innerHTML = `
-      <a href="signup.html">
+      <a href="signup.html" style="margin-right:10px;">
         <button class="green-btn">
           Sign Up
         </button>
@@ -358,15 +382,13 @@ function updateHeader(){
     `;
   }
 }
+
 function logout(){
-  localStorage.removeItem(
-    "loggedInUser"
-  );
+  localStorage.removeItem("loggedInUser");
   location.reload();
 }
-window.addEventListener(
-  "DOMContentLoaded",
-  () => {
+
+window.addEventListener("DOMContentLoaded", () => {
     updateHeader();
     loadBalance();
   }
