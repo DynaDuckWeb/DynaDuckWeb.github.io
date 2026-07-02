@@ -5,81 +5,121 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
- <style>
-body { font-family:'Poppins', sans-serif; margin:0; padding:0; background:#f2f2f2; color:#222; }
-header { display:flex; align-items:center; justify-content:space-between; background:#333; padding:15px 40px; }
-.header-left { display:flex; align-items:center; gap:20px; }
-.logo { height:70px; cursor:pointer; }
-nav { display:flex; gap:25px; }
-nav a { text-decoration:none; color:white; font-weight:600; font-size:1.05em; transition:0.2s; }
-nav a:hover { color:#11AD36; }
-.search-container { flex:1; display:flex; justify-content:center; }
-.search-bar { width:320px; padding:10px 12px; border-radius:8px; border:none; outline:none; font-size:1em; }
-.green-btn {
-  background:#11AD36;
-  color:white;
-  border:none;
-  padding:10px 18px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-  font-size:1em;
-  transition:0.2s;
-}
-.green-btn:hover { background:#0E8E2C; }
-#authButtons { display:flex; gap:15px; align-items:center; }
-.main-container { max-width:900px; margin:40px auto; padding:0 20px; }
-.center-message { text-align:center; margin-top:100px; font-size:1.8em; font-weight:bold; color:#555; }
-.idea-input {
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.1);
-  margin-bottom:30px;
-}
-.idea-input textarea,
-.idea-input input[type="text"] {
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  margin-bottom:10px;
-  resize:none;
-}
-.idea {
-  background:white;
-  padding:15px 20px;
-  border-radius:12px;
-  margin-bottom:15px;
-  box-shadow:0 3px 12px rgba(0,0,0,0.1);
-}
-.idea h3 { margin:0 0 5px 0; }
-.idea .meta { font-size:0.85em; color:#11AD36; font-weight:600; margin-bottom:8px; }
-.idea .actions {
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-#adminReports {
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
-  margin-top:40px;
-}
-.report-card {
-  border:1px solid #ccc;
-  border-radius:10px;
-  padding:12px;
-  margin-bottom:12px;
-  background:#fafafa;
-}
-.report-actions {
-  display:flex;
-  gap:10px;
-  margin-top:5px;
-}
-</style>
+<style>
+    main {
+      max-width: 750px;
+      margin: 40px auto;
+      padding: 0 20px;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      font-size: 2em;
+      border-bottom: 2px solid #11AD36;
+      padding-bottom: 10px;
+      color: #222;
+      margin-top: 0;
+    }
+
+    /* Studio Download Section */
+    .download-section {
+      background: #f4fbf6;
+      border: 1px dashed #11AD36;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .download-info h3 {
+      margin: 0 0 5px 0;
+      color: #11AD36;
+    }
+
+    .download-info p {
+      margin: 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .studio-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .studio-btn:hover {
+      background: #0e912d;
+    }
+
+    /* Publish Form Styling */
+    .publish-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #11AD36;
+    }
+
+    .roblox-publish-btn {
+      background: #00b06f; 
+      color: white;
+      border: none;
+      border-bottom: 5px solid #008252; 
+      border-radius: 8px;
+      width: 100%;
+      padding: 14px 0;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .roblox-publish-btn:hover {
+      background: #00c47c;
+    }
+
+    .roblox-publish-btn:active {
+      border-bottom: 1px solid #008252;
+      transform: translateY(4px);
+    }
+  </style>
 </head>
 <body>
   <div id="rulesPanel">
