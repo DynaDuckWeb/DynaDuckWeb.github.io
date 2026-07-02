@@ -111,7 +111,6 @@
     }
     const db = firebase.database();
 
-    // DYNAMIC HEADER ENGINE
     function updateHeader() {
       const authDiv = document.getElementById('authButtons');
       const loggedInUser = localStorage.getItem('loggedInUser');
@@ -138,7 +137,6 @@
 
     window.addEventListener('DOMContentLoaded', updateHeader);
 
-    // LOGIN PROCESS WITH SECURITY MODERATION
     const loginForm = document.getElementById('loginForm');
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -154,7 +152,7 @@
         "nigga", "nigger", "fag", "faggot", "retard",
         "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
         "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
-        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
+        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com", "dih", "nazi", "belit", "comunism", "hitler", "adolf", "the big h", "Hitler Adolf"
       ];
 
       if (username.length < 3 || username.length > 15) {
