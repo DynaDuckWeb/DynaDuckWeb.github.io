@@ -1,11 +1,11 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
-<style>
+  <style>
     main {
       max-width: 750px;
       margin: 40px auto;
@@ -161,19 +161,17 @@
       </div>
     </div>
   </div>
+  
   <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: #222; border-bottom: 3px solid #11AD36; width: 100%; box-sizing: border-box;">
-
     <div class="header-left" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-
       <a href="index.html"><img src="logo.png" class="logo" alt="Logo" style="height: 35px; display: block;"></a>
     </div>
-      <nav style="display: flex; gap: 15px;">
-        <a href="catalog.html" style="text-decoration: none; color: #fff; font-weight: bold;">Catalog</a>
-        <a href="ideas.html" style="text-decoration: none; color: #fff; font-weight: bold;">Ideas</a>
-        <a href="create.html" style="text-decoration: none; color: #fff; font-weight: bold;">Create</a>
-        <a href="dynamites.html" style="text-decoration: none; color: #fff; font-weight: bold;">Dynamites</a>
-      </nav>
-    </div>
+    <nav style="display: flex; gap: 15px;">
+      <a href="catalog.html" style="text-decoration: none; color: #fff; font-weight: bold;">Catalog</a>
+      <a href="ideas.html" style="text-decoration: none; color: #fff; font-weight: bold;">Ideas</a>
+      <a href="create.html" style="text-decoration: none; color: #fff; font-weight: bold;">Create</a>
+      <a href="dynamites.html" style="text-decoration: none; color: #fff; font-weight: bold;">Dynamites</a>
+    </nav>
     <div class="search-container">
       <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()" style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
@@ -182,6 +180,7 @@
       <a href="login.html" class="header-btn">Log In</a>
     </div>
   </header>
+
   <div class="container">
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
@@ -444,7 +443,7 @@
           Object.keys(snap.val()).forEach(function(fName) {
             db.ref('users/' + fName + '/presence').on('value', function(sSnap) {
               var status = sSnap.val() || "offline";
-              var color = status === "online" ? "#11AD36" : "#888
+              var color = status === "online" ? "#11AD36" : "#888";
               var el = document.getElementById('f-' + fName);
               if (!el) {
                 el = document.createElement('div');
