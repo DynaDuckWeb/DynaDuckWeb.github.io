@@ -273,7 +273,7 @@ nav a:hover{
       <div class="dynamite-content">
         <h2>200 Dynamites</h2>
         <div class="dynamite-price">
-          $2.99
+          $0.66
         </div>
         <button class="buy-btn" onclick="buyDynamites(200)">
           Buy
@@ -287,7 +287,7 @@ nav a:hover{
       <div class="dynamite-content">
         <h2>800 Dynamites</h2>
         <div class="dynamite-price">
-          $7.99
+          $1.09
         </div>
         <button class="buy-btn" onclick="buyDynamites(800)">
           Buy
@@ -301,7 +301,7 @@ nav a:hover{
       <div class="dynamite-content">
         <h2>2000 Dynamites</h2>
         <div class="dynamite-price">
-          $14.99
+          $2.19
         </div>
         <button class="buy-btn" onclick="buyDynamites(2000)">
           Buy
@@ -362,14 +362,14 @@ function buyDynamites(amount){
   let revolutUrl = "";
   let priceText = "";
   if (amount === 200) {
-    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=1374&note=Dynamites%20200";
-    priceText = "13.74 RON ($2.99)";
+    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=300";
+    priceText = "$0.66";
   } else if (amount === 800) {
-    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=3671&note=800%20dynamites%20";
-    priceText = "36.71 RON ($7.99)";
+    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=500";
+    priceText = "$1.09";
   } else if (amount === 2000) {
-    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=6888&note=2000%20Dynamites";
-    priceText = "68.88 RON ($14.99)";
+    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=1000";
+    priceText = "$2.19";
   }
 
   db.ref("pending_payments").push().set({
