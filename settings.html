@@ -160,20 +160,17 @@ if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 var db = firebase.database();
 const loggedInUser = localStorage.getItem('loggedInUser');
 
-// Security Gate Check
 if(!loggedInUser){
   alert('Please log in to access your platform configuration panel.');
   window.location.href = 'login.html';
 }
 
 function initSettings() {
-  // Update header view container structures
   const authDiv = document.getElementById('authButtons');
   if(authDiv) {
     authDiv.innerHTML = '<span style="color:#333; font-weight:bold; margin-right:12px;">Editing Profile: ' + loggedInUser + '</span>';
   }
 
-  // Pre-load current live user properties from Firebase database
   db.ref('users/' + loggedInUser).get().then(function(snapshot) {
     if (snapshot.exists()) {
       var userData = snapshot.val();
@@ -185,7 +182,6 @@ function initSettings() {
   });
 }
 
-// Handling form submission writes directly back onto Firebase trees
 document.getElementById('settingsForm').addEventListener('submit', function(e){
   e.preventDefault();
   
@@ -196,8 +192,7 @@ document.getElementById('settingsForm').addEventListener('submit', function(e){
   var updates = {};
   if(displayName) updates['/users/' + loggedInUser + '/displayName'] = displayName;
   if(email) updates['/users/' + loggedInUser + '/email'] = email;
-  
-  // Only change password if user explicitly typed a value into the box
+
   if(newPassword && newPassword.trim() !== "") {
     updates['/users/' + loggedInUser + '/password'] = newPassword;
   }
@@ -207,16 +202,14 @@ document.getElementById('settingsForm').addEventListener('submit', function(e){
       alert("Error pushing changes directly to clusters.");
     } else {
       alert("Firebase live user settings synchronized successfully!");
-      // If display name is updated, you could also update localStorage fallback cache pointers
-      document.getElementById('newPassword').value = ''; // clear password box field for security
+
+      document.getElementById('newPassword').value = ''; 
     }
   });
 });
 
 function deleteAccount(){
   if(confirm(`⚠️ WARNING: Are you sure you want to permanently delete your profile registry node "${loggedInUser}"? This clears all data and cannot be undone.`)){
-    
-    // Wipe data clean directly out of live tables
     db.ref('users/' + loggedInUser).remove().then(function() {
       localStorage.removeItem('loggedInUser');
       alert('Your profile node has been successfully removed from database paths.');
@@ -226,7 +219,6 @@ function deleteAccount(){
     });
   }
 }
-
 window.addEventListener('DOMContentLoaded', initSettings);
 </script>
 </body>
