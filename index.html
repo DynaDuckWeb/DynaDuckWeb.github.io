@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
-  <!-- Load Poppins Font to match ideas.html -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Global Style Sync from ideas.html */
     body { 
       font-family: 'Poppins', sans-serif; 
       margin: 0; 
@@ -17,7 +15,6 @@
       color: #222; 
     }
 
-    /* EXACT Top Bar Style Copy from ideas.html */
     header { 
       display: flex; 
       align-items: center; 
@@ -86,7 +83,6 @@
       align-items: center; 
     }
 
-    /* Core Layout Layouts */
     .container {
       max-width: 1100px;
       margin: 30px auto;
@@ -226,7 +222,6 @@
       opacity: 1;
     }
 
-    /* Modal Systems */
     #gamePanel, #rulesPanel {
       display: none; 
       position: fixed; 
@@ -369,7 +364,6 @@
 </head>
 <body>
 
-  <!-- Rules Modal -->
   <div id="rulesPanel">
     <div class="modal-content" style="max-width: 550px; text-align: center;">
       <div class="modal-header">
@@ -385,7 +379,6 @@
     </div>
   </div>
 
-  <!-- Game Details Modal -->
   <div id="gamePanel">
     <div class="modal-content">
       <span class="close-x" onclick="closeGame()">&times;</span>
@@ -409,8 +402,6 @@
       </div>
     </div>
   </div>
-
-  <!-- PERFECTLY SYNCED TOP BAR FROM IDEAS.HTML -->
   <header>
     <div class="header-left">
       <a href="index.html">
@@ -427,11 +418,9 @@
       <input type="text" placeholder="Search..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
     </div>
     <div id="authButtons">
-      <!-- Injected accurately by JavaScript to match theme configurations -->
     </div>
   </header>
 
-  <!-- Main Content Body -->
   <div class="container">
     <div class="main-section">
       <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
@@ -447,7 +436,6 @@
       </div>
     </div>
 
-    <!-- Sidebar Framework -->
     <div class="sidebar">
       <div id="userCard" class="user-profile-card" style="display: none;">
          <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
@@ -470,7 +458,6 @@
     </div>
   </div>
 
-  <!-- Firebase Context Logic Hooks -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
@@ -503,7 +490,6 @@
       }
     }
 
-    /* Fixed Function to match rules handling hooks */
     function acceptRules() {
       sessionStorage.setItem('rulesAccepted', 'true');
       var panel = document.getElementById('rulesPanel');
@@ -612,7 +598,6 @@
       window.location.href = customProtocolUri;
     }
 
-    /* Fixed Sync injection values for Top Bar Navigation matching ideas.html */
     function initApp() {
       var authDiv = document.getElementById('authButtons');
       checkRulesCondition();
