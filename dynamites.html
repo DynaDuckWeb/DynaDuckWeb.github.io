@@ -207,7 +207,6 @@ nav a:hover{
   background:#0d8d2b;
 }
 
-/* Secure Admin Processing View Styles */
 #adminPayments {
   background: white;
   padding: 25px;
@@ -311,7 +310,6 @@ nav a:hover{
     </div>
   </div>
 
-  <!-- Admin Verification Dashboard Container -->
   <div id="adminPayments" style="display:none;">
     <h2 style="margin-top:0;">Pending Payment Verification (Admin Only)</h2>
     <p style="color:#666; font-size:0.9em; margin-bottom:20px;">Check your Revolut mobile application for matching names and notes before hitting Approve.</p>
@@ -374,14 +372,12 @@ function buyDynamites(amount){
     priceText = "68.88 RON ($14.99)";
   }
 
-  // Push order metadata to verification database array first
   db.ref("pending_payments").push().set({
     username: currentUser,
     itemAmount: amount,
     priceCharged: priceText,
     timestamp: Date.now()
   }).then(() => {
-    // Open payment target link window safely
     if (revolutUrl !== "") {
       window.open(revolutUrl, '_blank');
     }
@@ -389,7 +385,6 @@ function buyDynamites(amount){
   });
 }
 
-/* Secure Engine Logic Listener for Admin Operations */
 function loadAdminPayments() {
   if (currentUser !== "Admin") return;
   document.getElementById("adminPayments").style.display = "block";
