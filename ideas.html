@@ -1,312 +1,721 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DynaDuck - Ideas</title>
-<link rel="stylesheet" href="style.css">
-<style>
-body { font-family:'Poppins', sans-serif; margin:0; padding:0; background:#f2f2f2; color:#222; }
-header { display:flex; align-items:center; justify-content:space-between; background:#333; padding:15px 40px; }
-.header-left { display:flex; align-items:center; gap:20px; }
-.logo { height:70px; cursor:pointer; }
-nav { display:flex; gap:25px; }
-nav a { text-decoration:none; color:white; font-weight:600; font-size:1.05em; transition:0.2s; }
-nav a:hover { color:#11AD36; }
-.search-container { flex:1; display:flex; justify-content:center; }
-.search-bar { width:320px; padding:10px 12px; border-radius:8px; border:none; outline:none; font-size:1em; }
-.green-btn {
-  background:#11AD36;
-  color:white;
-  border:none;
-  padding:10px 18px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-  font-size:1em;
-  transition:0.2s;
-}
-.green-btn:hover { background:#0E8E2C; }
-#authButtons { display:flex; gap:15px; align-items:center; }
-.main-container { max-width:900px; margin:40px auto; padding:0 20px; }
-.center-message { text-align:center; margin-top:100px; font-size:1.8em; font-weight:bold; color:#555; }
-.idea-input {
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.1);
-  margin-bottom:30px;
-}
-.idea-input textarea,
-.idea-input input[type="text"] {
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  margin-bottom:10px;
-  resize:none;
-}
-.idea {
-  background:white;
-  padding:15px 20px;
-  border-radius:12px;
-  margin-bottom:15px;
-  box-shadow:0 3px 12px rgba(0,0,0,0.1);
-}
-.idea h3 { margin:0 0 5px 0; }
-.idea .meta { font-size:0.85em; color:#11AD36; font-weight:600; margin-bottom:8px; }
-.idea .actions {
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-#adminReports {
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
-  margin-top:40px;
-}
-.report-card {
-  border:1px solid #ccc;
-  border-radius:10px;
-  padding:12px;
-  margin-bottom:12px;
-  background:#fafafa;
-}
-.report-actions {
-  display:flex;
-  gap:10px;
-  margin-top:5px;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DynaDuck - Home</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      font-family: sans-serif;
+    }
+
+    /* Integrated Top Bar Styles from ideas.html */
+    header { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      background: #333; 
+      padding: 15px 40px; 
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .header-left { 
+      display: flex; 
+      align-items: center; 
+      gap: 20px; 
+    }
+    .logo { 
+      height: 70px; 
+      cursor: pointer; 
+      display: block;
+    }
+    nav { 
+      display: flex; 
+      gap: 25px; 
+    }
+    nav a { 
+      text-decoration: none; 
+      color: white; 
+      font-weight: 600; 
+      font-size: 1.05em; 
+      transition: 0.2s; 
+    }
+    nav a:hover { 
+      color: #11AD36; 
+    }
+    .search-container { 
+      flex: 1; 
+      display: flex; 
+      justify-content: center; 
+    }
+    .search-bar { 
+      width: 320px; 
+      padding: 10px 12px; 
+      border-radius: 8px; 
+      border: none; 
+      outline: none; 
+      font-size: 1em; 
+    }
+
+    /* Core Layout Configurations */
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 25px;
+      padding: 0 20px;
+      align-items: start;
+    }
+    .main-section {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      min-height: 400px;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .social-box {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .social-box h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.05em;
+      border-bottom: 2px solid #11AD36;
+      padding-bottom: 6px;
+      color: #333;
+    }
+    .modern-auth-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: background 0.2s;
+    }
+    .modern-auth-btn:hover {
+      background: #0e912d;
+    }
+    .header-btn {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.90em;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .header-btn:hover {
+      background: #0e912d;
+    }
+    .header-btn:active {
+      transform: scale(0.97);
+    }
+    .friend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .friend-item:hover {
+      background: #f5f5f5;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px #ddd;
+    }
+    #pendingSection {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .user-profile-card {
+      background: #222;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+    .game-card {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      width: 100%;
+    }
+    .game-thumb {
+      width: 100%;
+      height: 140px;
+      background-color: #11AD36;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+      background-size: 15px 15px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .game-card:hover .game-thumb {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .play-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      font-weight: bold;
+      font-size: 1em;
+      padding: 10px;
+      box-sizing: border-box;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .game-card:hover .play-overlay {
+      opacity: 1;
+    }
+
+    /* Modal Systems */
+    #gamePanel, #rulesPanel {
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.6); 
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white; 
+      width: 90%;
+      max-width: 720px; 
+      margin: 50px auto; 
+      padding: 25px; 
+      border-radius: 12px; 
+      box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-sizing: border-box;
+    }
+    .close-x {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #bbb;
+      cursor: pointer;
+      line-height: 20px;
+      transition: color 0.15s;
+    }
+    .close-x:hover {
+      color: #333;
+    }
+    .modal-header h1 {
+      margin: 0;
+      font-size: 1.6em;
+      color: #222;
+    }
+    .modal-creator {
+      font-size: 0.9em;
+      color: #11AD36;
+      font-weight: bold;
+      margin: 4px 0 0 0;
+    }
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (min-width: 600px) {
+      .modal-body {
+        grid-template-columns: 320px 1fr;
+      }
+    }
+    .modal-showcase {
+      width: 100%;
+      height: 180px;
+      background-color: #11AD36;
+      background-image: linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+      background-size: 15px 15px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.3em;
+      text-align: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .modal-actions {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .roblox-play-btn {
+      background: #00b06f; 
+      color: white;
+      border: none;
+      border-bottom: 5px solid #008252; 
+      border-radius: 8px;
+      width: 100%;
+      padding: 12px 0;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .roblox-play-btn:hover {
+      background: #00c47c;
+    }
+    .roblox-play-btn:active {
+      border-bottom: 1px solid #008252;
+      transform: translateY(4px);
+    }
+    .play-arrow {
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 14px solid white;
+      display: inline-block;
+    }
+    .game-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.85em;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    .stat-row b {
+      color: #333;
+    }
+    .rules-list {
+      text-align: left;
+      padding-left: 20px;
+      line-height: 1.6;
+    }
+    .rules-list li {
+      margin-bottom: 10px;
+      color: #444;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <div class="header-left">
-    <a href="index.html">
-  <img src="logo.png" class="logo" alt="Logo">
-</a>
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
-    </nav>
-  </div>
-  <div class="search-container">
-    <input type="text" class="search-bar" placeholder="Search...">
-  </div>
-  <div id="authButtons"></div>
-</header>
-<div class="main-container">
-  <div id="notLoggedIn" class="center-message">
-    MAKE AN ACCOUNT TO ACCESS THIS PAGE :3
-  </div>
-  <div id="ideasContent" style="display:none;">
-    <div class="idea-input">
-      <input type="text" id="ideaTitle" placeholder="Idea title">
-      <textarea id="ideaDesc" rows="3" placeholder="Idea description"></textarea>
-      <button class="green-btn" onclick="addIdea()">Add Idea</button>
-    </div>
-    <div class="actions" style="margin-bottom:20px;">
-      <button class="green-btn" onclick="sortIdeas('likes')">Sort by Likes</button>
-      <button class="green-btn" onclick="sortIdeas('newest')">Sort by Newest</button>
-    </div>
-    <div id="ideasList"></div>
-    <div id="adminReports" style="display:none;">
-      <h2>Reported Ideas (Admin)</h2>
-      <div id="reportsContainer"></div>
-    </div>
-  </div>
-</div>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-  authDomain: "dynaduck-19dbb.firebaseapp.com",
-  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dynaduck-19dbb",
-  storageBucket: "dynaduck-19dbb.firebasestorage.app",
-  messagingSenderId: "777148453502",
-  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-function getUser() {
-  return localStorage.getItem("loggedInUser");
-}
-      const bannedWords = [
-        "gay", "lesbian", "bi", "bisexual", 
-        "nigga", "nigger", "fag", "faggot", "retard",
-        "fuck", "shit", "bitch", "asshole", "dick", "pussy", "cunt", "idiot", "trash",
-        "discord", "discord.gg", "https", "http", ".com", ".net", ".org", "invite",
-        "youtube", "yt", "tiktok", "instagram", "insta", "twitch", "twitter", "x.com"
-      ];
-function isBlocked(text = "") {
-  const lower = text.toLowerCase();
-  return bannedWords.some(w => lower.includes(w));
-}
-function updateHeader() {
-  const user = getUser();
-  const authDiv = document.getElementById("authButtons");
-  if (!user) {
-    authDiv.innerHTML = `
-      <a href="login.html"><button class="green-btn">Log In</button></a>
-      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-    `;
-    document.getElementById("notLoggedIn").style.display = "block";
-    document.getElementById("ideasContent").style.display = "none";
-    return;
-  }
 
-  authDiv.innerHTML = `
-    <span style="color:white;font-weight:bold;margin-right:10px;">${user}</span>
-    <button class="green-btn" onclick="logout()">Logout</button>
-  `;
-  document.getElementById("notLoggedIn").style.display = "none";
-  document.getElementById("ideasContent").style.display = "block";
-  loadPosts();
-  if (user === "Admin") loadReports();
-}
-function logout() {
-  localStorage.removeItem("loggedInUser");
-  location.reload();
-}
-window.addEventListener("DOMContentLoaded", updateHeader);
-function addIdea() {
-  const user = getUser();
-  if (!user) return alert("Login required");
-  const title = document.getElementById("ideaTitle").value.trim();
-  const text = document.getElementById("ideaDesc").value.trim();
-  if (!title || !text) return alert("Fill all fields");
-  if (isBlocked(title + text)) return alert("Blocked content detected");
-  const id = db.ref("posts").push().key;
-  db.ref("posts/" + id).set({
-    title,
-    text,
-    user,
-    timestamp: Date.now()
-  });
-  document.getElementById("ideaTitle").value = "";
-  document.getElementById("ideaDesc").value = "";
-}
-let postsListenerAttached = false;
-function loadPosts() {
-  if (postsListenerAttached) return;
-  postsListenerAttached = true;
-  const container = document.getElementById("ideasList");
-  db.ref("posts").on("value", snap => {
-    container.innerHTML = "";
-    snap.forEach(postSnap => {
-      const post = postSnap.val();
-      const id = postSnap.key;
-      const div = document.createElement("div");
-      div.className = "idea";
-      div.innerHTML = `
-        <h3>${post.title}</h3>
-        <div class="meta">By ${post.user}</div>
-        <p>${post.text}</p>
-        <div class="actions">
-          <button class="green-btn" onclick="toggleReply('${id}')">Reply</button>
-          <button class="green-btn" onclick="reportPost('${id}')">Report</button>
-        </div>
-        <div id="replies-${id}"></div>
-        <div id="replyBox-${id}" style="display:none;margin-top:10px;">
-          <input id="replyInput-${id}" style="width:100%;padding:8px;">
-          <button class="green-btn" onclick="addReply('${id}')">Send</button>
-        </div>
-      `;
-      container.appendChild(div);
-      loadReplies(id);
-    });
-  });
-}
-function toggleReply(id) {
-  const box = document.getElementById("replyBox-" + id);
-  if (box) box.style.display = box.style.display === "none" ? "block" : "none";
-}
-function addReply(postId) {
-  const user = getUser();
-  if (!user) return alert("Login required");
-  const input = document.getElementById("replyInput-" + postId);
-  const text = input.value.trim();
-  if (!text) return;
-  if (isBlocked(text)) return alert("Blocked content");
-  db.ref("replies/" + postId).push().set({
-    user,
-    text,
-    timestamp: Date.now()
-  });
-  input.value = "";
-}
-function loadReplies(postId) {
-  const container = document.getElementById("replies-" + postId);
-  if (!container) return;
-  db.ref("replies/" + postId).off();
-  db.ref("replies/" + postId).on("value", snap => {
-    container.innerHTML = "";
-    snap.forEach(r => {
-      const reply = r.val();
-      const div = document.createElement("div");
-      div.style.borderTop = "1px solid #ddd";
-      div.style.padding = "5px";
-      div.innerHTML = `<b>${reply.user}:</b> ${reply.text}`;
-      container.appendChild(div);
-    });
-  });
-}
-function reportPost(postId) {
-  const user = getUser();
-  if (!user) return alert("Login required");
-  const reason = prompt("Why report?");
-  if (!reason) return;
-  db.ref("reports").push().set({
-    postId,
-    reporter: user,
-    reason,
-    timestamp: Date.now()
-  });
-  alert("Reported!");
-}
-function loadReports() {
-  const user = getUser();
-  if (user !== "Admin") return;
-  document.getElementById("adminReports").style.display = "block";
-  const container = document.getElementById("reportsContainer");
-  db.ref("reports").on("value", snap => {
-    container.innerHTML = "";
-    snap.forEach(repSnap => {
-      const rep = repSnap.val();
-      const repId = repSnap.key;
-      db.ref("posts/" + rep.postId).once("value").then(postSnap => {
-        if (!postSnap.exists()) return;
-        const post = postSnap.val();
-        const div = document.createElement("div");
-        div.className = "report-card";
-        div.innerHTML = `
-          <p><b>Reporter:</b> ${rep.reporter}</p>
-          <p><b>Reason:</b> ${rep.reason}</p>
-          <p><b>Post:</b> ${post.title}</p>
-          <div class="report-actions">
-            <button class="green-btn" onclick="deletePost('${rep.postId}','${repId}')">Delete</button>
-            <button class="green-btn" style="background:#ccc" onclick="dismissReport('${repId}')">Dismiss</button>
+  <div id="rulesPanel">
+    <div class="modal-content" style="max-width: 550px; text-align: center;">
+      <div class="modal-header">
+        <h1>Welcome to DynaDuck! 🦆</h1>
+        <p style="color: #666; margin-top: 5px;">Please read and agree to our sandbox community guidelines:</p>
+      </div>
+      <ul class="rules-list" style="padding: 0 20px;">
+        <li><strong>Rule 1: Safe Chat Mode</strong> - yes safe chat no more pedo i think</li>
+        <li><strong>Rule 2: Exploiting allowed(yes you heard me right)</strong>i love exploiting too and if u can tell me how too because i thimk it`s super cool but please don`t be annoying</li>
+        <li><strong>Rule 3: plez man</strong> — Kplez no backshots man im so tired of those on roblox</li>
+      </ul>
+      <button class="roblox-play-btn" style="font-size: 18px; padding: 10px 0; margin-top: 20px;" onclick="acceptRules()">I Agree & Enter Sandbox</button>
+    </div>
+  </div>
+
+  <div id="gamePanel">
+    <div class="modal-content">
+      <span class="close-x" onclick="closeGame()">&times;</span>
+      <div class="modal-header">
+        <h1 id="panelGameTitle">Baseplate</h1>
+        <p class="modal-creator" id="panelGameCreator">by DynaDuck Team</p>
+      </div>
+      <div class="modal-body">
+        <div class="modal-showcase" id="panelGameShowcase">BASEPLATE</div>
+        <div class="modal-actions">
+          <button class="roblox-play-btn" id="panelPlayBtn">
+            <span class="play-arrow"></span> PLAY
+          </button>
+          <p id="panelGameDesc" style="color:#555; font-size:0.85em; margin:0; line-height:1.45;">baseplate.</p>
+          <div class="game-stats">
+            <div class="stat-row">Active: <b>0</b></div>
+            <div class="stat-row">Visits: <b>0</b></div>
+            <div class="stat-row">Max Players: <b>12</b></div>
           </div>
-        `;
-        container.appendChild(div);
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-left">
+      <a href="index.html">
+        <img src="logo.png" class="logo" alt="Logo">
+      </a>
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
+    </div>
+    <div class="search-container">
+      <input type="text" placeholder="Search for games..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
+    </div>
+    <div id="authButtons">
+      <a href="signup.html" class="header-btn">Sign Up</a>
+      <a href="login.html" class="header-btn">Log In</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="main-section">
+      <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
+      <p style="color: #666; margin-bottom: 30px;">Creativty it`s limitless but building is always the best</p>
+      <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
+      <div class="games-grid" id="gamesGridContainer">
+        <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
+          <div class="game-thumb">
+            <span style="color:white; font-weight:bold; font-size:1.1em;">BASEPLATE</span>
+            <div class="play-overlay">PLAY BASEPLATE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div id="userCard" class="user-profile-card" style="display: none;">
+         <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
+         <div style="font-size: 0.85em; color: #11AD36; margin-top: 4px; font-weight: bold;">● Online</div>
+      </div>
+      <div id="pendingSection" class="social-box" style="display: none;">
+        <h3 style="border-color: #fadb14;">Requests</h3>
+        <div id="requestList"></div>
+      </div>
+      <div class="social-box">
+        <h3>Friends List</h3>
+        <div class="search-friend-box" style="display:flex; gap:6px; margin-bottom:15px;">
+          <input type="text" id="friendInput" placeholder="Add friend by user..." style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc; font-size: 0.9em;">
+          <button class="modern-auth-btn" onclick="sendRequest()" style="padding:0 14px;">+</button>
+        </div>
+        <div id="friendsList">
+          <p id="fallbackFriendsText" style="color:#999; font-size:0.9em; text-align:center; padding: 10px 0;">Log in to see friends.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+      authDomain: "dynaduck-19dbb.firebaseapp.com",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dynaduck-19dbb",
+      storageBucket: "dynaduck-19dbb.firebasestorage.app",
+      messagingSenderId: "777148453502",
+      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+    };
+    try {
+      if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+      var db = firebase.database();
+    } catch (e) {
+      console.error("Firebase startup halted:", e);
+    }
+
+    var currentUser = localStorage.getItem('loggedInUser') || null;
+    var rawGamesCache = [];
+
+    function checkRulesCondition() {
+      if (!currentUser) {
+        var rulesAccepted = sessionStorage.getItem('rulesAccepted');
+        if (!rulesAccepted) {
+          var panel = document.getElementById('rulesPanel');
+          if (panel) panel.style.display = 'block';
+        }
+      }
+    }
+
+    function acceptRules() {
+      sessionStorage.setItem('rulesAccepted', 'true');
+      var panel = document.getElementById('rulesPanel');
+      if (panel) panel.style.display = 'none';
+    }
+
+    function listenForGames() {
+      var grid = document.getElementById('gamesGridContainer');
+      if (!grid || !db) return;
+      db.ref('games').on('value', function(snapshot) {
+        rawGamesCache = [];
+        grid.innerHTML = "";
+        grid.innerHTML += `
+          <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
+            <div class="game-thumb">
+              <span style="color:white; font-weight:bold; font-size:1.1em;">BASEPLATE</span>
+              <div class="play-overlay">PLAY BASEPLATE</div>
+            </div>
+          </div>`;
+        if (snapshot.exists()) {
+          snapshot.forEach(function(childSnapshot) {
+            var gameData = childSnapshot.val();
+            gameData.key = childSnapshot.key;
+            rawGamesCache.push(gameData);
+            var title = gameData.title || "Unfinished Map";
+            var creator = gameData.creator || "Anonymous";
+            var description = gameData.description || "No description provided.";
+            var rawDataString = gameData.fileData || "";
+            var safeTitle = title.replace(/'/g, "\\'");
+            var safeCreator = creator.replace(/'/g, "\\'");
+            var safeDesc = description.replace(/'/g, "\\'");
+            var safeData = encodeURIComponent(rawDataString);
+            grid.innerHTML += `
+              <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
+                <div class="game-thumb" style="background-color: #ff6b6b; background-image: none; flex-direction: column;">
+                  <span style="color:white; font-weight:bold; font-size:1.1em; text-align:center; padding:10px;">${title.toUpperCase()}</span>
+                  <div class="play-overlay">PLAY NOW</div>
+                </div>
+              </div>`;
+          });
+        }
+      }, function(error) {
+        console.log("Database reading throttled:", error);
       });
-    });
-  });
-}
-function deletePost(postId, reportId) {
-  db.ref("posts/" + postId).remove();
-  db.ref("replies/" + postId).remove();
-  db.ref("reports/" + reportId).remove();
-}
-function dismissReport(reportId) {
-  db.ref("reports/" + reportId).remove();
-}
-</script>
+    }
+
+    function filterGamesLocal() {
+      var q = document.getElementById('mainSearchInput').value.toLowerCase().trim();
+      var grid = document.getElementById('gamesGridContainer');
+      if (!grid) return;
+      grid.innerHTML = "";
+      grid.innerHTML += `
+        <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', '')">
+          <div class="game-thumb">
+            <span style="color:white; font-weight:bold;">BASEPLATE</span>
+            <div class="play-overlay">PLAY BASEPLATE</div>
+          </div>
+        </div>`;
+      rawGamesCache.forEach(function(gameData) {
+        var title = gameData.title || "";
+        var creator = gameData.creator || "";
+        if (title.toLowerCase().includes(q) || creator.toLowerCase().includes(q)) {
+          var safeTitle = title.replace(/'/g, "\\'");
+          var safeCreator = creator.replace(/'/g, "\\'");
+          var safeDesc = (gameData.description || "").replace(/'/g, "\\'");
+          var safeData = encodeURIComponent(gameData.fileData || "");
+          grid.innerHTML += `
+            <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
+              <div class="game-thumb" style="background-color: #ff6b6b; background-image: none;">
+                <span style="color:white; font-weight:bold;">${title.toUpperCase()}</span>
+                <div class="play-overlay">PLAY NOW</div>
+              </div>
+            </div>`;
+        }
+      });
+    }
+
+    function openGame(title, creator, description, fileData) {
+      var tNode = document.getElementById('panelGameTitle');
+      var cNode = document.getElementById('panelGameCreator');
+      var sNode = document.getElementById('panelGameShowcase');
+      var dNode = document.getElementById('panelGameDesc');
+      var pBtn = document.getElementById('panelPlayBtn');
+      if (tNode) tNode.innerText = title;
+      if (cNode) cNode.innerText = "by " + creator;
+      if (sNode) sNode.innerText = title.toUpperCase();
+      if (dNode) dNode.innerText = description;
+      if (pBtn) {
+        pBtn.onclick = function() {
+          launchGame(fileData);
+        };
+      }
+      var panel = document.getElementById('gamePanel');
+      if (panel) panel.style.display = 'block';
+    }
+
+    function closeGame() {
+      var panel = document.getElementById('gamePanel');
+      if (panel) panel.style.display = 'none';
+    }
+
+    function launchGame(fileData) {
+      var launchUser = currentUser ? currentUser : "GuestPlayer";
+      var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser) + "&mapData=" + fileData;     
+      console.log("Launching application hook:", customProtocolUri);    
+      window.location.href = customProtocolUri;
+    }
+
+    function initApp() {
+      var authDiv = document.getElementById('authButtons');
+      checkRulesCondition();
+      listenForGames();
+      if (currentUser && db) {
+        var uCard = document.getElementById('userCard');
+        var dUser = document.getElementById('displayUsername');
+        var fText = document.getElementById('fallbackFriendsText');
+        if (uCard) uCard.style.display = "block"; 
+        if (dUser) dUser.innerText = currentUser;
+        if (fText) fText.style.display = "none";
+        if (authDiv) {
+          authDiv.innerHTML = 
+            '<span style="color:white; font-weight:bold; margin-right:10px;">Hi, ' + currentUser + '</span>' +
+            '<a href="settings.html" class="header-btn" style="margin-right:5px;">Settings</a>' +
+            '<button class="header-btn" onclick="logout()">Logout</button>';
+        }        
+        db.ref('users/' + currentUser + '/presence').set("online");
+        db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
+        loadSocial();
+      } else {
+        if (authDiv) {
+          authDiv.innerHTML = 
+            '<a href="signup.html" class="header-btn" style="margin-right:5px;">Sign Up</a>' +
+            '<a href="login.html" class="header-btn">Log In</a>';
+        }
+      }
+    }
+
+    function logout() {
+      if (currentUser && db) {
+        db.ref('users/' + currentUser + '/presence').set("offline").then(function() {
+          localStorage.removeItem('loggedInUser');
+          location.reload();
+        }).catch(function() {
+          localStorage.removeItem('loggedInUser');
+          location.reload();
+        });
+      } else {
+        localStorage.removeItem('loggedInUser');
+        location.reload();
+      }
+    }
+
+    function sendRequest() {
+      var targetInput = document.getElementById('friendInput');
+      if (!targetInput || !db) return;
+      var target = targetInput.value.trim();
+      if (!currentUser || !target || target === currentUser) return;   
+      db.ref('users/' + target).get().then(function(s) {
+        if (s.exists()) {
+          db.ref('users/' + target + '/requests/' + currentUser).set(true);
+          alert("Friend request sent to " + target + "!");
+          targetInput.value = "";
+        } else { 
+          alert("User not found."); 
+        }
+      });
+    }
+
+    function accept(name) {
+      if(!currentUser || !db) return;
+      var updates = {};
+      updates['users/' + currentUser + '/friends/' + name] = true;
+      updates['users/' + name + '/friends/' + currentUser] = true;
+      updates['users/' + currentUser + '/requests/' + name] = null; 
+      db.ref().update(updates, function(err) {
+        if(!err) alert("Friend connection synced!");
+      });
+    }
+
+    function loadSocial() {
+      if (!db || !currentUser) return;
+      db.ref('users/' + currentUser + '/requests').on('value', function(snap) {
+        var list = document.getElementById('requestList');
+        var box = document.getElementById('pendingSection');
+        if (!list || !box) return;
+        if (snap.exists()) {
+          box.style.display = "block";
+          list.innerHTML = "";
+          Object.keys(snap.val()).forEach(function(name) {
+            list.innerHTML += 
+              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+                '<span style="font-size:0.9em; font-weight:bold; color:#333;">' + name + '</span>' +
+                '<button class="modern-auth-btn" style="padding: 3px 8px; font-size:0.8em;" onclick="accept(\'' + name + '\')">Accept</button>' +
+              '</div>';
+          });
+        } else { 
+          box.style.display = "none"; 
+        }
+      });
+      db.ref('users/' + currentUser + '/friends').on('value', function(snap) {
+        var listDiv = document.getElementById('friendsList');
+        if (!listDiv) return;
+        listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#999; text-align:center; padding:10px 0;'>No friends added yet.</p>";
+        if (snap.exists()) {
+          Object.keys(snap.val()).forEach(function(fName) {
+            db.ref('users/' + fName + '/presence').on('value', function(sSnap) {
+              var status = sSnap.val() || "offline";
+              var color = status === "online" ? "#11AD36" : "#888";
+              var el = document.getElementById('f-' + fName);
+              if (!el) {
+                el = document.createElement('div');
+                el.id = 'f-' + fName;
+                el.className = 'friend-item';
+                listDiv.appendChild(el);
+              }
+              el.innerHTML = 
+                '<div class="status-dot" style="background:' + color + '"></div>' +
+                '<strong style="font-size:0.95em; color:#444;">' + fName + ' (' + status + ')</strong>';
+            });
+          });
+        }
+      });
+    }
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
 </body>
 </html>
