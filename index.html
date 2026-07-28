@@ -379,7 +379,7 @@ function renderGames(gamesObj) {
     const game = gamesObj[key];
     const thumbSrc = (game.thumbnail && game.thumbnail.startsWith('data:image')) 
       ? game.thumbnail 
-      : 'placeholder.png';
+      : 'photopng';
     
     const card = document.createElement('div');
     card.className = 'game-card';
