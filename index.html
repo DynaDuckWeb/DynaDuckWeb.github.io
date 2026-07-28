@@ -8,126 +8,114 @@
   <style>
     body {
       font-family: Arial, Helvetica, sans-serif;
-      background-color: #e3e3e3;
-      color: #000;
+      background-color: #f4f5f7;
+      color: #172b4d;
       margin: 0;
     }
 
-    /* Main Grid Layout: Left Content, Right Sidebar */
     .dashboard-container {
       width: 1000px;
       margin: 25px auto;
       display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 20px;
+      grid-template-columns: 1fr 260px;
+      gap: 24px;
     }
 
     main {
       background: #ffffff;
-      border: 3px solid #666;
+      border: none;
       border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
 
-    /* Sidebar Styling */
     aside {
       background: #ffffff;
-      border: 3px solid #666;
+      border: none;
       border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       height: fit-content;
     }
 
-    /* Message of the Day (MOTD) Banner */
     .motd-banner {
-      background: #fff8e1;
-      border: 2px dashed #ffa000;
-      border-radius: 6px;
-      padding: 14px 16px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      background: #f0fdf4;
+      border-left: 4px solid #11AD36;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
     }
 
-    .motd-icon {
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    .motd-content h3 {
-      margin: 0 0 4px 0;
-      color: #b78103;
-      font-size: 15px;
+    .motd-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #11AD36;
       text-transform: uppercase;
+      margin-bottom: 4px;
       letter-spacing: 0.5px;
     }
 
-    .motd-content p {
+    .motd-text {
       margin: 0;
-      font-size: 13px;
-      color: #444;
+      font-size: 14px;
+      color: #333;
       line-height: 1.4;
     }
 
-    /* Section Titles */
     .section-title {
-      border-bottom: 3px solid #11AD36;
-      padding-bottom: 6px;
-      margin-top: 0;
       font-size: 22px;
       font-weight: bold;
       color: #111;
+      margin-top: 0;
+      margin-bottom: 16px;
     }
 
     .sidebar-title {
-      border-bottom: 2px solid #11AD36;
-      padding-bottom: 4px;
-      margin-top: 0;
       font-size: 16px;
       font-weight: bold;
       color: #111;
-      margin-bottom: 12px;
+      margin-top: 0;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
     }
 
-    /* Games Grid */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
       gap: 16px;
-      margin-top: 15px;
     }
 
     .game-card {
-      border: 2px solid #ccc;
-      border-radius: 6px;
-      background: #fdfdfd;
-      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: border-color 0.15s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     .game-card:hover {
-      border-color: #11AD36;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     .game-thumb {
       width: 100%;
       height: 110px;
       object-fit: cover;
-      border: 1px solid #aaa;
-      border-radius: 4px;
-      background: #ddd;
+      border: none;
+      border-radius: 6px;
+      background: #eee;
     }
 
     .game-title {
       font-size: 15px;
       font-weight: bold;
-      margin: 6px 0 2px 0;
+      margin: 8px 0 2px 0;
       color: #111;
       white-space: nowrap;
       overflow: hidden;
@@ -135,25 +123,25 @@
     }
 
     .game-creator {
-      font-size: 11px;
-      color: #555;
+      font-size: 12px;
+      color: #666;
       margin-bottom: 6px;
     }
 
     .game-desc {
-      font-size: 11px;
-      color: #333;
+      font-size: 12px;
+      color: #444;
       height: 32px;
       overflow: hidden;
       text-overflow: ellipsis;
       margin-bottom: 8px;
+      line-height: 1.3;
     }
 
     .game-info {
-      font-size: 10px;
-      color: #666;
-      border-top: 1px solid #eee;
-      padding-top: 4px;
+      font-size: 11px;
+      color: #777;
+      padding-top: 6px;
       display: flex;
       justify-content: space-between;
     }
@@ -162,41 +150,48 @@
       background: #11AD36;
       color: white;
       text-align: center;
-      padding: 6px;
-      border-radius: 4px;
+      padding: 8px;
+      border-radius: 6px;
       font-weight: bold;
       text-decoration: none;
-      margin-top: 6px;
-      border: 1px solid #0b6b21;
+      margin-top: 8px;
+      border: none;
       display: block;
       font-size: 13px;
+      transition: background 0.15s ease;
     }
 
     .btn-play:hover {
       background: #0e912d;
     }
 
-    /* Friend Widget Styling */
     .add-friend-box {
       display: flex;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .add-friend-input {
       flex: 1;
-      padding: 6px;
-      border: 1px solid #999;
-      border-radius: 4px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
       font-size: 12px;
+      outline: none;
+      background: #fafafa;
+    }
+
+    .add-friend-input:focus {
+      border-color: #11AD36;
+      background: #fff;
     }
 
     .btn-add-friend {
       background: #11AD36;
       color: white;
-      border: 1px solid #0b6b21;
-      border-radius: 4px;
-      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
@@ -218,8 +213,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 6px;
-      border-bottom: 1px solid #eee;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
       font-size: 13px;
     }
 
@@ -234,8 +229,8 @@
     }
 
     .status-dot {
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       display: inline-block;
     }
@@ -244,27 +239,23 @@
       background-color: #28a745;
     }
 
-    .status-offline {
-      background-color: #a0a0a0;
-    }
-
     .friend-name {
       font-weight: bold;
-      color: #222;
+      color: #333;
     }
 
     .btn-remove-friend {
-      color: #d9534f;
+      color: #aaa;
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 12px;
-      font-weight: bold;
+      font-size: 13px;
       padding: 2px 4px;
+      transition: color 0.15s ease;
     }
 
     .btn-remove-friend:hover {
-      text-decoration: underline;
+      color: #d9534f;
     }
   </style>
 </head>
@@ -294,15 +285,10 @@
 </header>
 
 <div class="dashboard-container">
-  <!-- Main Games Feed -->
   <main>
-    <!-- Message of the Day -->
     <div class="motd-banner">
-      <div class="motd-icon">📢</div>
-      <div class="motd-content">
-        <h3>Message of the Day</h3>
-        <p id="motdText">Loading announcement...</p>
-      </div>
+      <div class="motd-title">Message of the Day</div>
+      <p id="motdText" class="motd-text">Loading announcement...</p>
     </div>
 
     <h1 class="section-title">Games Directory</h1>
@@ -312,7 +298,6 @@
     </div>
   </main>
 
-  <!-- Sidebar: Friends List -->
   <aside>
     <h2 class="sidebar-title">Friends List</h2>
     <div id="friendsWidget">
@@ -321,7 +306,6 @@
   </aside>
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -362,7 +346,6 @@ function logout(){
   location.reload();
 }
 
-// 1. Load Message of the Day from Firebase
 function loadMOTD() {
   db.ref('motd').on('value', function(snapshot) {
     const message = snapshot.val();
@@ -375,7 +358,6 @@ function loadMOTD() {
   });
 }
 
-// 2. Load Games Feed
 function loadGames() {
   db.ref('games').on('value', function(snapshot) {
     allGames = snapshot.val() || {};
@@ -419,11 +401,10 @@ function renderGames(gamesObj) {
   });
 }
 
-// 3. Friends List Management
 function loadFriendsList() {
   const container = document.getElementById('friendsWidget');
   if (!loggedInUser) {
-    container.innerHTML = `<p style="font-size: 12px; color: #666; text-align: center;">Log in to add and chat with friends!</p>`;
+    container.innerHTML = `<p style="font-size: 12px; color: #666; text-align: center;">Log in to add and view friends!</p>`;
     return;
   }
 
@@ -472,7 +453,6 @@ function addFriend() {
     return;
   }
 
-  // Add to logged-in user's friend list node
   db.ref('friends/' + loggedInUser + '/' + friendName).set(true, function(err) {
     if (!err) {
       document.getElementById('friendNameInput').value = '';
