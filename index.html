@@ -418,29 +418,50 @@ function loadFriendsList() {
     </ul>
   `;
 
-  db.ref('friends/' + loggedInUser).on('value', function(snapshot) {
-    const friendsData = snapshot.val() || {};
-    const friendsUl = document.getElementById('friendsUl');
-    friendsUl.innerHTML = '';
-
-    const friendKeys = Object.keys(friendsData);
-    if (friendKeys.length === 0) {
-      friendsUl.innerHTML = `<li style="font-size: 12px; color: #777; text-align: center; padding: 10px 0;">No friends added yet.</li>`;
-      return;
+  // First check /users/USERNAME/friends
+  db.ref('users/' + loggedInUser + '/friends').on('value', function(snapshot) {
+    let friendsData = snapshot.val();
+    
+    // Fallback check /friends/USERNAME if nothing under user node
+    if (!friendsData) {
+      db.ref('friends/' + loggedInUser).once('value', function(fallbackSnap) {
+        renderFriendsData(fallbackSnap.val() || {});
+      });
+    } else {
+      renderFriendsData(friendsData);
     }
+  });
+}
 
-    friendKeys.forEach(function(friendName) {
-      const li = document.createElement('li');
-      li.className = 'friend-item';
-      li.innerHTML = `
-        <div class="friend-info">
-          <span class="status-dot status-online"></span>
-          <span class="friend-name">${escapeHtml(friendName)}</span>
-        </div>
-        <button class="btn-remove-friend" onclick="removeFriend('${escapeHtml(friendName)}')">✕</button>
-      `;
-      friendsUl.appendChild(li);
-    });
+function renderFriendsData(friendsData) {
+  const friendsUl = document.getElementById('friendsUl');
+  if (!friendsUl) return;
+  
+  friendsUl.innerHTML = '';
+
+  let friendList = [];
+  if (Array.isArray(friendsData)) {
+    friendList = friendsData.filter(Boolean);
+  } else if (typeof friendsData === 'object' && friendsData !== null) {
+    friendList = Object.keys(friendsData);
+  }
+
+  if (friendList.length === 0) {
+    friendsUl.innerHTML = `<li style="font-size: 12px; color: #777; text-align: center; padding: 10px 0;">No friends added yet.</li>`;
+    return;
+  }
+
+  friendList.forEach(function(friendName) {
+    const li = document.createElement('li');
+    li.className = 'friend-item';
+    li.innerHTML = `
+      <div class="friend-info">
+        <span class="status-dot status-online"></span>
+        <span class="friend-name">${escapeHtml(friendName)}</span>
+      </div>
+      <button class="btn-remove-friend" onclick="removeFriend('${escapeHtml(friendName)}')">✕</button>
+    `;
+    friendsUl.appendChild(li);
   });
 }
 
@@ -453,6 +474,8 @@ function addFriend() {
     return;
   }
 
+  // Saves to both standard locations so data stays in sync
+  db.ref('users/' + loggedInUser + '/friends/' + friendName).set(true);
   db.ref('friends/' + loggedInUser + '/' + friendName).set(true, function(err) {
     if (!err) {
       document.getElementById('friendNameInput').value = '';
@@ -464,6 +487,7 @@ function addFriend() {
 
 function removeFriend(friendName) {
   if (confirm("Remove " + friendName + " from your friends list?")) {
+    db.ref('users/' + loggedInUser + '/friends/' + friendName).remove();
     db.ref('friends/' + loggedInUser + '/' + friendName).remove();
   }
 }
