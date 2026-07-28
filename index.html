@@ -4,778 +4,254 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck - Home</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    body { 
-      font-family: 'Inter', sans-serif; 
-      margin: 0; 
-      padding: 0; 
-      background: #f2f2f2; 
-      color: #222; 
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #e3e3e3;
+      color: #000;
+      margin: 0;
     }
 
-    header { 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      background: #333; 
-      padding: 15px 40px; 
-      box-sizing: border-box;
-      width: 100%;
-    }
-    .header-left { 
-      display: flex; 
-      align-items: center; 
-      gap: 20px; 
-    }
-    .logo { 
-      height: 70px; 
-      cursor: pointer; 
-      display: block;
-    }
-    nav { 
-      display: flex; 
-      gap: 25px; 
-    }
-    nav a { 
-      text-decoration: none; 
-      color: white; 
-      font-weight: 600; 
-      font-size: 1.05em; 
-      transition: 0.2s; 
-    }
-    nav a:hover { 
-      color: #11AD36; 
-    }
-    .search-container { 
-      flex: 1; 
-      display: flex; 
-      justify-content: center; 
-    }
-    .search-bar { 
-      width: 320px; 
-      padding: 10px 12px; 
-      border-radius: 8px; 
-      border: none; 
-      outline: none; 
-      font-size: 1em; 
-    }
-    .green-btn {
-      background: #11AD36;
-      color: white;
-      border: none;
-      padding: 10px 18px;
+    main {
+      width: 900px;
+      margin: 25px auto;
+      background: #ffffff;
+      border: 3px solid #666;
       border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 1em;
-      transition: 0.2s;
-      display: inline-block;
-      text-decoration: none;
-    }
-    .green-btn:hover { 
-      background: #0E8E2C; 
-    }
-    #authButtons { 
-      display: flex; 
-      gap: 15px; 
-      align-items: center; 
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    .container {
-      max-width: 1100px;
-      margin: 30px auto;
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 25px;
-      padding: 0 20px;
-      align-items: start;
-    }
-    .main-section {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      min-height: 400px;
-    }
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .social-box {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .social-box h3 {
-      margin: 0 0 10px 0;
-      font-size: 1.05em;
-      border-bottom: 2px solid #11AD36;
-      padding-bottom: 6px;
-      color: #333;
-    }
-    .modern-auth-btn {
-      background: #11AD36;
-      color: white;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.85em;
-      transition: background 0.2s;
-    }
-    .modern-auth-btn:hover {
-      background: #0e912d;
-    }
-    .friend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    .friend-item:hover {
-      background: #f5f5f5;
-    }
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 0 0 1px #ddd;
-    }
-    #pendingSection {
-      background: #fffbe6;
-      border: 1px solid #ffe58f;
-      padding: 12px;
-      border-radius: 12px;
-    }
-    .user-profile-card {
-      background: #222;
-      color: white;
-      padding: 15px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    /* --- GAME CARDS STYLING --- */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
       margin-top: 20px;
     }
+
     .game-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      background: #fdfdfd;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.22s ease, border-color 0.2s ease;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.04);
-      position: relative;
+      justify-content: space-between;
+      transition: border-color 0.15s ease;
     }
+
     .game-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.12);
       border-color: #11AD36;
     }
+
     .game-thumb {
       width: 100%;
-      height: 125px;
+      height: 120px;
       object-fit: cover;
-      display: block;
-      border-bottom: 1px solid #eee;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      background: #ddd;
     }
-    .game-info {
-      padding: 10px 12px 12px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      background: #fff;
-    }
+
     .game-title {
-      font-weight: 700;
-      font-size: 0.95em;
-      color: #222;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin: 0;
-    }
-    .game-creator {
-      font-size: 0.78em;
-      color: #777;
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .game-creator b {
-      color: #11AD36;
-    }
-    .game-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 6px;
-      font-size: 0.75em;
-      color: #888;
-      font-weight: 500;
-    }
-    .active-badge {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: #555;
-    }
-    .active-dot {
-      width: 6px;
-      height: 6px;
-      background: #11AD36;
-      border-radius: 50%;
-    }
-
-    /* --- ROBLOX-STYLE GAME DETAILS PAGE STYLING --- */
-    #gameDetailsPage {
-      display: none;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .back-btn {
-      background: none;
-      border: none;
-      color: #666;
-      font-size: 0.95em;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 0;
-      margin-bottom: 10px;
-      transition: color 0.2s;
-    }
-    .back-btn:hover {
-      color: #11AD36;
-    }
-    .roblox-details-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 25px;
-    }
-    @media (min-width: 650px) {
-      .roblox-details-grid {
-        grid-template-columns: 360px 1fr;
-      }
-    }
-    .roblox-photo-card {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      border: 1px solid #e0e0e0;
-    }
-    .roblox-info-panel {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 15px;
-    }
-    .roblox-title {
-      font-size: 1.8em;
-      font-weight: 700;
-      margin: 0;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 8px 0 4px 0;
       color: #111;
-    }
-    .roblox-creator {
-      font-size: 0.95em;
-      color: #666;
-      margin: 4px 0 0 0;
-    }
-    .roblox-creator b {
-      color: #11AD36;
-    }
-    .roblox-play-btn {
-      background: #00b06f; 
-      color: white;
-      border: none;
-      border-bottom: 5px solid #008252; 
-      border-radius: 10px;
-      width: 100%;
-      max-width: 280px;
-      padding: 14px 0;
-      font-size: 22px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: background 0.15s, transform 0.1s;
-      margin: 10px 0;
-    }
-    .roblox-play-btn:hover {
-      background: #00c47c;
-    }
-    .roblox-play-btn:active {
-      border-bottom: 1px solid #008252;
-      transform: translateY(4px);
-    }
-    .play-arrow {
-      width: 0;
-      height: 0;
-      border-top: 9px solid transparent;
-      border-bottom: 9px solid transparent;
-      border-left: 16px solid white;
-      display: inline-block;
-    }
-    .roblox-desc-box {
-      border-top: 1px solid #eee;
-      padding-top: 18px;
-    }
-    .roblox-desc-box h3 {
-      font-size: 1.1em;
-      margin: 0 0 8px 0;
-      color: #333;
-    }
-    .roblox-desc-text {
-      font-size: 0.92em;
-      color: #555;
-      line-height: 1.5;
-      margin: 0;
-      white-space: pre-line;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Modal Rules Styling */
-    #rulesPanel {
-      display: none; 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: rgba(0,0,0,0.65); 
-      backdrop-filter: blur(4px);
-      z-index: 1000;
+    .game-creator {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 6px;
     }
-    .modal-content {
-      background: white; 
-      width: 90%;
-      max-width: 550px; 
-      margin: 50px auto; 
-      padding: 25px; 
-      border-radius: 14px; 
-      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      box-sizing: border-box;
-      text-align: center;
-    }
-    .rules-list {
-      text-align: left;
-      padding-left: 20px;
-      line-height: 1.6;
-    }
-    .rules-list li {
+
+    .game-desc {
+      font-size: 12px;
+      color: #333;
+      height: 36px;
+      overflow: hidden;
+      text-overflow: ellipsis;
       margin-bottom: 10px;
-      color: #444;
+    }
+
+    .game-info {
+      font-size: 11px;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .btn-play {
+      background: #11AD36;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-top: 8px;
+      border: 1px solid #0b6b21;
+      display: block;
+    }
+
+    .btn-play:hover {
+      background: #0e912d;
     }
   </style>
 </head>
 <body>
 
-  <div id="rulesPanel">
-    <div class="modal-content">
+<header>
+  <div class="header-left">
+    <a href="index.html">
+      <img src="logo.png" class="logo" alt="Logo" />
+    </a>
+    <nav>
+      <a href="catalog.html">Catalog</a>
+      <a href="ideas.html">Ideas</a>
+      <a href="create.html">Create</a>
+      <a href="dynamites.html">Dynamites</a>
+    </nav>
+  </div>
+
+  <div class="search-container">
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search places, creators..." oninput="filterGames()">
+  </div>
+
+  <div id="authButtons">
+    <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+    <a href="login.html"><button class="green-btn">Log In</button></a>
+  </div>
+</header>
+
+<main>
+  <h1 style="border-bottom: 3px solid #11AD36; padding-bottom: 6px; margin-top: 0;">Games Directory</h1>
+  
+  <div id="gamesContainer" class="games-grid">
+    <p>Loading place directory...</p>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+  authDomain: "dynaduck-19dbb.firebaseapp.com",
+  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dynaduck-19dbb",
+  storageBucket: "dynaduck-19dbb.firebasestorage.app",
+  messagingSenderId: "777148453502",
+  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+};
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+var db = firebase.database();
+const loggedInUser = localStorage.getItem('loggedInUser');
+var allGames = {};
+
+function updateHeader() {
+  const authDiv = document.getElementById('authButtons');
+  if(loggedInUser){
+    authDiv.innerHTML = `
+      <span style="color:#fff;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+      <a href="settings.html"><button class="green-btn">Settings</button></a>
+      <button class="green-btn" onclick="logout()">Logout</button>
+    `;
+  } else {
+    authDiv.innerHTML = `
+      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+      <a href="login.html"><button class="green-btn">Log In</button></a>
+    `;
+  }
+}
+
+function logout(){
+  localStorage.removeItem('loggedInUser');
+  location.reload();
+}
+
+function loadGames() {
+  db.ref('games').on('value', function(snapshot) {
+    allGames = snapshot.val() || {};
+    renderGames(allGames);
+  });
+}
+
+function renderGames(gamesObj) {
+  const container = document.getElementById('gamesContainer');
+  container.innerHTML = '';
+
+  const keys = Object.keys(gamesObj);
+  if (keys.length === 0) {
+    container.innerHTML = '<p>No places published yet!</p>';
+    return;
+  }
+
+  keys.reverse().forEach(function(key) {
+    const game = gamesObj[key];
+    
+    // Check if thumbnail exists and is a valid Base64 string, otherwise fallback to placeholder
+    const thumbSrc = (game.thumbnail && game.thumbnail.startsWith('data:image')) 
+      ? game.thumbnail 
+      : 'placeholder.png';
+    
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.innerHTML = `
       <div>
-        <h1>Welcome to DynaDuck! 🦆</h1>
-        <p style="color: #666; margin-top: 5px;">Please read and agree to our sandbox community guidelines:</p>
+        <img src="${thumbSrc}" class="game-thumb" alt="${escapeHtml(game.title)}" onerror="this.onerror=null;this.src='placeholder.png';">
+        <div class="game-title" title="${escapeHtml(game.title)}">${escapeHtml(game.title)}</div>
+        <div class="game-creator">By <b>${escapeHtml(game.creator || 'Anonymous')}</b></div>
+        <div class="game-desc">${escapeHtml(game.description || '')}</div>
       </div>
-      <ul class="rules-list" style="padding: 0 20px;">
-        <li><strong>Rule 1: Safe Chat Mode</strong> - Guidelines enforced for a clean environment.</li>
-        <li><strong>Rule 2: Exploiting allowed (Yes, you heard me right)</strong> - Keep bugs fun, but please don't be annoying or disrupt other builders.</li>
-        <li><strong>Rule 3: Respect Boundaries</strong> — Let's keep things respectful and fun for everyone inside the sandbox.</li>
-      </ul>
-      <button class="roblox-play-btn" style="font-size: 18px; padding: 10px 0; margin: 20px auto 0 auto;" onclick="acceptRules()">I Agree & Enter Sandbox</button>
-    </div>
-  </div>
-
-  <header>
-    <div class="header-left">
-      <a href="javascript:void(0)" onclick="showHomePage()">
-        <img src="logo.png" class="logo" alt="Logo">
-      </a>
-      <nav>
-        <a href="catalog.html">Catalog</a>
-        <a href="ideas.html">Ideas</a>
-        <a href="create.html">Create</a>
-        <a href="dynamites.html">Dynamites</a>
-      </nav>
-    </div>
-    <div class="search-container">
-      <input type="text" placeholder="Search..." class="search-bar" id="mainSearchInput" onkeyup="filterGamesLocal()">
-    </div>
-    <div id="authButtons"></div>
-  </header>
-
-  <div class="container">
-    <div class="main-section">
-      
-      <!-- DEFAULT HOMEPAGE VIEW -->
-      <div id="homePage">
-        <h1 id="welcomeText" style="margin-top:0;">Welcome to DynaDuck</h1>
-        <p style="color: #666; margin-bottom: 30px;">Creativity has no limits but fun can be the same when it's safe</p>
-        <h2 style="font-size: 1.3em; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px;">Featured Games</h2>
-        
-        <div class="games-grid" id="gamesGridContainer">
-          <!-- Default Baseplate Card -->
-          <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', 'baseplate')">
-            <img src="photo.png" class="game-thumb" alt="Baseplate">
-            <div class="game-info">
-              <p class="game-title">Baseplate</p>
-              <p class="game-creator">by <b>DynaDuck Team</b></p>
-              <div class="game-meta">
-                <div class="active-badge"><div class="active-dot"></div> 0 Active</div>
-              </div>
-            </div>
-          </div>
+      <div>
+        <div class="game-info">
+          <span>Max Players: ${game.maxPlayers || 12}</span>
         </div>
+        <a href="place.html?id=${key}" class="btn-play">PLAY</a>
       </div>
+    `;
+    container.appendChild(card);
+  });
+}
 
-      <!-- ROBLOX-STYLE GAME DETAILS VIEW -->
-      <div id="gameDetailsPage">
-        <button class="back-btn" onclick="showHomePage()">← Back to Games</button>
-        
-        <div class="roblox-details-grid">
-          <div>
-            <!-- PHOTO -->
-            <img src="photo.png" class="roblox-photo-card" alt="Game Preview">
-          </div>
-          
-          <div class="roblox-info-panel">
-            <div>
-              <!-- NAME -->
-              <h1 class="roblox-title" id="pageGameTitle">Baseplate</h1>
-              <!-- CREATOR -->
-              <p class="roblox-creator">By <b id="pageGameCreator">DynaDuck Team</b></p>
-            </div>
+function filterGames() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (!query) {
+    renderGames(allGames);
+    return;
+  }
 
-            <!-- PLAY BUTTON -->
-            <button class="roblox-play-btn" id="pagePlayBtn">
-              <span class="play-arrow"></span> PLAY
-            </button>
-
-            <div style="font-size: 0.85em; color: #666; display: flex; gap: 15px;">
-              <span>Active Players: <b style="color:#333;">0</b></span>
-              <span>Max Players: <b style="color:#333;">12</b></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- DESCRIPTION -->
-        <div class="roblox-desc-box">
-          <h3>Description</h3>
-          <p class="roblox-desc-text" id="pageGameDesc">A simple sandbox world where you can test builds.</p>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="sidebar">
-      <div id="userCard" class="user-profile-card" style="display: none;">
-         <div style="font-size: 1.2em; font-weight: bold;" id="displayUsername">User</div>
-         <div style="font-size: 0.85em; color: #11AD36; margin-top: 4px; font-weight: bold;">● Online</div>
-      </div>
-      <div id="pendingSection" class="social-box" style="display: none;">
-        <h3 style="border-color: #fadb14;">Requests</h3>
-        <div id="requestList"></div>
-      </div>
-      <div class="social-box">
-        <h3>Friends List</h3>
-        <div class="search-friend-box" style="display:flex; gap:6px; margin-bottom:15px;">
-          <input type="text" id="friendInput" placeholder="Add friend by user..." style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc; font-size: 0.9em;">
-          <button class="modern-auth-btn" onclick="sendRequest()" style="padding:0 14px;">+</button>
-        </div>
-        <div id="friendsList">
-          <p id="fallbackFriendsText" style="color:#999; font-size:0.9em; text-align:center; padding: 10px 0;">Log in to see friends.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script>
-    var firebaseConfig = {
-      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-      authDomain: "dynaduck-19dbb.firebaseapp.com",
-      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "dynaduck-19dbb",
-      storageBucket: "dynaduck-19dbb.firebasestorage.app",
-      messagingSenderId: "777148453502",
-      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-    };
-    try {
-      if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-      var db = firebase.database();
-    } catch (e) {
-      console.error("Firebase startup halted:", e);
+  const filtered = {};
+  Object.keys(allGames).forEach(function(key) {
+    const game = allGames[key];
+    const title = (game.title || '').toLowerCase();
+    const creator = (game.creator || '').toLowerCase();
+    if (title.includes(query) || creator.includes(query)) {
+      filtered[key] = game;
     }
+  });
 
-    var currentUser = localStorage.getItem('loggedInUser') || null;
-    var rawGamesCache = [];
+  renderGames(filtered);
+}
 
-    function getBaseplateCardHTML() {
-      return `
-        <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', 'baseplate')">
-          <img src="photo.png" class="game-thumb" alt="Baseplate">
-          <div class="game-info">
-            <p class="game-title">Baseplate</p>
-            <p class="game-creator">by <b>DynaDuck Team</b></p>
-            <div class="game-meta">
-              <div class="active-badge"><div class="active-dot"></div> 0 Active</div>
-            </div>
-          </div>
-        </div>`;
-    }
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 
-    function renderGameCardHTML(title, creator, description, safeData) {
-      var safeTitle = title.replace(/'/g, "\\'");
-      var safeCreator = creator.replace(/'/g, "\\'");
-      var safeDesc = description.replace(/'/g, "\\'");
-      
-      return `
-        <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
-          <img src="photo.png" class="game-thumb" alt="${title}">
-          <div class="game-info">
-            <p class="game-title">${title}</p>
-            <p class="game-creator">by <b>${creator}</b></p>
-            <div class="game-meta">
-              <div class="active-badge"><div class="active-dot"></div> 0 Active</div>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function checkRulesCondition() {
-      if (!currentUser) {
-        var rulesAccepted = sessionStorage.getItem('rulesAccepted');
-        if (!rulesAccepted) {
-          var panel = document.getElementById('rulesPanel');
-          if (panel) panel.style.display = 'block';
-        }
-      }
-    }
-
-    function acceptRules() {
-      sessionStorage.setItem('rulesAccepted', 'true');
-      var panel = document.getElementById('rulesPanel');
-      if (panel) panel.style.display = 'none';
-    }
-
-    function listenForGames() {
-      var grid = document.getElementById('gamesGridContainer');
-      if (!grid || !db) return;
-      db.ref('games').on('value', function(snapshot) {
-        rawGamesCache = [];
-        grid.innerHTML = getBaseplateCardHTML();
-        if (snapshot.exists()) {
-          snapshot.forEach(function(childSnapshot) {
-            var gameData = childSnapshot.val();
-            gameData.key = childSnapshot.key;
-            rawGamesCache.push(gameData);
-            var title = gameData.title || "Unfinished Map";
-            var creator = gameData.creator || "Anonymous";
-            var description = gameData.description || "No description provided.";
-            var rawDataString = gameData.fileData || "";
-            var safeData = encodeURIComponent(rawDataString);
-            
-            grid.innerHTML += renderGameCardHTML(title, creator, description, safeData);
-          });
-        }
-      }, function(error) {
-        console.log("Database reading throttled:", error);
-      });
-    }
-
-    function filterGamesLocal() {
-      showHomePage();
-      var q = document.getElementById('mainSearchInput').value.toLowerCase().trim();
-      var grid = document.getElementById('gamesGridContainer');
-      if (!grid) return;
-      grid.innerHTML = getBaseplateCardHTML();
-      rawGamesCache.forEach(function(gameData) {
-        var title = gameData.title || "";
-        var creator = gameData.creator || "";
-        if (title.toLowerCase().includes(q) || creator.toLowerCase().includes(q)) {
-          var description = gameData.description || "";
-          var safeData = encodeURIComponent(gameData.fileData || "");
-          grid.innerHTML += renderGameCardHTML(title, creator, description, safeData);
-        }
-      });
-    }
-
-    function openGame(title, creator, description, fileData) {
-      document.getElementById('homePage').style.display = 'none';
-      document.getElementById('gameDetailsPage').style.display = 'flex';
-
-      var tNode = document.getElementById('pageGameTitle');
-      var cNode = document.getElementById('pageGameCreator');
-      var dNode = document.getElementById('pageGameDesc');
-      var pBtn = document.getElementById('pagePlayBtn');
-
-      if (tNode) tNode.innerText = title;
-      if (cNode) cNode.innerText = creator;
-      if (dNode) dNode.innerText = description;
-      if (pBtn) {
-        pBtn.onclick = function() {
-          launchGame(fileData);
-        };
-      }
-      window.scrollTo(0, 0);
-    }
-
-    function showHomePage() {
-      document.getElementById('gameDetailsPage').style.display = 'none';
-      document.getElementById('homePage').style.display = 'block';
-    }
-
-    function launchGame(fileData) {
-      var launchUser = currentUser ? currentUser : "GuestPlayer";
-      var customProtocolUri = "dynaduck://play?user=" + encodeURIComponent(launchUser) + "&mapData=" + fileData;     
-      console.log("Launching application hook:", customProtocolUri);    
-      window.location.href = customProtocolUri;
-    }
-
-    function initApp() {
-      var authDiv = document.getElementById('authButtons');
-      checkRulesCondition();
-      listenForGames();
-      if (currentUser && db) {
-        var uCard = document.getElementById('userCard');
-        var dUser = document.getElementById('displayUsername');
-        var fText = document.getElementById('fallbackFriendsText');
-        if (uCard) uCard.style.display = "block"; 
-        if (dUser) dUser.innerText = currentUser;
-        if (fText) fText.style.display = "none";
-        if (authDiv) {
-          authDiv.innerHTML = 
-            '<span style="color:white; font-weight:bold; margin-right:10px;">' + currentUser + '</span>' +
-            '<a href="settings.html"><button class="green-btn" style="margin-right:10px;">Settings</button></a>' +
-            '<button class="green-btn" onclick="logout()">Logout</button>';
-        }        
-        db.ref('users/' + currentUser + '/presence').set("online");
-        db.ref('users/' + currentUser + '/presence').onDisconnect().set("offline");
-        loadSocial();
-      } else {
-        if (authDiv) {
-          authDiv.innerHTML = 
-            '<a href="login.html"><button class="green-btn">Log In</button></a>' +
-            '<a href="signup.html"><button class="green-btn">Sign Up</button></a>';
-        }
-      }
-    }
-
-    function logout() {
-      if (currentUser && db) {
-        db.ref('users/' + currentUser + '/presence').set("offline").then(function() {
-          localStorage.removeItem('loggedInUser');
-          location.reload();
-        }).catch(function() {
-          localStorage.removeItem('loggedInUser');
-          location.reload();
-        });
-      } else {
-        localStorage.removeItem('loggedInUser');
-        location.reload();
-      }
-    }
-
-    function sendRequest() {
-      var targetInput = document.getElementById('friendInput');
-      if (!targetInput || !db) return;
-      var target = targetInput.value.trim();
-      if (!currentUser || !target || target === currentUser) return;   
-      db.ref('users/' + target).get().then(function(s) {
-        if (s.exists()) {
-          db.ref('users/' + target + '/requests/' + currentUser).set(true);
-          alert("Friend request sent to " + target + "!");
-          targetInput.value = "";
-        } else { 
-          alert("User not found."); 
-        }
-      });
-    }
-
-    function accept(name) {
-      if(!currentUser || !db) return;
-      var updates = {};
-      updates['users/' + currentUser + '/friends/' + name] = true;
-      updates['users/' + name + '/friends/' + currentUser] = true;
-      updates['users/' + currentUser + '/requests/' + name] = null; 
-      db.ref().update(updates, function(err) {
-        if(!err) alert("Friend connection synced!");
-      });
-    }
-
-    function loadSocial() {
-      if (!db || !currentUser) return;
-      db.ref('users/' + currentUser + '/requests').on('value', function(snap) {
-        var list = document.getElementById('requestList');
-        var box = document.getElementById('pendingSection');
-        if (!list || !box) return;
-        if (snap.exists()) {
-          box.style.display = "block";
-          list.innerHTML = "";
-          Object.keys(snap.val()).forEach(function(name) {
-            list.innerHTML += 
-              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                '<span style="font-size:0.9em; font-weight:bold; color:#333;">' + name + '</span>' +
-                '<button class="modern-auth-btn" style="padding: 3px 8px; font-size:0.8em;" onclick="accept(\'' + name + '\')">Accept</button>' +
-              '</div>';
-          });
-        } else { 
-          box.style.display = "none"; 
-        }
-      });
-      db.ref('users/' + currentUser + '/friends').on('value', function(snap) {
-        var listDiv = document.getElementById('friendsList');
-        if (!listDiv) return;
-        listDiv.innerHTML = snap.exists() ? "" : "<p style='color:#999; text-align:center; padding:10px 0;'>No friends added yet.</p>";
-        if (snap.exists()) {
-          Object.keys(snap.val()).forEach(function(fName) {
-            db.ref('users/' + fName + '/presence').on('value', function(sSnap) {
-              var status = sSnap.val() || "offline";
-              var color = status === "online" ? "#11AD36" : "#888";
-              var el = document.getElementById('f-' + fName);
-              if (!el) {
-                el = document.createElement('div');
-                el.id = 'f-' + fName;
-                el.className = 'friend-item';
-                listDiv.appendChild(el);
-              }
-              el.innerHTML = 
-                '<div class="status-dot" style="background:' + color + '"></div>' +
-                '<strong style="font-size:0.95em; color:#444;">' + fName + ' (' + status + ')</strong>';
-            });
-          });
-        }
-      });
-    }
-    window.addEventListener('DOMContentLoaded', initApp);
-  </script>
+window.addEventListener('DOMContentLoaded', function() {
+  updateHeader();
+  loadGames();
+});
+</script>
 </body>
 </html>
