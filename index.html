@@ -4,171 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DynaDuck Sandbox</title>
-  
+  <link rel="stylesheet" href="style.css" />
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <style>
-    body {
-      background-color: #1e1e24;
-      color: #e0e0e0;
-      padding: 20px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background-color: #2b2b36;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-
-    .brand {
-      font-weight: 700;
-      font-size: 1.4rem;
-      color: #ff6b6b;
-      letter-spacing: 0.5px;
-    }
-
-    .search-box {
-      margin-bottom: 20px;
-      display: flex;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background-color: #2b2b36;
-      color: #fff;
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    input[type="text"]:focus {
-      border-color: #ff6b6b;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      padding: 8px 16px;
-      transition: opacity 0.15s ease;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .green-btn {
-      background-color: #2e7d32;
-      color: #fff;
-    }
-
-    .modern-auth-btn {
-      background-color: #ff6b6b;
-      color: #fff;
-    }
-
-    .main-layout {
-      display: flex;
-      gap: 20px;
-    }
-
-    .games-section {
-      flex: 3;
-    }
-
-    .social-sidebar {
-      flex: 1;
-      background-color: #2b2b36;
-      padding: 15px;
-      border-radius: 8px;
-      height: fit-content;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 15px;
-    }
-
-    .game-card {
-      background-color: #2b2b36;
-      border-radius: 8px;
-      overflow: hidden;
-      cursor: pointer;
-      border: 1px solid #383845;
-      transition: transform 0.15s ease;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    }
-
-    .game-card:hover {
-      transform: translateY(-3px);
-    }
-
-    .game-thumb {
-      height: 120px;
-      background-color: #383845;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .play-overlay {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      text-align: center;
-      padding: 4px 0;
-      font-size: 0.8rem;
-      font-weight: bold;
-    }
-
-    .panel {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #2b2b36;
-      padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #444;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      z-index: 100;
-      max-width: 400px;
-      width: 90%;
-    }
-
-    .friend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-      border-bottom: 1px solid #383845;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-  </style>
 </head>
 <body>
 
   <header>
     <div class="brand">DynaDuck</div>
-    <div id="authButtons" style="display: flex; gap: 10px; align-items: center;"></div>
+    <div id="authButtons"></div>
   </header>
 
   <div class="search-box">
@@ -181,40 +26,41 @@
     </div>
 
     <div class="social-sidebar">
-      <div id="userCard" style="display: none; margin-bottom: 15px;">
-        <h3>Hello, <span id="displayUsername" style="color: #ff6b6b;"></span></h3>
+      <div id="userCard">
+        <h3>Hello, <span id="displayUsername"></span></h3>
       </div>
 
-      <div id="pendingSection" style="display: none; margin-bottom: 15px;">
-        <h4 style="margin-bottom: 8px;">Requests</h4>
+      <div id="pendingSection">
+        <h4>Requests</h4>
         <div id="requestList"></div>
       </div>
 
       <h4>Friends</h4>
-      <div id="friendInputGroup" style="display: flex; gap: 5px; margin: 10px 0;">
+      <div id="friendInputGroup">
         <input type="text" id="friendInput" placeholder="Username..." />
         <button class="green-btn" onclick="sendRequest()">Add</button>
       </div>
       <div id="friendsList">
-        <p id="fallbackFriendsText" style="color: #888; font-size: 0.9rem;">Log in to manage friends.</p>
+        <p id="fallbackFriendsText">Log in to manage friends.</p>
       </div>
     </div>
   </div>
 
   <div id="gamePanel" class="panel">
-    <h2 id="panelGameTitle" style="margin-bottom: 4px;"></h2>
-    <p id="panelGameCreator" style="color: #aaa; font-size: 0.85rem; margin-bottom: 12px;"></p>
-    <div id="panelGameShowcase" style="background: #383845; height: 100px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 12px; border-radius: 4px;"></div>
-    <p id="panelGameDesc" style="font-size: 0.9rem; margin-bottom: 15px; color: #ddd;"></p>
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+    <h2 id="panelGameTitle"></h2>
+    <p id="panelGameCreator"></p>
+    <div id="panelGameShowcase"></div>
+    <p id="panelGameDesc"></p>
+
+    <div id="panelActions">
       <button class="green-btn" id="panelPlayBtn">Play Game</button>
-      <button style="background: #555; color: white;" onclick="closeGame()">Close</button>
+      <button class="close-btn" onclick="closeGame()">Close</button>
     </div>
   </div>
 
   <div id="rulesPanel" class="panel">
     <h3>Community Guidelines</h3>
-    <p style="font-size: 0.9rem; margin: 10px 0; color: #ccc;">Please follow basic etiquette: no spamming maps, respect other builders, and keep text content appropriate.</p>
+    <p>Please follow basic etiquette: no spamming maps, respect other builders, and keep text content appropriate.</p>
     <button class="green-btn" onclick="acceptRules()">I Agree</button>
   </div>
 
@@ -264,7 +110,7 @@
         grid.innerHTML = `
           <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', 'baseplate')">
             <div class="game-thumb">
-              <span style="color:white; font-weight:bold; font-size:1.1em;">BASEPLATE</span>
+              <span>BASEPLATE</span>
               <div class="play-overlay">PLAY BASEPLATE</div>
             </div>
           </div>`;
@@ -287,8 +133,8 @@
 
             grid.innerHTML += `
               <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
-                <div class="game-thumb" style="background-color: #ff6b6b; flex-direction: column;">
-                  <span style="color:white; font-weight:bold; font-size:1em; text-align:center; padding:10px;">${title.toUpperCase()}</span>
+                <div class="game-thumb">
+                  <span>${title.toUpperCase()}</span>
                   <div class="play-overlay">PLAY NOW</div>
                 </div>
               </div>`;
@@ -307,7 +153,7 @@
       grid.innerHTML = `
         <div class="game-card" onclick="openGame('Baseplate', 'DynaDuck Team', 'A simple sandbox world where you can test builds.', 'baseplate')">
           <div class="game-thumb">
-            <span style="color:white; font-weight:bold;">BASEPLATE</span>
+            <span>BASEPLATE</span>
             <div class="play-overlay">PLAY BASEPLATE</div>
           </div>
         </div>`;
@@ -323,8 +169,8 @@
 
           grid.innerHTML += `
             <div class="game-card" onclick="openGame('${safeTitle}', '${safeCreator}', '${safeDesc}', '${safeData}')">
-              <div class="game-thumb" style="background-color: #ff6b6b;">
-                <span style="color:white; font-weight:bold;">${title.toUpperCase()}</span>
+              <div class="game-thumb">
+                <span>${title.toUpperCase()}</span>
                 <div class="play-overlay">PLAY NOW</div>
               </div>
             </div>`;
@@ -383,7 +229,7 @@
 
         if (authDiv) {
           authDiv.innerHTML = 
-            '<span style="color:white; font-weight:bold; margin-right:5px;">' + currentUser + '</span>' +
+            '<span class="user-tag">' + currentUser + '</span>' +
             '<a href="settings.html"><button class="green-btn">Settings</button></a>' +
             '<button class="green-btn" onclick="logout()">Logout</button>';
         }        
@@ -454,9 +300,9 @@
           list.innerHTML = "";
           Object.keys(snap.val()).forEach(function(name) {
             list.innerHTML += 
-              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                '<span style="font-size:0.9em; font-weight:bold; color:#e0e0e0;">' + name + '</span>' +
-                '<button class="modern-auth-btn" style="padding: 3px 8px; font-size:0.8em;" onclick="accept(\'' + name + '\')">Accept</button>' +
+              '<div class="request-item">' +
+                '<span>' + name + '</span>' +
+                '<button class="modern-auth-btn" onclick="accept(\'' + name + '\')">Accept</button>' +
               '</div>';
           });
         } else { 
@@ -469,7 +315,7 @@
         if (!listDiv) return;
 
         if (!snap.exists()) {
-          listDiv.innerHTML = "<p style='color:#888; text-align:center; padding:10px 0;'>No friends added yet.</p>";
+          listDiv.innerHTML = "<p class='no-friends'>No friends added yet.</p>";
           return;
         }
 
@@ -477,7 +323,6 @@
         Object.keys(snap.val()).forEach(function(fName) {
           db.ref('users/' + fName + '/presence').on('value', function(sSnap) {
             var status = sSnap.val() || "offline";
-            var color = status === "online" ? "#2e7d32" : "#888";
             var el = document.getElementById('f-' + fName);
 
             if (!el) {
@@ -488,8 +333,8 @@
             }
 
             el.innerHTML = 
-              '<div class="status-dot" style="background:' + color + '"></div>' +
-              '<strong style="font-size:0.95em; color:#e0e0e0;">' + fName + ' (' + status + ')</strong>';
+              '<div class="status-dot ' + status + '"></div>' +
+              '<strong>' + fName + ' (' + status + ')</strong>';
           });
         });
       });
