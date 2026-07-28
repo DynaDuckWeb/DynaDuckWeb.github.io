@@ -13,82 +13,72 @@
       background-color: #eeeeee;
     }
 
-    header {
-        background-color: #333333;
-        color: white;
-        height: 72px;
-        padding: 0 30px;
+header {
+  background-color: #333333;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
 
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
-        box-sizing: border-box;
-    }
+.logo {
+  height: 40px;
+  width: auto;
+  display: block;
+  cursor: pointer;
+}
 
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 35px;
-    }
+nav {
+  display: flex;
+  gap: 15px;
+}
 
-    .logo {
-        height: 48px;
-        width: auto;
-        display: block;
-        cursor: pointer;
-    }
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+}
 
-    nav {
-        display: flex;
-        gap: 25px;
-    }
+nav a.active {
+  color: #11AD36;
+}
 
-    nav a {
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 17px;
-        line-height: 1;
-    }
+.search-bar {
+  width: 300px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+  box-sizing: border-box;
+}
 
-    nav a.active {
-        color: #11AD36;
-    }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
 
-    .search-bar {
-        width: 350px;
-        height: 42px;
-        padding: 0 15px;
-
-        border: none;
-        border-radius: 8px;
-        outline: none;
-
-        font-size: 15px;
-        box-sizing: border-box;
-    }
-
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        font-weight: bold;
-    }
-
-    .header-btn {
-        height: 40px;
-        padding: 0 18px;
-
-        background: #11AD36;
-        border: none;
-        border-radius: 6px;
-
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 15px;
-    }
+.header-btn {
+  padding: 8px 15px;
+  background: #11AD36;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
 
     .main-container {
       display: flex;
