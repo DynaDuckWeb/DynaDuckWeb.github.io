@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DynaDuck - Home</title>
+  <title>Create - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body {
@@ -14,7 +14,7 @@
     }
 
     main {
-      width: 900px;
+      width: 780px;
       margin: 25px auto;
       background: #ffffff;
       border: 3px solid #666;
@@ -23,86 +23,142 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
+    .page-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #111;
+      border-bottom: 3px solid #11AD36;
+      padding-bottom: 6px;
+      margin-top: 0;
+      margin-bottom: 20px;
     }
 
-    .game-card {
-      border: 2px solid #ccc;
+    .studio-banner {
+      background: #e8f5e9;
+      border: 2px solid #11AD36;
       border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .studio-banner h3 {
+      margin: 0 0 4px 0;
+      color: #0b6b21;
+      font-size: 18px;
+    }
+
+    .studio-banner p {
+      margin: 0;
+      font-size: 13px;
+      color: #444;
+    }
+
+    .btn-download {
+      background: #11AD36;
+      color: white;
+      border: 2px solid #0b6b21;
+      padding: 10px 18px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-download:hover {
+      background: #0e912d;
+    }
+
+    .form-panel {
+      border: 2px solid #ccc;
       background: #fdfdfd;
-      padding: 12px;
+      padding: 20px;
+      border-radius: 6px;
+    }
+
+    .form-panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 8px;
+      margin-bottom: 18px;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.1s ease;
+      gap: 5px;
     }
 
-    .game-card:hover {
+    .form-row label {
+      font-weight: bold;
+      font-size: 13px;
+      color: #222;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 8px;
+      border: 2px solid #999;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    .input-field:focus {
+      outline: none;
       border-color: #11AD36;
     }
 
-    .game-thumb {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border: 1px solid #aaa;
+    .file-input-box {
+      background: #f0f0f0;
+      border: 2px dashed #a0a0a0;
+      padding: 12px;
       border-radius: 4px;
-      background: #ddd;
     }
 
-    .game-title {
-      font-size: 16px;
-      font-weight: bold;
-      margin: 8px 0 4px 0;
-      color: #111;
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .game-creator {
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 6px;
-    }
-
-    .game-desc {
-      font-size: 12px;
-      color: #333;
-      height: 36px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 10px;
-    }
-
-    .game-info {
-      font-size: 11px;
-      color: #666;
-      border-top: 1px solid #eee;
-      padding-top: 6px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .btn-play {
-      background: #11AD36;
-      color: white;
-      text-align: center;
-      padding: 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      text-decoration: none;
+    .image-preview-container {
       margin-top: 8px;
-      border: 1px solid #0b6b21;
+      display: none;
     }
 
-    .btn-play:hover {
-      background: #0e912d;
+    .image-preview-container img {
+      max-width: 200px;
+      max-height: 150px;
+      border: 2px solid #000;
+      border-radius: 4px;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .btn-publish {
+      background: #28a745;
+      color: white;
+      border: 3px solid #1e7e34;
+      border-radius: 6px;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      box-sizing: border-box;
+    }
+
+    .btn-publish:hover {
+      background: #218838;
+    }
+
+    .btn-publish:active {
+      background: #1e7e34;
+      transform: translateY(2px);
     }
   </style>
 </head>
@@ -122,7 +178,7 @@
   </div>
 
   <div class="search-container">
-    <input type="text" class="search-bar" id="searchInput" placeholder="Search places, creators..." oninput="filterGames()">
+    <input type="text" class="search-bar" placeholder="Search places, creators...">
   </div>
 
   <div id="authButtons">
@@ -132,10 +188,53 @@
 </header>
 
 <main>
-  <h1 style="border-bottom: 3px solid #11AD36; padding-bottom: 6px; margin-top: 0;">Games Directory</h1>
+  <h1 class="page-title">Place Publisher</h1>
   
-  <div id="gamesContainer" class="games-grid">
-    <p>Loading place directory...</p>
+  <div class="studio-banner">
+    <div>
+      <h3>DynaDuck Engine Studio</h3>
+      <p>Build and compile custom levels offline, then upload them here for everyone to play.</p>
+    </div>
+    <a href="DynaDuckSetup.exe" download class="btn-download">Download Studio (.exe)</a>
+  </div>
+
+  <div class="form-panel">
+    <h2>Upload & Configure Place</h2>
+    
+    <div class="form-row">
+      <label for="gameTitle">Place Name:</label>
+      <input type="text" id="gameTitle" class="input-field" maxlength="40" placeholder="e.g. Sword Fight in the Heights">
+    </div>
+
+    <div class="form-row">
+      <label for="gameDesc">Description:</label>
+      <textarea id="gameDesc" class="input-field" rows="4" maxlength="500" placeholder="Describe your place, controls, rules, or update logs..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <label for="maxPlayers">Max Players (1 - 20):</label>
+      <input type="number" id="maxPlayers" class="input-field" min="1" max="20" value="12" style="width: 120px;">
+    </div>
+
+    <div class="form-row">
+      <label for="gameThumbnail">Place Thumbnail Image (.png, .jpg):</label>
+      <div class="file-input-box">
+        <input type="file" id="gameThumbnail" accept="image/png, image/jpeg, image/webp" onchange="previewImage(event)">
+        <div id="previewWrapper" class="image-preview-container">
+          <span style="font-size: 12px; font-weight: bold;">Thumbnail Preview:</span>
+          <img id="imgPreview" src="#" alt="Thumbnail Preview">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="duckFile">Map Data File (.duck):</label>
+      <div class="file-input-box">
+        <input type="file" id="duckFile" accept=".duck">
+      </div>
+    </div>
+
+    <button class="btn-publish" onclick="submitGame()">PUBLISH PLACE</button>
   </div>
 </main>
 
@@ -154,7 +253,32 @@ var firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 var db = firebase.database();
 const loggedInUser = localStorage.getItem('loggedInUser');
-var allGames = {};
+var compressedImageData = "";
+
+const BANNED_WORDS = [
+  "fuck", "shit", "ass", "bitch", "bastard", "cunt", "dick", "idiot", "stupid", "discord", "telegram", "whatsapp", "twitter", "@", "youtube",
+  "pula", "pizda", "coie", "cur", "drac", "cacat", "muta", "prost", "proasta", "tampit", "muie", "belit",
+  "merde", "con", "connard", "putain", "salope", "chier", "cul", "batard", "nigger", "fag", "faggot", "retard"
+];
+
+function containsSwears(text) {
+  if (!text) return false;
+  const cleanText = text.toLowerCase().replace(/[\.\-\_\,\?\!\@\#\$\%\^\&\*\(\)]/g, "");
+  const words = cleanText.split(/\s+/);
+
+  for (let word of words) {
+    if (BANNED_WORDS.includes(word)) {
+      return true;
+    }
+  }
+  
+  for (let badWord of BANNED_WORDS) {
+    if (cleanText.includes(badWord)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function updateHeader() {
   const authDiv = document.getElementById('authButtons');
@@ -177,76 +301,123 @@ function logout(){
   location.reload();
 }
 
-function loadGames() {
-  db.ref('games').on('value', function(snapshot) {
-    allGames = snapshot.val() || {};
-    renderGames(allGames);
-  });
-}
-
-function renderGames(gamesObj) {
-  const container = document.getElementById('gamesContainer');
-  container.innerHTML = '';
-
-  const keys = Object.keys(gamesObj);
-  if (keys.length === 0) {
-    container.innerHTML = '<p>No places published yet!</p>';
+function previewImage(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    compressedImageData = "";
+    document.getElementById('previewWrapper').style.display = 'none';
     return;
   }
 
-  keys.reverse().forEach(function(key) {
-    const game = gamesObj[key];
-    const thumbSrc = game.thumbnail && game.thumbnail.trim() !== '' ? game.thumbnail : 'placeholder.png';
-    
-    const card = document.createElement('div');
-    card.className = 'game-card';
-    card.innerHTML = `
-      <div>
-        <img src="${thumbSrc}" class="game-thumb" alt="${escapeHtml(game.title)}">
-        <div class="game-title" title="${escapeHtml(game.title)}">${escapeHtml(game.title)}</div>
-        <div class="game-creator">By <b>${escapeHtml(game.creator || 'Anonymous')}</b></div>
-        <div class="game-desc">${escapeHtml(game.description || '')}</div>
-      </div>
-      <div>
-        <div class="game-info">
-          <span>Max Players: ${game.maxPlayers || 12}</span>
-        </div>
-        <a href="place.html?id=${key}" class="btn-play">PLAY</a>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function filterGames() {
-  const query = document.getElementById('searchInput').value.toLowerCase().trim();
-  if (!query) {
-    renderGames(allGames);
+  if (containsSwears(file.name)) {
+    alert("⚠️ Image upload blocked: Image filename contains inappropriate terms.");
+    event.target.value = "";
+    compressedImageData = "";
+    document.getElementById('previewWrapper').style.display = 'none';
     return;
   }
 
-  const filtered = {};
-  Object.keys(allGames).forEach(function(key) {
-    const game = allGames[key];
-    const title = (game.title || '').toLowerCase();
-    const creator = (game.creator || '').toLowerCase();
-    if (title.includes(query) || creator.includes(query)) {
-      filtered[key] = game;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const maxWidth = 400;
+      const maxHeight = 225;
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      compressedImageData = canvas.toDataURL('image/jpeg', 0.75);
+
+      const previewImg = document.getElementById('imgPreview');
+      previewImg.src = compressedImageData;
+      document.getElementById('previewWrapper').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitGame() {
+  if (!loggedInUser) {
+    alert("You must be logged in to create and publish places!");
+    return;
+  }
+
+  var title = document.getElementById('gameTitle').value.trim();
+  var desc = document.getElementById('gameDesc').value.trim();
+  var maxPlayers = parseInt(document.getElementById('maxPlayers').value, 10);
+  var duckFileInput = document.getElementById('duckFile');
+
+  if (!title || !desc || duckFileInput.files.length === 0) {
+    alert("Please fill in the Name, Description, and select a .duck file.");
+    return;
+  }
+
+  if (isNaN(maxPlayers) || maxPlayers < 1 || maxPlayers > 20) {
+    alert("Max Players must be between 1 and 20.");
+    return;
+  }
+
+  if (containsSwears(title) || containsSwears(desc)) {
+    alert("⚠️ Filter Notice: Your input contains prohibited words.");
+    return;
+  }
+
+  var duckFile = duckFileInput.files[0];
+  if (!duckFile.name.toLowerCase().endsWith('.duck')) {
+    alert("❌ Invalid format: Map file must have a .duck extension.");
+    duckFileInput.value = "";
+    return;
+  }
+
+  if (duckFile.size > 2 * 1024 * 1024) { 
+    alert("❌ File limit exceeded: .duck file must be smaller than 2MB.");
+    duckFileInput.value = "";
+    return;
+  }
+
+  var duckReader = new FileReader();
+  duckReader.onload = function(e) {
+    var fileContents = e.target.result;
+    saveToDatabase(title, desc, maxPlayers, fileContents, compressedImageData);
+  };
+
+  duckReader.readAsText(duckFile);
+}
+
+function saveToDatabase(title, desc, maxPlayers, mapData, thumbnailData) {
+  var newGameRef = db.ref('games').push();
+  newGameRef.set({
+    title: title,
+    description: desc,
+    creator: loggedInUser,
+    maxPlayers: maxPlayers,
+    fileData: mapData,
+    thumbnail: thumbnailData || "",
+    timestamp: Date.now()
+  }, function(error) {
+    if (error) {
+      alert("Failed to publish place: " + error.message);
+    } else {
+      alert("Place successfully published!");
+      window.location.href = "index.html";
     }
   });
-
-  renderGames(filtered);
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
-
-window.addEventListener('DOMContentLoaded', function() {
-  updateHeader();
-  loadGames();
-});
+window.addEventListener('DOMContentLoaded', updateHeader);
 </script>
 </body>
 </html>
