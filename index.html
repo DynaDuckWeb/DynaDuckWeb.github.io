@@ -329,7 +329,7 @@ function updateHeader() {
   const authDiv = document.getElementById('authButtons');
   if(loggedInUser){
     authDiv.innerHTML = `
-      <span style="color:#fff;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
+      <span style="color:#fff;font-weight:bold;margin-right:15px;">Welcome, ${escapeHtml(loggedInUser)}!</span>
       <a href="settings.html"><button class="green-btn">Settings</button></a>
       <button class="green-btn" onclick="logout()">Logout</button>
     `;
@@ -358,10 +358,15 @@ function loadMOTD() {
   });
 }
 
+// Fetch games real-time from Firebase Realtime Database
 function loadGames() {
   db.ref('games').on('value', function(snapshot) {
     allGames = snapshot.val() || {};
     renderGames(allGames);
+  }, function(error) {
+    console.error("Firebase read error: ", error);
+    const container = document.getElementById('gamesContainer');
+    container.innerHTML = '<p style="color:red;">Error loading games list.</p>';
   });
 }
 
@@ -377,15 +382,21 @@ function renderGames(gamesObj) {
 
   keys.reverse().forEach(function(key) {
     const game = gamesObj[key];
-    const thumbSrc = (game.thumbnail && game.thumbnail.startsWith('data:image')) 
-      ? game.thumbnail 
-      : 'photopng';
+
+    // Determine if thumbnail exists (either standard URL or Base64 string), otherwise fallback to photo.png
+    let thumbSrc = 'photo.png';
+    if (game.thumbnail && typeof game.thumbnail === 'string' && game.thumbnail.trim() !== '') {
+      const cleanThumb = game.thumbnail.trim();
+      if (cleanThumb.startsWith('data:image') || cleanThumb.startsWith('http://') || cleanThumb.startsWith('https://')) {
+        thumbSrc = cleanThumb;
+      }
+    }
     
     const card = document.createElement('div');
     card.className = 'game-card';
     card.innerHTML = `
       <div>
-        <img src="${thumbSrc}" class="game-thumb" alt="${escapeHtml(game.title)}" onerror="this.onerror=null;this.src='placeholder.png';">
+        <img src="${thumbSrc}" class="game-thumb" alt="${escapeHtml(game.title)}" onerror="this.onerror=null;this.src='photo.png';">
         <div class="game-title" title="${escapeHtml(game.title)}">${escapeHtml(game.title)}</div>
         <div class="game-creator">By <b>${escapeHtml(game.creator || 'Anonymous')}</b></div>
         <div class="game-desc">${escapeHtml(game.description || '')}</div>
@@ -394,7 +405,7 @@ function renderGames(gamesObj) {
         <div class="game-info">
           <span>Max Players: ${game.maxPlayers || 12}</span>
         </div>
-        <a href="place.html?id=${key}" class="btn-play">PLAY</a>
+        <a href="place.html?id=${encodeURIComponent(key)}" class="btn-play">PLAY</a>
       </div>
     `;
     container.appendChild(card);
@@ -418,11 +429,8 @@ function loadFriendsList() {
     </ul>
   `;
 
-  // First check /users/USERNAME/friends
   db.ref('users/' + loggedInUser + '/friends').on('value', function(snapshot) {
     let friendsData = snapshot.val();
-    
-    // Fallback check /friends/USERNAME if nothing under user node
     if (!friendsData) {
       db.ref('friends/' + loggedInUser).once('value', function(fallbackSnap) {
         renderFriendsData(fallbackSnap.val() || {});
@@ -454,19 +462,25 @@ function renderFriendsData(friendsData) {
   friendList.forEach(function(friendName) {
     const li = document.createElement('li');
     li.className = 'friend-item';
-    li.innerHTML = `
-      <div class="friend-info">
-        <span class="status-dot status-online"></span>
-        <span class="friend-name">${escapeHtml(friendName)}</span>
-      </div>
-      <button class="btn-remove-friend" onclick="removeFriend('${escapeHtml(friendName)}')">✕</button>
-    `;
+    
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'friend-info';
+    infoDiv.innerHTML = `<span class="status-dot status-online"></span><span class="friend-name">${escapeHtml(friendName)}</span>`;
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove-friend';
+    removeBtn.textContent = '✕';
+    removeBtn.onclick = function() { removeFriend(friendName); };
+    
+    li.appendChild(infoDiv);
+    li.appendChild(removeBtn);
     friendsUl.appendChild(li);
   });
 }
 
 function addFriend() {
-  const friendName = document.getElementById('friendNameInput').value.trim();
+  const friendInput = document.getElementById('friendNameInput');
+  const friendName = friendInput.value.trim();
   if (!friendName) return;
 
   if (friendName.toLowerCase() === loggedInUser.toLowerCase()) {
@@ -474,11 +488,10 @@ function addFriend() {
     return;
   }
 
-  // Saves to both standard locations so data stays in sync
   db.ref('users/' + loggedInUser + '/friends/' + friendName).set(true);
   db.ref('friends/' + loggedInUser + '/' + friendName).set(true, function(err) {
     if (!err) {
-      document.getElementById('friendNameInput').value = '';
+      friendInput.value = '';
     } else {
       alert("Failed to add friend: " + err.message);
     }
