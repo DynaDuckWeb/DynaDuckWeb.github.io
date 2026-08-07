@@ -357,8 +357,7 @@ function loadMOTD() {
     }
   });
 }
-
-// Fetch games real-time from Firebase Realtime Database
+ Realtime Database
 function loadGames() {
   db.ref('games').on('value', function(snapshot) {
     allGames = snapshot.val() || {};
@@ -382,8 +381,6 @@ function renderGames(gamesObj) {
 
   keys.reverse().forEach(function(key) {
     const game = gamesObj[key];
-
-    // Determine if thumbnail exists (either standard URL or Base64 string), otherwise fallback to photo.png
     let thumbSrc = 'photo.png';
     if (game.thumbnail && typeof game.thumbnail === 'string' && game.thumbnail.trim() !== '') {
       const cleanThumb = game.thumbnail.trim();
