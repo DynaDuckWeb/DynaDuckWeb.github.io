@@ -357,7 +357,7 @@ function loadMOTD() {
     }
   });
 }
- Realtime Database
+
 function loadGames() {
   db.ref('games').on('value', function(snapshot) {
     allGames = snapshot.val() || {};
