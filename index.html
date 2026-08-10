@@ -257,6 +257,53 @@
     .btn-remove-friend:hover {
       color: #d9534f;
     }
+
+    .subtitle {
+      font-size: 13px;
+      font-weight: bold;
+      color: #444;
+      margin: 12px 0 6px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .requests-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 6px 0;
+    }
+
+    .btn-req-accept {
+      background: #11AD36;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 4px;
+    }
+
+    .btn-req-accept:hover {
+      background: #0e912d;
+    }
+
+    .btn-req-decline {
+      background: #fff;
+      color: #d9534f;
+      border: 1px solid #d9534f;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-req-decline:hover {
+      background: #d9534f;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -419,22 +466,24 @@ function loadFriendsList() {
   container.innerHTML = `
     <div class="add-friend-box">
       <input type="text" id="friendNameInput" class="add-friend-input" placeholder="Username...">
-      <button class="btn-add-friend" onclick="addFriend()">Add</button>
+      <button class="btn-add-friend" onclick="sendFriendRequest()">Add</button>
     </div>
+    <div id="requestsSection" style="display:none;">
+      <div class="subtitle">Friend Requests</div>
+      <ul class="requests-list" id="requestsUl"></ul>
+    </div>
+    <div class="subtitle">Friends</div>
     <ul class="friends-list" id="friendsUl">
       <li style="font-size:12px; color:#666;">Loading friends...</li>
     </ul>
   `;
 
   db.ref('users/' + loggedInUser + '/friends').on('value', function(snapshot) {
-    let friendsData = snapshot.val();
-    if (!friendsData) {
-      db.ref('friends/' + loggedInUser).once('value', function(fallbackSnap) {
-        renderFriendsData(fallbackSnap.val() || {});
-      });
-    } else {
-      renderFriendsData(friendsData);
-    }
+    renderFriendsData(snapshot.val() || {});
+  });
+
+  db.ref('users/' + loggedInUser + '/friendRequests').on('value', function(snapshot) {
+    renderRequests(snapshot.val() || {});
   });
 }
 
@@ -475,31 +524,132 @@ function renderFriendsData(friendsData) {
   });
 }
 
-function addFriend() {
+function renderRequests(requestsData) {
+  const requestsUl = document.getElementById('requestsUl');
+  const section = document.getElementById('requestsSection');
+  if (!requestsUl || !section) return;
+
+  let requestList = [];
+  if (Array.isArray(requestsData)) {
+    requestList = requestsData.filter(Boolean);
+  } else if (typeof requestsData === 'object' && requestsData !== null) {
+    requestList = Object.keys(requestsData);
+  }
+
+  if (requestList.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  requestsUl.innerHTML = '';
+
+  requestList.forEach(function(fromName) {
+    const li = document.createElement('li');
+    li.className = 'friend-item';
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'friend-name';
+    nameSpan.textContent = fromName;
+
+    const btnWrap = document.createElement('span');
+    const acceptBtn = document.createElement('button');
+    acceptBtn.className = 'btn-req-accept';
+    acceptBtn.textContent = 'Accept';
+    acceptBtn.onclick = function() { acceptFriendRequest(fromName); };
+
+    const declineBtn = document.createElement('button');
+    declineBtn.className = 'btn-req-decline';
+    declineBtn.textContent = 'Decline';
+    declineBtn.onclick = function() { declineFriendRequest(fromName); };
+
+    btnWrap.appendChild(acceptBtn);
+    btnWrap.appendChild(declineBtn);
+
+    li.appendChild(nameSpan);
+    li.appendChild(btnWrap);
+    requestsUl.appendChild(li);
+  });
+}
+
+async function sendFriendRequest() {
   const friendInput = document.getElementById('friendNameInput');
   const friendName = friendInput.value.trim();
   if (!friendName) return;
+
+  if (/[.#$[\]/]/.test(friendName)) {
+    alert("That name contains invalid characters.");
+    return;
+  }
 
   if (friendName.toLowerCase() === loggedInUser.toLowerCase()) {
     alert("You cannot add yourself as a friend!");
     return;
   }
 
-  db.ref('users/' + loggedInUser + '/friends/' + friendName).set(true);
-  db.ref('friends/' + loggedInUser + '/' + friendName).set(true, function(err) {
-    if (!err) {
-      friendInput.value = '';
-    } else {
-      alert("Failed to add friend: " + err.message);
-    }
-  });
+  const targetSnap = await db.ref('users/' + friendName).once('value');
+  if (!targetSnap.val()) {
+    alert("That user does not exist.");
+    return;
+  }
+
+  const friendsSnap = await db.ref('users/' + loggedInUser + '/friends/' + friendName).once('value');
+  if (friendsSnap.val()) {
+    alert("You are already friends with " + friendName + "!");
+    return;
+  }
+
+  const incomingSnap = await db.ref('users/' + loggedInUser + '/friendRequests/' + friendName).once('value');
+  if (incomingSnap.val()) {
+    acceptFriendRequest(friendName);
+    return;
+  }
+
+  const outgoingSnap = await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).once('value');
+  if (outgoingSnap.val()) {
+    alert("Friend request already sent to " + friendName + ".");
+    return;
+  }
+
+  const ts = Date.now();
+  await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).set(ts);
+  try {
+    await db.ref('users/' + friendName + '/friendRequests/' + loggedInUser).set(ts);
+    friendInput.value = '';
+    alert("Friend request sent to " + friendName + "!");
+  } catch (e) {
+    await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).remove();
+    alert("Failed to send request: " + e.message);
+  }
+}
+
+async function acceptFriendRequest(fromName) {
+  const updates = {};
+  updates['users/' + loggedInUser + '/friends/' + fromName] = true;
+  updates['users/' + fromName + '/friends/' + loggedInUser] = true;
+  updates['users/' + loggedInUser + '/friendRequests/' + fromName] = null;
+  updates['users/' + fromName + '/outgoingRequests/' + loggedInUser] = null;
+  try {
+    await db.ref().update(updates);
+    alert("You are now friends with " + fromName + "!");
+  } catch (e) {
+    alert("Failed to accept request: " + e.message);
+  }
+}
+
+function declineFriendRequest(fromName) {
+  const updates = {};
+  updates['users/' + loggedInUser + '/friendRequests/' + fromName] = null;
+  updates['users/' + fromName + '/outgoingRequests/' + loggedInUser] = null;
+  db.ref().update(updates);
 }
 
 function removeFriend(friendName) {
-  if (confirm("Remove " + friendName + " from your friends list?")) {
-    db.ref('users/' + loggedInUser + '/friends/' + friendName).remove();
-    db.ref('friends/' + loggedInUser + '/' + friendName).remove();
-  }
+  if (!confirm("Remove " + friendName + " from your friends list?")) return;
+  const updates = {};
+  updates['users/' + loggedInUser + '/friends/' + friendName] = null;
+  updates['users/' + friendName + '/friends/' + loggedInUser] = null;
+  db.ref().update(updates);
 }
 
 function filterGames() {
@@ -527,6 +677,20 @@ function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
+function avatarToString(colors) {
+  const keys = ['head', 'torso', 'l-arm', 'r-arm', 'l-leg', 'r-leg'];
+  const parts = [];
+  keys.forEach(function(k) {
+    const c = (colors && colors[k]) ? colors[k] : '#ffcd3a';
+    parts.push(k + '=' + c);
+  });
+  return parts.join(',');
+}
+
+function buildLaunchUrl(mapData) {
+  return "dynaduck://launch?mapData=" + encodeURIComponent(mapData);
+}
+
 function launchGame(key) {
   const game = allGames[key];
   if (!game) {
@@ -539,7 +703,24 @@ function launchGame(key) {
     alert("This place has no map data to launch.");
     return;
   }
-  window.location.href = "dynaduck://launch?mapData=" + encodeURIComponent(mapData);
+
+  if (!loggedInUser) {
+=
+    window.location.href = buildLaunchUrl(mapData);
+    return;
+  }
+
+  db.ref('users/' + loggedInUser).once('value', function(snapshot) {
+    const profile = snapshot.val() || {};
+    const colors = profile.colors || {};
+    const avatar = avatarToString(colors);
+    const url = buildLaunchUrl(mapData) +
+      "&username=" + encodeURIComponent(loggedInUser) +
+      "&avatar=" + encodeURIComponent(avatar);
+    window.location.href = url;
+  }, function() {
+    window.location.href = buildLaunchUrl(mapData);
+  });
 }
 
 window.addEventListener('DOMContentLoaded', function() {
