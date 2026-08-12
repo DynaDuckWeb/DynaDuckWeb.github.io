@@ -416,14 +416,13 @@ async function claimKey() {
       alert("This code has already been claimed!");
       return;
     }
-    const response = await fetch("https://gumroad-verify.ericmiro68.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        product_permalink: "coczb", 
-        license_key: codeInput
-      })
-    });
+const response = await fetch("https://gumroad-verify.ericmiro68.workers.dev/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    license_key: codeInput
+  })
+});
 
     const data = await response.json();
 
