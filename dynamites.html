@@ -367,6 +367,12 @@ const permalinkAmounts = {
   "ympqmm": 2000
 };
 
+const productIdAmounts = {
+  "GuO0_hvkIn53H3slkf15Ew==": 200, 
+  "WPXxcgdlDlq-_zQ8D8g2sQ==": 800,      
+  "eD8Pfyp6CKZkvaqWkE04TQ==": 2000     
+};
+
 function loadBalance(){
   if(!currentUser){
     document.getElementById("dynamiteBalance").innerText = "0";
@@ -416,25 +422,33 @@ async function claimKey() {
       alert("This code has already been claimed!");
       return;
     }
-const response = await fetch("https://gumroad-verify.ericmiro68.workers.dev/", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    license_key: codeInput
-  })
-});
+
+    const response = await fetch("https://gumroad-verify.ericmiro68.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        license_key: codeInput
+      })
+    });
 
     const data = await response.json();
 
     if (data.valid) {
-      const productPermalink = data.raw.purchase.product_permalink || "coczb";
-      const amountToAdd = permalinkAmounts[productPermalink] || 200;
+      const purchase = data.raw.purchase;
+      
+      const returnedPermalink = purchase.product_permalink;
+      const returnedProductId = purchase.product_id;
+
+      const amountToAdd = productIdAmounts[returnedProductId] || 
+                          permalinkAmounts[returnedPermalink] || 
+                          200;
 
       await usedKeyRef.set({
         claimed_by: currentUser,
         claimed_at: Date.now(),
-        email: data.raw.purchase.email || "unknown",
-        amount: amountToAdd
+        email: purchase.email || "unknown",
+        amount: amountToAdd,
+        product_permalink: returnedPermalink || "unknown"
       });
 
       const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
@@ -448,7 +462,7 @@ const response = await fetch("https://gumroad-verify.ericmiro68.workers.dev/", {
         } else {
           alert("Error updating your balance. Please contact support.");
         }
-      }); // the amount of times i edited this part is just crazy
+      });
 
     } else {
       alert("Redemption Failed: " + (data.reason || "Invalid code."));
