@@ -388,34 +388,45 @@ function closeRedeemModal() {
   document.getElementById("redeemModal").style.display = "none";
 }
 
-function claimKey() {
+async function claimKey() {
   const codeInput = document.getElementById("codeKeyInput").value.trim().toUpperCase();
   if (!codeInput) {
     alert("Please enter a code.");
     return;
   }
 
-  const codeRef = db.ref("claim_codes/" + codeInput);
+  if (!currentUser) {
+    alert("Please log in first.");
+    return;
+  }
 
-  codeRef.transaction((codeData) => {
-    if (codeData === null) {
-      return; 
+  const usedKeyRef = db.ref("used_gumroad_keys/" + codeInput);
+  
+  try {
+    const keySnap = await usedKeyRef.once("value");
+    if (keySnap.exists()) {
+      alert("This code has already been claimed!");
+      return;
     }
-    if (codeData.is_used) {
-      return; 
-    }
-    
-    codeData.is_used = true;
-    codeData.claimed_by = currentUser;
-    codeData.claimed_at = Date.now();
-    return codeData;
-  }, (error, committed, snapshot) => {
-    if (error) {
-      alert("Error processing transaction. Please try again.");
-    } else if (!committed || !snapshot.exists()) {
-      alert("Invalid or already claimed code!");
-    } else {
-      const amountToAdd = snapshot.val().amount || 0;
+    const response = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        product_permalink: "200dynamites", 
+        license_key: codeInput
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
+      
+      await usedKeyRef.set({
+        claimed_by: currentUser,
+        claimed_at: Date.now(),
+        email: data.purchase.email || "unknown"
+      });
+      const amountToAdd = 200; 
       const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
 
       userBalanceRef.transaction((currentBal) => {
@@ -425,10 +436,20 @@ function claimKey() {
           alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
           closeRedeemModal();
           document.getElementById("codeKeyInput").value = "";
+        } else {
+          alert("Error updating your balance. Please contact support.");
         }
       });
+
+    } else {
+      alert("Invalid or refunded Gumroad key!");
     }
-  });
+
+  } catch (err) {
+    console.error("Verification failed:", err);
+    alert("Error communicating with Gumroad. Check your connection or try again.");
+  }
+}
 }
 
 function buyDynamites(amount){
