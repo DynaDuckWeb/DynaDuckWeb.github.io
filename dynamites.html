@@ -361,6 +361,12 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const currentUser = localStorage.getItem("loggedInUser");
 
+const permalinkAmounts = {
+  "coczb": 200,
+  "mhhui": 800,
+  "ympqmm": 2000
+};
+
 function loadBalance(){
   if(!currentUser){
     document.getElementById("dynamiteBalance").innerText = "0";
@@ -421,14 +427,19 @@ async function claimKey() {
     });
 
     const data = await response.json();
+
     if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
+      // Determine credit amount from returned product permalink, default to 200 if unmatched
+      const productPermalink = data.purchase.product_permalink || "coczb";
+      const amountToAdd = permalinkAmounts[productPermalink] || 200;
+
       await usedKeyRef.set({
         claimed_by: currentUser,
         claimed_at: Date.now(),
-        email: data.purchase.email || "unknown"
+        email: data.purchase.email || "unknown",
+        amount: amountToAdd
       });
 
-      const amountToAdd = 200; 
       const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
 
       userBalanceRef.transaction((currentBal) => {
@@ -450,41 +461,6 @@ async function claimKey() {
   } catch (err) {
     console.error("Verification failed:", err);
     alert("Error communicating with verification server. Make sure the Falix server is running.");
-  }
-}
-
-    const data = await response.json();
-
-    if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
-      
-      await usedKeyRef.set({
-        claimed_by: currentUser,
-        claimed_at: Date.now(),
-        email: data.purchase.email || "unknown"
-      });
-
-      const amountToAdd = 200; 
-      const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
-
-      userBalanceRef.transaction((currentBal) => {
-        return (currentBal || 0) + amountToAdd;
-      }, (balErr, balCommitted) => {
-        if (balCommitted) {
-          alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
-          closeRedeemModal();
-          document.getElementById("codeKeyInput").value = "";
-        } else {
-          alert("Error updating your balance. Please contact support.");
-        }
-      });
-
-    } else {
-      alert("Invalid or refunded Gumroad key!");
-    }
-
-  } catch (err) {
-    console.error("Verification failed:", err);
-    alert("Error communicating with Gumroad. Check browser console for CORS/network details.");
   }
 }
 
