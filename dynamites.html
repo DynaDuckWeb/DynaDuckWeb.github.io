@@ -361,18 +361,6 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const currentUser = localStorage.getItem("loggedInUser");
 
-const permalinkAmounts = {
-  "coczb": 200,
-  "mhhui": 800,
-  "ympqmm": 2000
-};
-
-const productIdAmounts = {
-  "GuO0_hvkIn53H3slkf15Ew==": 200, 
-  "WPXxcgdlDlq-_zQ8D8g2sQ==": 800,      
-  "eD8Pfyp6CKZkvaqWkE04TQ==": 2000     
-};
-
 function loadBalance(){
   if(!currentUser){
     document.getElementById("dynamiteBalance").innerText = "0";
@@ -433,103 +421,34 @@ async function claimKey() {
 
     const data = await response.json();
 
-export default {
-  async fetch(request) {
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
+    if (data.valid) {
+      const purchase = data.raw.purchase;
+      const amountToAdd = data.amount || 200;
+
+      await usedKeyRef.set({
+        claimed_by: currentUser,
+        claimed_at: Date.now(),
+        email: purchase.email || "unknown",
+        amount: amountToAdd,
+        product_id: purchase.product_id || "unknown"
       });
-    }
 
-    if (request.method === "POST") {
-      try {
-        const body = await request.json();
-        const licenseKey = (body.license_key || "").trim();
-
-        if (!licenseKey) {
-          return new Response(JSON.stringify({ valid: false, reason: "No key provided." }), {
-            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-          });
-        }
-
-        // Updated product list checking both possible ID typos + permalinks
-        const products = [
-          { ids: ["Gu00_hvkIn53H3slkf15Ew==", "GuO0_hvkIn53H3slkf15Ew=="], permalink: "coczb", amount: 200 },
-          { ids: ["WPXxcgdlDlq-_zQ8D8g2sQ=="], permalink: "mhhui", amount: 800 },
-          { ids: ["eD8Pfyp6CKZkvaqWkE04TQ=="], permalink: "ympqmm", amount: 2000 }
-        ];
-
-        let successfulData = null;
-        let matchedAmount = 200;
-        let lastError = "Invalid license key or product mismatch.";
-
-        for (const prod of products) {
-          // Loop over product IDs for this tier
-          for (const pid of prod.ids) {
-            const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                product_id: pid,
-                license_key: licenseKey
-              })
-            });
-
-            const data = await res.json();
-            if (data.success) {
-              successfulData = data;
-              matchedAmount = prod.amount;
-              break;
-            } else if (data.message) {
-              lastError = data.message;
-            }
-          }
-
-          if (successfulData) break;
-        }
-
-        if (successfulData) {
-          const purchase = successfulData.purchase;
-          let isKeyValid = true;
-          let failureReason = "";
-
-          if (purchase.refunded) {
-            isKeyValid = false;
-            failureReason = "This key has been refunded.";
-          } else if (purchase.chargebacked) {
-            isKeyValid = false;
-            failureReason = "This purchase was chargebacked.";
-          }
-
-          return new Response(JSON.stringify({
-            valid: isKeyValid,
-            amount: matchedAmount,
-            reason: failureReason,
-            raw: successfulData
-          }), {
-            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-          });
+      const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
+      userBalanceRef.transaction((currentBal) => {
+        return (currentBal || 0) + amountToAdd;
+      }, (balErr, balCommitted) => {
+        if (balCommitted) {
+          alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
+          closeRedeemModal();
+          document.getElementById("codeKeyInput").value = "";
         } else {
-          return new Response(JSON.stringify({ valid: false, reason: lastError }), {
-            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-          });
+          alert("Error updating your balance. Please contact support.");
         }
+      });
 
-      } catch (err) {
-        return new Response(JSON.stringify({ valid: false, reason: err.message }), {
-          status: 500,
-          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-        });
-      }
+    } else {
+      alert("Redemption Failed: " + (data.reason || "Invalid code."));
     }
-
-    return new Response("Gumroad Verifier API is Live", { status: 200 });
-  }
-};
 
   } catch (err) {
     console.error("Verification error:", err);
