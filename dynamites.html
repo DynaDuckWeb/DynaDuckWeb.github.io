@@ -118,6 +118,9 @@ nav a:hover{
 }
 
 .balance-box {
+  display: flex;
+  align-items: center;
+  gap: 20px;
   text-align: right;
 }
 
@@ -207,30 +210,45 @@ nav a:hover{
   background:#0d8d2b;
 }
 
-#adminPayments {
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  margin-top: 50px;
-  border: 1px solid #ddd;
-}
-.payment-card {
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  background: #fafafa;
-  display: flex;
-  justify-content: space-between;
+/* Modal Styles matching current theme */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
-.payment-info p {
-  margin: 4px 0;
+
+.modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
 }
-.payment-actions {
-  display: flex;
-  gap: 10px;
+
+.modal-card h2 {
+  margin-top: 0;
+  font-size: 1.8em;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px;
+  margin: 18px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  box-sizing: border-box;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 </style>
 </head>
@@ -260,8 +278,11 @@ nav a:hover{
       <p>Buy those stuff so you can look goodie 💥</p>
     </div>
     <div class="balance-box">
-      <span>Your Balance</span>
-      <h2 id="dynamiteBalance">0</h2>
+      <button class="green-btn" onclick="openRedeemModal()">Redeem Code</button>
+      <div>
+        <span>Your Balance</span>
+        <h2 id="dynamiteBalance">0</h2>
+      </div>
     </div>
   </div>
 </div>
@@ -309,15 +330,16 @@ nav a:hover{
       </div>
     </div>
   </div>
-
-  <div id="adminPayments" style="display:none;">
-    <h2 style="margin-top:0;">Pending Payment Verification (Admin Only)</h2>
-    <p style="color:#666; font-size:0.9em; margin-bottom:20px;">Check your Revolut mobile application for matching names and notes before hitting Approve.</p>
-    <div id="paymentsContainer">
-      <p style="color:#999; font-size:0.95em;">No pending transfers to process.</p>
-    </div>
-  </div>
 </main>
+<div class="modal-overlay" id="redeemModal">
+  <div class="modal-card">
+    <h2>Redeem Key</h2>
+    <p style="color:#666; font-size:0.9em;">Enter the code you received on Buy Me a Coffee to claim your Dynamites.</p>
+    <input type="text" id="codeKeyInput" class="modal-input" placeholder="DYNA-XXXX-XXXX">
+    <button class="green-btn" style="width:100%; padding:12px;" onclick="claimKey()">Claim Dynamites</button>
+    <button class="green-btn" style="width:100%; padding:10px; margin-top:8px; background:#ccc; color:#333;" onclick="closeRedeemModal()">Cancel</button>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -353,6 +375,59 @@ function loadBalance(){
   });
 }
 
+function openRedeemModal() {
+  if (!currentUser) {
+    alert("Please log in first.");
+    return;
+  }
+  document.getElementById("redeemModal").style.display = "flex";
+}
+
+function closeRedeemModal() {
+  document.getElementById("redeemModal").style.display = "none";
+}
+
+function claimKey() {
+  const codeInput = document.getElementById("codeKeyInput").value.trim().toUpperCase();
+  if (!codeInput) {
+    alert("Please enter a code.");
+    return;
+  }
+
+  const codeRef = db.ref("claim_codes/" + codeInput);
+
+  codeRef.once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      alert("Invalid code. Please check your purchase confirmation.");
+      return;
+    }
+
+    const data = snapshot.val();
+    if (data.is_used) {
+      alert("This code has already been claimed!");
+      return;
+    }
+
+    const amountToAdd = data.amount || 0;
+    const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
+
+    userBalanceRef.once("value").then(balSnap => {
+      let currentBal = balSnap.val() || 0;
+      
+      userBalanceRef.set(currentBal + amountToAdd);
+      codeRef.update({
+        is_used: true,
+        claimed_by: currentUser,
+        claimed_at: Date.now()
+      });
+
+      alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
+      closeRedeemModal();
+      document.getElementById("codeKeyInput").value = "";
+    });
+  });
+}
+
 function buyDynamites(amount){
   if(!currentUser){
     alert("Please log in first.");
@@ -383,55 +458,6 @@ function buyDynamites(amount){
     }
     alert("Opening Revolut payment tab! Your balance will be credited as soon as the Admin approves your transfer confirmation.");
   });
-}
-
-function loadAdminPayments() {
-  if (currentUser !== "Admin") return;
-  document.getElementById("adminPayments").style.display = "block";
-  const container = document.getElementById("paymentsContainer");
-
-  db.ref("pending_payments").on("value", snap => {
-    container.innerHTML = "";
-    if(!snap.exists()){
-      container.innerHTML = "<p style='color:#999; font-size:0.95em;'>No pending transfers to process.</p>";
-      return;
-    }
-    snap.forEach(paySnap => {
-      const order = paySnap.val();
-      const orderId = paySnap.key;
-      const div = document.createElement("div");
-      div.className = "payment-card";
-      div.innerHTML = `
-        <div class="payment-info">
-          <p><b>User Account:</b> ${order.username}</p>
-          <p><b>Item Requested:</b> ${order.itemAmount} Dynamites</p>
-          <p><b>Expected Value:</b> ${order.priceCharged}</p>
-        </div>
-        <div class="payment-actions">
-          <button class="green-btn" onclick="approvePayment('${orderId}', '${order.username}', ${order.itemAmount})">Confirm & Add</button>
-          <button class="green-btn" style="background:#ccc; color:#333;" onclick="dismissPayment('${orderId}')">Deny</button>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  });
-}
-
-function approvePayment(orderId, targetUser, amountToAdd) {
-  const userRef = db.ref("users/" + targetUser + "/dynamites");
-  userRef.once("value").then(snapshot => {
-    let currentBalance = snapshot.val() || 0;
-    userRef.set(currentBalance + amountToAdd).then(() => {
-      db.ref("pending_payments/" + orderId).remove();
-      alert("Success! Credited " + amountToAdd + " Dynamites to " + targetUser);
-    });
-  });
-}
-
-function dismissPayment(orderId) {
-  if (confirm("Are you sure you want to delete this payment request order?")) {
-    db.ref("pending_payments/" + orderId).remove();
-  }
 }
 
 function updateHeader(){
@@ -474,9 +500,6 @@ function logout(){
 window.addEventListener("DOMContentLoaded", () => {
     updateHeader();
     loadBalance();
-    if (currentUser === "Admin") {
-      loadAdminPayments();
-    }
   }
 );
 </script>
