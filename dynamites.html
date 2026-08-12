@@ -456,37 +456,40 @@ export default {
           });
         }
 
-        // Direct mapping of Product IDs to Dynamite Amounts
+        // Updated product list checking both possible ID typos + permalinks
         const products = [
-          { id: "GuO0_hvkIn53H3slkf15Ew==", amount: 200 },
-          { id: "WPXxcgdlDlq-_zQ8D8g2sQ==", amount: 800 },
-          { id: "eD8Pfyp6CKZkvaqWkE04TQ==", amount: 2000 }
+          { ids: ["Gu00_hvkIn53H3slkf15Ew==", "GuO0_hvkIn53H3slkf15Ew=="], permalink: "coczb", amount: 200 },
+          { ids: ["WPXxcgdlDlq-_zQ8D8g2sQ=="], permalink: "mhhui", amount: 800 },
+          { ids: ["eD8Pfyp6CKZkvaqWkE04TQ=="], permalink: "ympqmm", amount: 2000 }
         ];
 
         let successfulData = null;
         let matchedAmount = 200;
         let lastError = "Invalid license key or product mismatch.";
 
-        // Loop through each Product ID
         for (const prod of products) {
-          const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              product_id: prod.id,
-              license_key: licenseKey
-            })
-          });
+          // Loop over product IDs for this tier
+          for (const pid of prod.ids) {
+            const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                product_id: pid,
+                license_key: licenseKey
+              })
+            });
 
-          const data = await res.json();
-
-          if (data.success) {
-            successfulData = data;
-            matchedAmount = prod.amount;
-            break;
-          } else if (data.message) {
-            lastError = data.message;
+            const data = await res.json();
+            if (data.success) {
+              successfulData = data;
+              matchedAmount = prod.amount;
+              break;
+            } else if (data.message) {
+              lastError = data.message;
+            }
           }
+
+          if (successfulData) break;
         }
 
         if (successfulData) {
