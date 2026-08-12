@@ -354,6 +354,7 @@ const firebaseConfig = {
   messagingSenderId: "777148453502",
   appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
 };
+
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
@@ -400,7 +401,9 @@ async function claimKey() {
     return;
   }
 
-  const usedKeyRef = db.ref("used_gumroad_keys/" + codeInput);
+  // Sanitize key path for Firebase realtime database (remove invalid characters like . # $ [ ])
+  const sanitizedKey = codeInput.replace(/[.#$\[\]]/g, "_");
+  const usedKeyRef = db.ref("used_gumroad_keys/" + sanitizedKey);
   
   try {
     const keySnap = await usedKeyRef.once("value");
@@ -408,11 +411,13 @@ async function claimKey() {
       alert("This code has already been claimed!");
       return;
     }
+
+    // Pass the actual product permalink slug from your Gumroad URL (coczb)
     const response = await fetch("https://api.gumroad.com/v2/licenses/verify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        product_permalink: "200dynamites", 
+        product_permalink: "coczb", 
         license_key: codeInput
       })
     });
@@ -426,6 +431,7 @@ async function claimKey() {
         claimed_at: Date.now(),
         email: data.purchase.email || "unknown"
       });
+
       const amountToAdd = 200; 
       const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
 
@@ -447,9 +453,8 @@ async function claimKey() {
 
   } catch (err) {
     console.error("Verification failed:", err);
-    alert("Error communicating with Gumroad. Check your connection or try again.");
+    alert("Error communicating with Gumroad. Check browser console for CORS/network details.");
   }
-}
 }
 
 function buyDynamites(amount){
