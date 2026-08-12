@@ -409,15 +409,14 @@ async function claimKey() {
 
   const sanitizedKey = codeInput.replace(/[.#$\[\]]/g, "_");
   const usedKeyRef = db.ref("used_gumroad_keys/" + sanitizedKey);
-  
+
   try {
     const keySnap = await usedKeyRef.once("value");
     if (keySnap.exists()) {
       alert("This code has already been claimed!");
       return;
     }
-
-    const response = await fetch("http://dynaduck.falixsrv.me:25959/verify-key", {
+    const response = await fetch("https://gumroad-verifier.YOUR-NAME.workers.dev", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -428,20 +427,18 @@ async function claimKey() {
 
     const data = await response.json();
 
-    if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
-      // Determine credit amount from returned product permalink, default to 200 if unmatched
-      const productPermalink = data.purchase.product_permalink || "coczb";
+    if (data.valid) {
+      const productPermalink = data.raw.purchase.product_permalink || "coczb";
       const amountToAdd = permalinkAmounts[productPermalink] || 200;
 
       await usedKeyRef.set({
         claimed_by: currentUser,
         claimed_at: Date.now(),
-        email: data.purchase.email || "unknown",
+        email: data.raw.purchase.email || "unknown",
         amount: amountToAdd
       });
 
       const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
-
       userBalanceRef.transaction((currentBal) => {
         return (currentBal || 0) + amountToAdd;
       }, (balErr, balCommitted) => {
@@ -452,15 +449,15 @@ async function claimKey() {
         } else {
           alert("Error updating your balance. Please contact support.");
         }
-      });
+      }); // the amount of times i edited this part is just crazy
 
     } else {
-      alert("Invalid or refunded Gumroad key!");
+      alert("Redemption Failed: " + (data.reason || "Invalid code."));
     }
 
   } catch (err) {
-    console.error("Verification failed:", err);
-    alert("Error communicating with verification server. Make sure the Falix server is running.");
+    console.error("Verification error:", err);
+    alert("Failed to verify key. Please try again.");
   }
 }
 
