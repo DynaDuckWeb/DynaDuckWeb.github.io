@@ -210,7 +210,7 @@ nav a:hover{
   background:#0d8d2b;
 }
 
-/* Modal Styles matching current theme */
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -289,7 +289,7 @@ nav a:hover{
   <div class="dynamites-grid">
     <div class="dynamite-card">
       <div class="dynamite-image">
-        <img src="dynamites_new_explosion.png">
+        <img src="dynamites_new_explosion.png" alt="200 Dynamites">
       </div>
       <div class="dynamite-content">
         <h2>200 Dynamites</h2>
@@ -303,7 +303,7 @@ nav a:hover{
     </div>
     <div class="dynamite-card">
       <div class="dynamite-image">
-        <img src="dynamites_new_explosion.png">
+        <img src="dynamites_new_explosion.png" alt="800 Dynamites">
       </div>
       <div class="dynamite-content">
         <h2>800 Dynamites</h2>
@@ -317,7 +317,7 @@ nav a:hover{
     </div>
     <div class="dynamite-card">
       <div class="dynamite-image">
-        <img src="dynamites_new_explosion.png">
+        <img src="dynamites_new_explosion.png" alt="2000 Dynamites">
       </div>
       <div class="dynamite-content">
         <h2>2000 Dynamites</h2>
@@ -331,11 +331,12 @@ nav a:hover{
     </div>
   </div>
 </main>
+
 <div class="modal-overlay" id="redeemModal">
   <div class="modal-card">
     <h2>Redeem Key</h2>
-    <p style="color:#666; font-size:0.9em;">Enter the code you received on Buy Me a Coffee to claim your Dynamites.</p>
-    <input type="text" id="codeKeyInput" class="modal-input" placeholder="DYNA-XXXX-XXXX">
+    <p style="color:#666; font-size:0.9em;">Enter the code you received on Gumroad to claim your Dynamites.</p>
+    <input type="text" id="codeKeyInput" class="modal-input" placeholder="DYNA-XXXX-XXXX-XXXX">
     <button class="green-btn" style="width:100%; padding:12px;" onclick="claimKey()">Claim Dynamites</button>
     <button class="green-btn" style="width:100%; padding:10px; margin-top:8px; background:#ccc; color:#333;" onclick="closeRedeemModal()">Cancel</button>
   </div>
@@ -396,35 +397,37 @@ function claimKey() {
 
   const codeRef = db.ref("claim_codes/" + codeInput);
 
-  codeRef.once("value").then(snapshot => {
-    if (!snapshot.exists()) {
-      alert("Invalid code. Please check your purchase confirmation.");
-      return;
+  codeRef.transaction((codeData) => {
+    if (codeData === null) {
+      return; 
     }
-
-    const data = snapshot.val();
-    if (data.is_used) {
-      alert("This code has already been claimed!");
-      return;
+    if (codeData.is_used) {
+      return; 
     }
+    
+    codeData.is_used = true;
+    codeData.claimed_by = currentUser;
+    codeData.claimed_at = Date.now();
+    return codeData;
+  }, (error, committed, snapshot) => {
+    if (error) {
+      alert("Error processing transaction. Please try again.");
+    } else if (!committed || !snapshot.exists()) {
+      alert("Invalid or already claimed code!");
+    } else {
+      const amountToAdd = snapshot.val().amount || 0;
+      const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
 
-    const amountToAdd = data.amount || 0;
-    const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
-
-    userBalanceRef.once("value").then(balSnap => {
-      let currentBal = balSnap.val() || 0;
-      
-      userBalanceRef.set(currentBal + amountToAdd);
-      codeRef.update({
-        is_used: true,
-        claimed_by: currentUser,
-        claimed_at: Date.now()
+      userBalanceRef.transaction((currentBal) => {
+        return (currentBal || 0) + amountToAdd;
+      }, (balErr, balCommitted) => {
+        if (balCommitted) {
+          alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
+          closeRedeemModal();
+          document.getElementById("codeKeyInput").value = "";
+        }
       });
-
-      alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
-      closeRedeemModal();
-      document.getElementById("codeKeyInput").value = "";
-    });
+    }
   });
 }
 
@@ -434,30 +437,19 @@ function buyDynamites(amount){
     return;
   }
 
-  let revolutUrl = "";
-  let priceText = "";
+  let gumroadUrl = "";
+  
   if (amount === 200) {
-    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=300";
-    priceText = "$0.66";
+    gumroadUrl = "https://yourusername.gumroad.com/l/200dynamites";
   } else if (amount === 800) {
-    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=500";
-    priceText = "$1.09";
+    gumroadUrl = "https://yourusername.gumroad.com/l/800dynamites";
   } else if (amount === 2000) {
-    revolutUrl = "https://revolut.me/ericvi_kn_3kmb?currency=RON&amount=1000";
-    priceText = "$2.19";
+    gumroadUrl = "https://yourusername.gumroad.com/l/2000dynamites";
   }
 
-  db.ref("pending_payments").push().set({
-    username: currentUser,
-    itemAmount: amount,
-    priceCharged: priceText,
-    timestamp: Date.now()
-  }).then(() => {
-    if (revolutUrl !== "") {
-      window.open(revolutUrl, '_blank');
-    }
-    alert("Opening Revolut payment tab! Your balance will be credited as soon as the Admin approves your transfer confirmation.");
-  });
+  if (gumroadUrl !== "") {
+    window.open(gumroadUrl, '_blank');
+  }
 }
 
 function updateHeader(){
