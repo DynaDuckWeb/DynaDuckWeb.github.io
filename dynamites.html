@@ -433,40 +433,100 @@ async function claimKey() {
 
     const data = await response.json();
 
-    if (data.valid) {
-      const purchase = data.raw.purchase;
-      
-      const returnedPermalink = purchase.product_permalink;
-      const returnedProductId = purchase.product_id;
-
-      const amountToAdd = productIdAmounts[returnedProductId] || 
-                          permalinkAmounts[returnedPermalink] || 
-                          200;
-
-      await usedKeyRef.set({
-        claimed_by: currentUser,
-        claimed_at: Date.now(),
-        email: purchase.email || "unknown",
-        amount: amountToAdd,
-        product_permalink: returnedPermalink || "unknown"
+export default {
+  async fetch(request) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
       });
-
-      const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
-      userBalanceRef.transaction((currentBal) => {
-        return (currentBal || 0) + amountToAdd;
-      }, (balErr, balCommitted) => {
-        if (balCommitted) {
-          alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
-          closeRedeemModal();
-          document.getElementById("codeKeyInput").value = "";
-        } else {
-          alert("Error updating your balance. Please contact support.");
-        }
-      });
-
-    } else {
-      alert("Redemption Failed: " + (data.reason || "Invalid code."));
     }
+
+    if (request.method === "POST") {
+      try {
+        const body = await request.json();
+        const licenseKey = (body.license_key || "").trim();
+
+        if (!licenseKey) {
+          return new Response(JSON.stringify({ valid: false, reason: "No key provided." }), {
+            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+          });
+        }
+
+        // Direct mapping of Product IDs to Dynamite Amounts
+        const products = [
+          { id: "GuO0_hvkIn53H3slkf15Ew==", amount: 200 },
+          { id: "WPXxcgdlDlq-_zQ8D8g2sQ==", amount: 800 },
+          { id: "eD8Pfyp6CKZkvaqWkE04TQ==", amount: 2000 }
+        ];
+
+        let successfulData = null;
+        let matchedAmount = 200;
+        let lastError = "Invalid license key or product mismatch.";
+
+        // Loop through each Product ID
+        for (const prod of products) {
+          const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              product_id: prod.id,
+              license_key: licenseKey
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            successfulData = data;
+            matchedAmount = prod.amount;
+            break;
+          } else if (data.message) {
+            lastError = data.message;
+          }
+        }
+
+        if (successfulData) {
+          const purchase = successfulData.purchase;
+          let isKeyValid = true;
+          let failureReason = "";
+
+          if (purchase.refunded) {
+            isKeyValid = false;
+            failureReason = "This key has been refunded.";
+          } else if (purchase.chargebacked) {
+            isKeyValid = false;
+            failureReason = "This purchase was chargebacked.";
+          }
+
+          return new Response(JSON.stringify({
+            valid: isKeyValid,
+            amount: matchedAmount,
+            reason: failureReason,
+            raw: successfulData
+          }), {
+            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+          });
+        } else {
+          return new Response(JSON.stringify({ valid: false, reason: lastError }), {
+            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+          });
+        }
+
+      } catch (err) {
+        return new Response(JSON.stringify({ valid: false, reason: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+        });
+      }
+    }
+
+    return new Response("Gumroad Verifier API is Live", { status: 200 });
+  }
+};
 
   } catch (err) {
     console.error("Verification error:", err);
