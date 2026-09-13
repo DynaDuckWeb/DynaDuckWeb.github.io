@@ -156,12 +156,15 @@ nav a:hover {
   transform: scale(1.1);
 }
 
+/* --- Avatar preview: classic old-school Roblox R6 style ---
+   Flat matte colors, thin black outlines, sharp rectangular blocks
+   for the torso/arms/legs, and a capsule-shaped head (not a circle). */
 .avatar-container {
   position: relative;
   width: 150px;
   height: 260px;
   margin: 0 auto;
-  background: #eeeeee;
+  background: transparent;
   box-sizing: border-box;
 }
 
@@ -170,8 +173,10 @@ nav a:hover {
   box-sizing: border-box;
   border: 2px solid #000;
   transition: background-color 0.2s;
+}
 
-  .av-head {
+/* Classic Roblox head: capsule/cylinder shape, squished flatter */
+.av-head {
   width: 62px;
   height: 58px;
   border-radius: 26px;
@@ -179,6 +184,8 @@ nav a:hover {
   left: 44px;
   z-index: 10;
 }
+
+/* Plain rectangular torso, no stripe or shading */
 .av-torso {
   width: 74px;
   height: 84px;
@@ -476,7 +483,6 @@ nav a:hover {
         "l-leg": "#ffcd3a",
         "r-leg": "#ffcd3a"
     };
-
     let catalogItems = {};
     let currentFilterSlot = null; 
 
@@ -528,7 +534,7 @@ nav a:hover {
         await loadCatalog();
         updateInventoryUI(finalUser.inventory || {}, finalUser.equipped || {});
     }
-
+d elsewhere (e.g. an admin/create tool)
     async function loadCatalog() {
         const catalogRef = db.ref("catalog");
         const snapshot = await catalogRef.once("value");
