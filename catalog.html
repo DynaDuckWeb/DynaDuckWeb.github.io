@@ -158,76 +158,61 @@ nav a:hover {
 
 .avatar-container {
   position: relative;
-  width: 140px;
-  height: 250px;
+  width: 150px;
+  height: 260px;
+  margin: 0 auto;
+  background: #eeeeee;
+  box-sizing: border-box;
 }
 
 .av-part {
   position: absolute;
-  border: 3px solid black;
   box-sizing: border-box;
+  border: 2px solid #000;
   transition: background-color 0.2s;
-}
 
-.av-head {
-  width: 60px;
-  height: 60px;
-  background: #ffcd3a;
-  border-radius: 50%;
-  top: 0;
-  left: 36px;
+  .av-head {
+  width: 62px;
+  height: 58px;
+  border-radius: 26px;
+  top: 1px;
+  left: 44px;
   z-index: 10;
 }
-
 .av-torso {
   width: 74px;
-  height: 80px;
-  background: #e3242b;
-  top: 57px;
-  left: 29px;
+  height: 84px;
+  top: 54px;
+  left: 38px;
   z-index: 5;
-  display: flex;
-  align-items: center;
-}
-
-.av-torso-stripe {
-  width: 100%;
-  height: 24px;
-  background: white;
-  border-top: 3px solid black;
-  border-bottom: 3px solid black;
 }
 
 .av-l-arm {
-  width: 32px;
-  height: 80px;
-  background: #ffcd3a;
-  top: 57px;
-  left: -3px;
+  width: 34px;
+  height: 84px;
+  top: 54px;
+  left: 4px;
 }
 
 .av-r-arm {
-  width: 32px;
-  height: 80px;
-  background: #ffcd3a;
-  top: 57px;
-  left: 103px;
+  width: 34px;
+  height: 84px;
+  top: 54px;
+  left: 112px;
 }
 
 .av-l-leg {
   width: 37px;
-  height: 80px;
-  background: #ffcd3a;
-  top: 134px;
-  left: 29px;
+  height: 76px;
+  top: 138px;
+  left: 38px;
 }
 
 .av-r-leg {
   width: 37px;
-  height: 80px;
-  background: #ffcd3a;
-  top: 134px;
-  left: 66px;
+  height: 76px;
+  top: 138px;
+  left: 75px;
 }
 
 .inventory-panel {
@@ -277,6 +262,12 @@ nav a:hover {
   gap: 25px;
 }
 
+.empty-msg {
+  color: #888;
+  font-size: 1.1em;
+  margin-top: 40px;
+}
+
 .item-card {
   width: 160px;
   display: flex;
@@ -303,35 +294,37 @@ nav a:hover {
 }
 
 .item-btn {
-  border: 4px solid black;
-  background: #28a745;
-  border-radius: 12px;
-  padding: 12px 5px;
+  border: none;
+  background: #11AD36;
+  border-radius: 10px;
+  padding: 10px 5px;
   cursor: pointer;
   text-align: center;
-  color: black;
+  color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   box-sizing: border-box;
+  transition: background 0.15s;
 }
 
 .item-btn:hover {
-  background: #218838;
+  background: #0E8E2C;
 }
 
 .btn-text-buy {
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1;
 }
 
 .btn-text-price {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   line-height: 1;
+  opacity: 0.9;
 }
 
 .right-section {
@@ -355,19 +348,26 @@ nav a:hover {
   display: block;
   width: 100%;
   background: white;
-  border: 4px solid #cccccc;
+  border: 3px solid #cccccc;
   border-radius: 12px;
   padding: 8px 10px;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 12px;
   cursor: pointer;
   color: black;
   box-sizing: border-box;
+  transition: 0.15s;
 }
 
 .cat-button:hover {
   border-color: #11AD36;
+}
+
+.cat-button.active {
+  border-color: #11AD36;
+  background: #eafaee;
+  color: #0E8E2C;
 }
   </style>
 </head>
@@ -420,9 +420,7 @@ nav a:hover {
           <div id="part-head" class="av-part av-head"></div>
           <div id="part-l-arm" class="av-part av-l-arm"></div>
           <div id="part-r-arm" class="av-part av-r-arm"></div>
-          <div id="part-torso" class="av-part av-torso">
-            <div class="av-torso-stripe"></div>
-          </div>
+          <div id="part-torso" class="av-part av-torso"></div>
           <div id="part-l-leg" class="av-part av-l-leg"></div>
           <div id="part-r-leg" class="av-part av-r-leg"></div>
         </div>
@@ -441,9 +439,9 @@ nav a:hover {
 
     <div class="right-section">
       <h2>Category</h2>
-      <button class="cat-button">Shirts</button>
-      <button class="cat-button">Pants</button>
-      <button class="cat-button">Hats</button>
+      <button class="cat-button" data-slot="torso" onclick="filterCategory('torso', this)">Shirts</button>
+      <button class="cat-button" data-slot="legs" onclick="filterCategory('legs', this)">Pants</button>
+      <button class="cat-button" data-slot="head" onclick="filterCategory('head', this)">Hats</button>
     </div>
 
   </div>
@@ -478,6 +476,10 @@ nav a:hover {
         "l-leg": "#ffcd3a",
         "r-leg": "#ffcd3a"
     };
+
+    let catalogItems = {};
+    let currentFilterSlot = null; 
+
     function updateHeader() {
         const authDiv = document.getElementById('authButtons');
         if (username) {
@@ -523,22 +525,38 @@ nav a:hover {
         const finalUser = (await userRef.once("value")).val() || {};
 
         loadColors(finalUser.colors || defaultColors);
-        loadCatalog();
+        await loadCatalog();
         updateInventoryUI(finalUser.inventory || {}, finalUser.equipped || {});
     }
 
-    function loadCatalog() {
+    async function loadCatalog() {
+        const catalogRef = db.ref("catalog");
+        const snapshot = await catalogRef.once("value");
+        catalogItems = snapshot.val() || {};
+        renderCatalog();
+    }
 
-        const items = [
-            { name: "DynaDuck Logo T-Shirt", price: 25, slot: "torso", color: "#0055ff" },
-            { name: "Admin Red Cap", price: 50, slot: "head", color: "#e3242b" },
-            { name: "Sheldesky's Crown", price: 100000, slot: "head", color: "#ffd700" }
-        ];
-
+    function renderCatalog() {
         const grid = document.querySelector(".center-section");
         grid.innerHTML = "";
 
-        items.forEach(item => {
+        const entries = Object.entries(catalogItems).filter(([id, item]) => {
+            if (!currentFilterSlot) return true;
+            if (currentFilterSlot === "legs") return item.slot === "l-leg" || item.slot === "r-leg";
+            return item.slot === currentFilterSlot;
+        });
+
+        if (entries.length === 0) {
+            const msg = document.createElement("div");
+            msg.className = "empty-msg";
+            msg.textContent = currentFilterSlot
+                ? "No items in this category yet."
+                : "The catalog is empty right now.";
+            grid.appendChild(msg);
+            return;
+        }
+
+        entries.forEach(([id, item]) => {
 
             const card = document.createElement("div");
             card.className = "item-card";
@@ -547,21 +565,31 @@ nav a:hover {
                 <div class="item-box">
                     <h4>${item.name.replace(/ /g, "<br>")}</h4>
                 </div>
-                <div class="item-btn">
+                <button class="item-btn">
                     <span class="btn-text-buy">Buy</span>
-                    <span class="btn-text-price">${item.price.toLocaleString()} Dynamites</span>
-                </div>
+                    <span class="btn-text-price">${Number(item.price || 0).toLocaleString()} Dynamites</span>
+                </button>
             `;
 
-            card.querySelector(".item-btn").onclick = () => buyItem(item);
+            card.querySelector(".item-btn").onclick = () => buyItem(id, item);
 
             grid.appendChild(card);
 
         });
-
     }
 
-    async function buyItem(item) {
+    function filterCategory(slot, btnEl) {
+        currentFilterSlot = (currentFilterSlot === slot) ? null : slot;
+
+        document.querySelectorAll(".cat-button").forEach(b => b.classList.remove("active"));
+        if (currentFilterSlot && btnEl) {
+            btnEl.classList.add("active");
+        }
+
+        renderCatalog();
+    }
+
+    async function buyItem(itemId, item) {
 
         const userRef = db.ref("users/" + username);
 
