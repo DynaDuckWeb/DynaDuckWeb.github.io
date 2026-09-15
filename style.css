@@ -73,6 +73,31 @@ nav a:hover {
   background: #0E8E2C;
 }
 
+.header-btn {
+  background: #11AD36;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  min-width: 90px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95em;
+  transition: background 0.15s ease;
+  box-sizing: border-box;
+}
+
+.header-btn:hover {
+  background: #0E8E2C;
+}
+
+#authButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .main-container {
   max-width: 900px;
   margin: 40px auto;
