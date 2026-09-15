@@ -27,7 +27,6 @@ nav a:hover { color:#11AD36; }
   transition:0.2s;
 }
 .green-btn:hover { background:#0E8E2C; }
-#authButtons { display:flex; gap:15px; align-items:center; }
 .main-container { max-width:900px; margin:40px auto; padding:0 20px; }
 .center-message { text-align:center; margin-top:100px; font-size:1.8em; font-weight:bold; color:#555; }
 .idea-input {
@@ -189,8 +188,8 @@ function updateHeader() {
   const authDiv = document.getElementById("authButtons");
   if (!user) {
     authDiv.innerHTML = `
-      <a href="login.html"><button class="green-btn">Log In</button></a>
-      <a href="signup.html"><button class="green-btn">Sign Up</button></a>
+      <a href="signup.html"><button class="header-btn">Sign Up</button></a>
+      <a href="login.html"><button class="header-btn">Log In</button></a>
     `;
     document.getElementById("notLoggedIn").style.display = "block";
     document.getElementById("ideasContent").style.display = "none";
@@ -198,8 +197,9 @@ function updateHeader() {
   }
 
   authDiv.innerHTML = `
-    <span style="color:white;font-weight:bold;margin-right:10px;">${user}</span>
-    <button class="green-btn" onclick="logout()">Logout</button>
+    <span style="color:white;font-weight:bold;">${user}</span>
+    <a href="settings.html"><button class="header-btn">Settings</button></a>
+    <button class="header-btn" onclick="logout()">Logout</button>
   `;
   document.getElementById("notLoggedIn").style.display = "none";
   document.getElementById("ideasContent").style.display = "block";
