@@ -86,11 +86,31 @@ nav a:hover {
   background: #0E8E2C; 
 }
 
-#authButtons { 
-  display: flex; 
-  gap: 15px; 
-  align-items: center; 
+#authButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+
+.header-btn {
+  background: #11AD36;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  min-width: 90px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95em;
+  transition: background 0.15s ease;
+  box-sizing: border-box;
+}
+
+.header-btn:hover {
+  background: #0E8E2C;
+}
+
 
 .main-container {
   display: flex;
@@ -457,7 +477,7 @@ nav a:hover {
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
       authDomain: "dynaduck-19dbb.firebaseapp.com",
-      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      databaseURL: "https:dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "dynaduck-19dbb",
       storageBucket: "dynaduck-19dbb.firebasestorage.app",
       messagingSenderId: "777148453502",
@@ -470,10 +490,6 @@ nav a:hover {
 
     const db = firebase.database();
     const username = localStorage.getItem('loggedInUser');
-
-    if (!username) {
-        window.location.href = 'login.html';
-    }
 
     const defaultColors = {
         head: "#ffcd3a",
@@ -490,7 +506,7 @@ nav a:hover {
         const authDiv = document.getElementById('authButtons');
         if (username) {
             authDiv.innerHTML = `
-                <span style="color:white;font-weight:bold;margin-right:5px;">Welcome, ${username}!</span>
+                <span style="color:white;font-weight:bold;">Welcome, ${username}!</span>
                 <a href="settings.html"><button class="header-btn">Settings</button></a>
                 <button class="header-btn" onclick="logout()">Logout</button>
             `;
