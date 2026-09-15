@@ -117,14 +117,14 @@
 
       if (loggedInUser) {
         authDiv.innerHTML = `
-          <span style="color:white;font-weight:bold;margin-right:15px;">Welcome, ${loggedInUser}!</span>
-          <a href="settings.html"><button class="green-btn">Settings</button></a>
-          <button class="green-btn" onclick="logout()">Logout</button>
+          <span style="color:white;font-weight:bold;">Welcome, ${loggedInUser}!</span>
+          <a href="settings.html"><button class="header-btn">Settings</button></a>
+          <button class="header-btn" onclick="logout()">Logout</button>
         `;
       } else {
         authDiv.innerHTML = `
-          <a href="signup.html"><button class="green-btn">Sign Up</button></a>
-          <a href="login.html"><button class="green-btn">Log In</button></a>
+          <a href="signup.html"><button class="header-btn">Sign Up</button></a>
+          <a href="login.html"><button class="header-btn">Log In</button></a>
         `;
       }
     }
