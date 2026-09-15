@@ -102,7 +102,7 @@
 </head>
 <body>
 
-<header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+<header>
   <div class="header-left">
     <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
     <nav>
@@ -168,7 +168,8 @@ if(!loggedInUser){
 function initSettings() {
   const authDiv = document.getElementById('authButtons');
   if(authDiv) {
-    authDiv.innerHTML = '<span style="color:#333; font-weight:bold; margin-right:12px;">Editing Profile: ' + loggedInUser + '</span>';
+    authDiv.innerHTML = '<span style="color:white; font-weight:bold;">Editing Profile: ' + loggedInUser + '</span>' +
+      '<button class="header-btn" onclick="localStorage.removeItem(\'loggedInUser\'); localStorage.removeItem(\'isAdmin\'); window.location.href=\'login.html\';">Logout</button>';
   }
 
   db.ref('users/' + loggedInUser).get().then(function(snapshot) {
