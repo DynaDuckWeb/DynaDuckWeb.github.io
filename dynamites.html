@@ -79,11 +79,6 @@ nav a:hover{
   background:#0d8d2b;
 }
 
-#authButtons{
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
 
 .dynamites-page { 
   max-width:1200px;
@@ -481,27 +476,27 @@ function updateHeader(){
   const authDiv = document.getElementById("authButtons");
   if(currentUser){
     authDiv.innerHTML = `
-      <span style="color:white; font-weight:bold; margin-right:10px;">
+      <span style="color:white; font-weight:bold;">
         Welcome, ${currentUser}!
       </span>
       <a href="settings.html">
-        <button class="green-btn" style="margin-right:10px;">
+        <button class="header-btn">
           Settings
         </button>
       </a>
-      <button class="green-btn" onclick="logout()">
+      <button class="header-btn" onclick="logout()">
         Logout
       </button>
     `;
   } else {
     authDiv.innerHTML = `
-      <a href="signup.html" style="margin-right:10px;">
-        <button class="green-btn">
+      <a href="signup.html">
+        <button class="header-btn">
           Sign Up
         </button>
       </a>
       <a href="login.html">
-        <button class="green-btn">
+        <button class="header-btn">
           Log In
         </button>
       </a>
