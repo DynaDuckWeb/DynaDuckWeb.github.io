@@ -55,13 +55,9 @@
       return;
     }
     entries.forEach(function (entry) {
-      var id = entry[0];
-      var item = entry[1] || {};
-      var card = document.createElement('div');
+      var id = entry[0], item = entry[1] || {}, card = document.createElement('div');
       card.className = 'item-card';
-      card.innerHTML = '<div class="item-box"><h4>' + escapeHtml(item.name || id).replace(/ /g, '<br>') +
-        '</h4></div><button class="item-btn"><span class="btn-text-buy">Buy</span>' +
-        '<span class="btn-text-price">' + Number(item.price || 0).toLocaleString() + ' Dynamites</span></button>';
+      card.innerHTML = '<div class="item-box"><h4>' + escapeHtml(item.name || id).replace(/ /g, '<br>') + '</h4></div><button class="item-btn"><span class="btn-text-buy">Buy</span><span class="btn-text-price">' + Number(item.price || 0).toLocaleString() + ' Dynamites</span></button>';
       card.querySelector('.item-btn').onclick = function () { buy(id, item); };
       grid.appendChild(card);
     });
@@ -70,16 +66,13 @@
   function loadProfile() {
     if (!username) return Promise.resolve({});
     return db.ref('users/' + username).once('value').then(function (snap) {
-      var user = snap.val() || {};
-      var updates = {};
+      var user = snap.val() || {}, updates = {};
       if (user.Dynamites === undefined) updates.Dynamites = 1000;
       if (!user.inventory) updates.inventory = {'Starter Pack': true};
       if (!user.colors) updates.colors = defaults;
       if (!user.equipped) updates.equipped = {};
       if (!Object.keys(updates).length) return user;
-      return db.ref('users/' + username).update(updates).then(function () {
-        return Object.assign({}, user, updates);
-      });
+      return db.ref('users/' + username).update(updates).then(function () { return Object.assign({}, user, updates); });
     });
   }
 
@@ -87,98 +80,37 @@
     var grid = document.querySelector('.inventory-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    var inventory = user.inventory || {};
-    var equipped = user.equipped || {};
-    var names = Object.keys(inventory).filter(function (name) { return name !== 'Starter Pack'; });
-    if (!names.length) {
-      var empty = document.createElement('div');
-      empty.className = 'inventory-item';
-      empty.textContent = 'Empty';
-      grid.appendChild(empty);
-      return;
-    }
+    var inventory = user.inventory || {}, equipped = user.equipped || {}, names = Object.keys(inventory).filter(function (name) { return name !== 'Starter Pack'; });
+    if (!names.length) { var empty = document.createElement('div'); empty.className = 'inventory-item'; empty.textContent = 'Empty'; grid.appendChild(empty); return; }
     names.forEach(function (name) {
-      var data = inventory[name] || {};
-      var div = document.createElement('div');
-      div.className = 'inventory-item';
-      div.textContent = name;
-      if (data.slot && equipped[data.slot] === name) {
-        div.style.background = '#d4f8d4';
-        div.style.borderColor = '#11AD36';
-      }
+      var data = inventory[name] || {}, div = document.createElement('div');
+      div.className = 'inventory-item'; div.textContent = name;
+      if (data.slot && equipped[data.slot] === name) { div.style.background = '#d4f8d4'; div.style.borderColor = '#11AD36'; }
       div.onclick = function () { toggleEquip(name, data, equipped[data.slot] === name); };
       grid.appendChild(div);
     });
   }
 
-  function loadColors(colors) {
-    Object.keys(colors || {}).forEach(function (part) {
-      var el = document.getElementById('part-' + part);
-      if (el) el.style.backgroundColor = colors[part];
-    });
-  }
-
+  function loadColors(colors) { Object.keys(colors || {}).forEach(function (part) { var el = document.getElementById('part-' + part); if (el) el.style.backgroundColor = colors[part]; }); }
   function buy(id, item) {
-    if (!username) {
-      alert('Please log in first.');
-      return;
-    }
+    if (!username) { alert('Please log in first.'); return; }
     db.ref('users/' + username).once('value').then(function (snap) {
-      var user = snap.val() || {};
-      var balance = Number(user.Dynamites || 0);
-      var price = Number(item.price || 0);
-      if ((user.inventory || {})[item.name]) {
-        alert('You already own this item.');
-        return;
-      }
-      if (balance < price) {
-        alert('Not enough Dynamites!');
-        return;
-      }
-      var updates = {};
-      updates['users/' + username + '/Dynamites'] = balance - price;
-      updates['users/' + username + '/inventory/' + item.name] = {slot: item.slot, color: item.color};
-      return db.ref().update(updates).then(function () {
-        alert('Purchased ' + item.name + '!');
-        return loadProfile();
-      }).then(loadInventory);
+      var user = snap.val() || {}, balance = Number(user.Dynamites || 0), price = Number(item.price || 0);
+      if ((user.inventory || {})[item.name]) return alert('You already own this item.');
+      if (balance < price) return alert('Not enough Dynamites!');
+      var updates = {}; updates['users/' + username + '/Dynamites'] = balance - price; updates['users/' + username + '/inventory/' + item.name] = {slot:item.slot, color:item.color};
+      return db.ref().update(updates).then(function () { alert('Purchased ' + item.name + '!'); return loadProfile(); }).then(loadInventory);
     });
   }
 
   function toggleEquip(name, data, equipped) {
     if (!username || !data.slot) return;
-    var updates = {};
-    updates['users/' + username + '/equipped/' + data.slot] = equipped ? null : name;
-    updates['users/' + username + '/colors/' + data.slot] = equipped ? defaults[data.slot] : data.color;
-    db.ref().update(updates).then(function () {
-      return loadProfile();
-    }).then(function (user) {
-      loadColors(user.colors || defaults);
-      loadInventory(user);
-    });
+    var updates = {}; updates['users/' + username + '/equipped/' + data.slot] = equipped ? null : name; updates['users/' + username + '/colors/' + data.slot] = equipped ? defaults[data.slot] : data.color;
+    db.ref().update(updates).then(function () { return loadProfile(); }).then(function (user) { loadColors(user.colors || defaults); loadInventory(user); });
   }
 
-  window.filterCategory = function (slot, button) {
-    filter = filter === slot ? null : slot;
-    document.querySelectorAll('.cat-button').forEach(function (element) {
-      element.classList.remove('active');
-    });
-    if (filter && button) button.classList.add('active');
-    render();
-  };
+  window.filterCategory = function (slot, button) { filter = filter === slot ? null : slot; document.querySelectorAll('.cat-button').forEach(function (element) { element.classList.remove('active'); }); if (filter && button) button.classList.add('active'); render(); };
 
   header();
-  loadProfile()
-    .then(function (user) {
-      loadColors(user.colors || defaults);
-      loadInventory(user);
-      return db.ref('catalog').once('value');
-    })
-    .then(function (snap) {
-      items = snap.val() || {};
-      render();
-    })
-    .catch(function (error) {
-      console.error('Catalog initialization failed:', error);
-    });
+  loadProfile().then(function (user) { loadColors(user.colors || defaults); loadInventory(user); return db.ref('catalog').once('value'); }).then(function (snap) { items = snap.val() || {}; render(); }).catch(function (error) { console.error('Catalog initialization failed:', error); });
 }());
