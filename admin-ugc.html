@@ -1,4 +1,99 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>UGC Review - DynaDuck</title><link rel="stylesheet" href="style.css"><style>body{margin:0;font-family:Arial,sans-serif;background:#efefef}.admin-wrap{max-width:1100px;margin:40px auto;padding:0 20px}.admin-panel{background:#fff;border-radius:12px;padding:24px;box-shadow:0 4px 18px #0001}.ugc-card{border:1px solid #d7d7d7;border-radius:12px;padding:16px;background:#fafafa;margin-bottom:18px}.ugc-row{display:grid;grid-template-columns:220px 1fr;gap:18px}.ugc-image{width:100%;max-height:240px;object-fit:contain;background:#fff;border:1px solid #ccc;border-radius:8px}.ugc-meta{color:#555;font-size:.9em}.ugc-actions{display:flex;gap:12px;margin-top:16px}.approve-btn,.reject-btn{color:#fff;border:0;padding:10px 16px;border-radius:8px;font-weight:bold;cursor:pointer}.approve-btn{background:#11AD36}.reject-btn{background:#d33}@media(max-width:700px){.ugc-row{grid-template-columns:1fr}}</style></head>
-<body><header><div class="header-left"><a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a><nav><a href="catalog.html">Catalog</a><a href="ideas.html">Ideas</a><a href="create.html">Create</a><a href="dynamites.html">Dynamites</a></nav></div><div class="search-container"><input class="search-bar" type="text" placeholder="Search..."></div><div id="authButtons"></div></header><main class="admin-wrap"><section class="admin-panel"><h1>UGC Review Queue</h1><div id="ugcList"></div></section></main>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><script src="search.js"></script><script>var c={apiKey:'AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ',authDomain:'dynaduck-19dbb.firebaseapp.com',databaseURL:'https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app',projectId:'dynaduck-19dbb',storageBucket:'dynaduck-19dbb.firebasestorage.app',messagingSenderId:'777148453502',appId:'1:777148453502:web:2f67ac439ec29dc4fc3e2f'};if(!firebase.apps.length)firebase.initializeApp(c);var db=firebase.database(),currentUser=localStorage.getItem('loggedInUser');function esc(v){var d=document.createElement('div');d.textContent=String(v==null?'':v);return d.innerHTML;}if(currentUser!=='Admin'){location.replace('index.html');}function header(){var a=document.getElementById('authButtons');a.innerHTML='<span style="color:white;font-weight:bold">Welcome, Admin!</span><a class="header-btn" href="catalog.html">Catalog</a><button class="header-btn" id="out">Logout</button>';document.getElementById('out').onclick=function(){localStorage.removeItem('loggedInUser');localStorage.removeItem('isAdmin');location.href='login.html';};}function render(){var list=document.getElementById('ugcList');db.ref('ugcSubmissions').orderByChild('createdAt').once('value').then(function(s){var rows=[];s.forEach(function(ch){var x=ch.val()||{};if(x.status==='pending')rows.push({id:ch.key,x:x});});rows.reverse();if(!rows.length){list.innerHTML='<p>No UGC pending review.</p>';return;}list.innerHTML=rows.map(function(r){var x=r.x;return '<article class="ugc-card"><div class="ugc-row"><img class="ugc-image" src="'+esc(x.image||'')+'" alt="UGC preview"><div><h3>'+esc(x.name||'Untitled T-shirt')+'</h3><div class="ugc-meta">By '+esc(x.creator||'Unknown')+' · Price: '+Math.max(0,Math.min(100,Number(x.price||0)))+' Dynamites</div><p>'+esc(x.description||'')+'</p><div class="ugc-actions"><button class="approve-btn" data-id="'+esc(r.id)+'">Approve</button><button class="reject-btn" data-id="'+esc(r.id)+'">Reject</button></div></div></div></article>';}).join('');document.querySelectorAll('.approve-btn').forEach(function(b){b.onclick=function(){approve(b.dataset.id);};});document.querySelectorAll('.reject-btn').forEach(function(b){b.onclick=function(){reject(b.dataset.id);};});});}function approve(id){var ref=db.ref('ugcSubmissions/'+id);ref.once('value').then(function(s){var x=s.val()||{},price=Math.max(0,Math.min(100,Number(x.price||0)));return db.ref('catalog/'+id).set({name:x.name||'T-shirt',description:x.description||'',creator:x.creator||'',slot:'torso',type:'tshirt',price:price,image:x.image||'',status:'approved',approvedBy:'Admin',approvedAt:Date.now()}).then(function(){return ref.update({status:'approved',reviewedBy:'Admin',reviewedAt:Date.now()});});}).then(render).catch(function(e){alert('Approval failed: '+e.message);});}function reject(id){db.ref('ugcSubmissions/'+id).update({status:'rejected',reviewedBy:'Admin',reviewedAt:Date.now()}).then(render).catch(function(e){alert('Rejection failed: '+e.message);});}window.addEventListener('DOMContentLoaded',function(){header();render();});</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create UGC</title>
+</head>
+<body>
+  <h1>Submit T-Shirt</h1>
+
+  <input id="name" placeholder="T-shirt name" /><br><br>
+  <textarea id="desc" placeholder="Description"></textarea><br><br>
+  <input id="price" type="number" min="0" max="100" value="0" /><br><br>
+  <input id="file" type="file" accept="image/png" /><br><br>
+
+  <button id="submitBtn">Submit for Review</button>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
+      authDomain: "dynaduck-19dbb.firebaseapp.com",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dynaduck-19dbb",
+      storageBucket: "dynaduck-19dbb.firebasestorage.app",
+      messagingSenderId: "777148453502",
+      appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", async function () {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Please log in first.");
+        return;
+      }
+
+      const name = document.getElementById("name").value.trim();
+      const desc = document.getElementById("desc").value.trim();
+      const price = Number(document.getElementById("price").value);
+      const file = document.getElementById("file").files[0];
+
+      if (!name || !desc || !file) {
+        alert("Fill in all fields and pick a PNG.");
+        return;
+      }
+
+      if (!Number.isInteger(price) || price < 0 || price > 100) {
+        alert("Price must be a whole number from 0 to 100.");
+        return;
+      }
+
+      if (file.type !== "image/png") {
+        alert("Only PNG files are allowed.");
+        return;
+      }
+
+      try {
+        const imageData = await readFileAsDataURL(file);
+
+        await db.ref("ugcSubmissions").push({
+          name: name,
+          description: desc,
+          slot: "torso",
+          type: "tshirt",
+          price: price,
+          creator: user.email || "Unknown user",
+          creatorUid: user.uid,
+          image: imageData,
+          status: "pending",
+          createdAt: Date.now()
+        });
+
+        alert("Submitted for review!");
+        document.getElementById("name").value = "";
+        document.getElementById("desc").value = "";
+        document.getElementById("price").value = "0";
+        document.getElementById("file").value = "";
+      } catch (err) {
+        console.error(err);
+        alert("Submission failed: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
