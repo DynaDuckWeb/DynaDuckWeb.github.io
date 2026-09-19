@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="585" height="559" viewBox="0 0 585 559">
+<rect width="585" height="559" fill="#f4f4f4"/>
+<path d="M0 0H585V559H0Z" fill="none" stroke="#999" stroke-width="4"/>
+<path d="M0 0H585V559H0Z" fill="none" stroke="#11AD36" stroke-width="2" stroke-dasharray="10 8"/>
+<text x="292" y="275" text-anchor="middle" font-family="Arial" font-size="28" fill="#555">SHIRT TEMPLATE</text>
+<text x="292" y="315" text-anchor="middle" font-family="Arial" font-size="18" fill="#777">Design inside the green border</text>
+<text x="292" y="345" text-anchor="middle" font-family="Arial" font-size="16" fill="#777">585 × 559 PNG canvas</text>
+</svg>

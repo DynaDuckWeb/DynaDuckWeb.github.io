@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create UGC - DynaDuck</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .ugc-page { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .ugc-panel { background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+    .ugc-panel h1 { margin-top: 0; }
+    .ugc-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .ugc-field label { font-weight: bold; }
+    .ugc-field input, .ugc-field select, .ugc-field textarea { box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font: inherit; }
+    .ugc-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    .template-box { background: #f4f4f4; border: 1px solid #ccc; border-radius: 8px; padding: 15px; text-align: center; }
+    .template-box img { max-width: 100%; height: 250px; object-fit: contain; background: white; }
+    .notice { background: #fff8df; border: 1px solid #e5c85c; border-radius: 8px; padding: 12px; color: #5c4a00; margin-bottom: 20px; }
+    @media (max-width: 700px) { .ugc-preview { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-left"><a href="index.html"><img src="logo.png" class="logo" alt="DynaDuck"></a><nav><a href="catalog.html">Catalog</a><a href="ideas.html">Ideas</a><a href="create.html">Create</a><a href="dynamites.html">Dynamites</a></nav></div>
+  <div class="search-container"><input class="search-bar" type="search" placeholder="Search places, creators..."></div>
+  <div id="authButtons"></div>
+</header>
+<main class="ugc-page">
+  <section class="ugc-panel">
+    <h1>Create UGC Clothing</h1>
+    <div class="notice">Submissions are reviewed before they can appear in the public catalog. Keep designs appropriate for all ages.</div>
+    <div class="ugc-field"><label for="ugcName">Item name</label><input id="ugcName" maxlength="40" placeholder="Blue Hoodie"></div>
+    <div class="ugc-field"><label for="ugcSlot">Clothing type</label><select id="ugcSlot"><option value="torso">Shirt</option><option value="legs">Pants</option><option value="head">Hat</option></select></div>
+    <div class="ugc-field"><label for="ugcDescription">Description</label><textarea id="ugcDescription" maxlength="300" rows="3" placeholder="Describe the clothing item"></textarea></div>
+    <div class="ugc-preview">
+      <div class="template-box"><h3>Shirt Template</h3><img src="shirt-template.svg" alt="Shirt template"><a class="green-btn" href="shirt-template.svg" download>Download Template</a></div>
+      <div><div class="ugc-field"><label for="ugcImage">Finished clothing image</label><input id="ugcImage" type="file" accept="image/png,image/jpeg,image/webp"></div><div id="ugcStatus" class="scan-status"></div><button id="submitUgc" class="green-btn" type="button">Submit for Review</button></div>
+    </div>
+  </section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="search.js"></script>
+<script>
+var config={apiKey:'AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ',authDomain:'dynaduck-19dbb.firebaseapp.com',databaseURL:'https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app',projectId:'dynaduck-19dbb',storageBucket:'dynaduck-19dbb.firebasestorage.app',messagingSenderId:'777148453502',appId:'1:777148453502:web:2f67ac439ec29dc4fc3e2f'};
+if(!firebase.apps.length) firebase.initializeApp(config); var db=firebase.database(); var user=localStorage.getItem('loggedInUser');
+function esc(v){var d=document.createElement('div');d.textContent=String(v||'');return d.innerHTML;}
+function updateHeader(){var el=document.getElementById('authButtons');if(!user){el.innerHTML='<a href="signup.html"><button class="header-btn">Sign Up</button></a><a href="login.html"><button class="header-btn">Log In</button></a>';return;}el.innerHTML='<span style="color:white;font-weight:bold;">Welcome, '+esc(user)+'!</span><a href="settings.html"><button class="header-btn">Settings</button></a><button class="header-btn" onclick="localStorage.removeItem(\'loggedInUser\');location.reload();">Logout</button>';}
+function readFile(file){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=reject;reader.readAsDataURL(file);});}
+document.getElementById('submitUgc').onclick=async function(){if(!user){alert('Please log in first.');return;}var name=document.getElementById('ugcName').value.trim(),description=document.getElementById('ugcDescription').value.trim(),file=document.getElementById('ugcImage').files[0],status=document.getElementById('ugcStatus');if(!name||!description||!file){alert('Please complete every field and choose an image.');return;}if(file.size>2*1024*1024){alert('The image must be smaller than 2 MB.');return;}status.textContent='Submitting for review...';try{var image=await readFile(file);await db.ref('ugcSubmissions').push({name:name,description:description,slot:document.getElementById('ugcSlot').value,creator:user,image:image,status:'pending',createdAt:Date.now()});status.textContent='Submitted for review.';alert('Your UGC was submitted for review.');}catch(e){status.textContent='Submission failed.';alert('Could not submit UGC: '+e.message);}};
+window.addEventListener('DOMContentLoaded',updateHeader);
+</script>
+</body>
+</html>
