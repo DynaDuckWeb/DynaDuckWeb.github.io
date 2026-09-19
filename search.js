@@ -1,4 +1,3 @@
-/* Shared search behavior for every page. Results are rendered by search.html. */
 (function () {
   function goToSearch(input) {
     var query = (input.value || '').trim();
