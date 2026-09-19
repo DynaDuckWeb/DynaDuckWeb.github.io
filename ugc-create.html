@@ -3,20 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create UGC - DynaDuck</title>
+  <title>Create T-Shirt - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .ugc-page { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-    .ugc-panel { background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-    .ugc-panel h1 { margin-top: 0; }
-    .ugc-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-    .ugc-field label { font-weight: bold; }
-    .ugc-field input, .ugc-field select, .ugc-field textarea { box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font: inherit; }
-    .ugc-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-    .template-box { background: #f4f4f4; border: 1px solid #ccc; border-radius: 8px; padding: 15px; text-align: center; }
-    .template-box img { max-width: 100%; height: 250px; object-fit: contain; background: white; }
-    .notice { background: #fff8df; border: 1px solid #e5c85c; border-radius: 8px; padding: 12px; color: #5c4a00; margin-bottom: 20px; }
-    @media (max-width: 700px) { .ugc-preview { grid-template-columns: 1fr; } }
+    .ugc-page{max-width:900px;margin:40px auto;padding:0 20px}.ugc-panel{background:#fff;border-radius:12px;padding:25px;box-shadow:0 4px 20px rgba(0,0,0,.1)}.ugc-panel h1{margin-top:0}.ugc-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}.ugc-field label{font-weight:bold}.ugc-field input,.ugc-field textarea{box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:8px;font:inherit}.ugc-preview{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}.template-box{background:#f4f4f4;border:1px solid #ccc;border-radius:8px;padding:15px;text-align:center}.template-box canvas{display:block;width:100%;height:auto;background:#fff;border:1px solid #aaa}.template-box .green-btn{margin-top:12px}.notice{background:#fff8df;border:1px solid #e5c85c;border-radius:8px;padding:12px;color:#5c4a00;margin-bottom:20px}.scan-status{font-size:12px;font-weight:bold;margin-top:6px;color:#555}@media(max-width:700px){.ugc-preview{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -25,30 +15,29 @@
   <div class="search-container"><input class="search-bar" type="search" placeholder="Search places, creators..."></div>
   <div id="authButtons"></div>
 </header>
-<main class="ugc-page">
-  <section class="ugc-panel">
-    <h1>Create UGC Clothing</h1>
-    <div class="notice">Submissions are reviewed before they can appear in the public catalog. Keep designs appropriate for all ages.</div>
-    <div class="ugc-field"><label for="ugcName">Item name</label><input id="ugcName" maxlength="40" placeholder="Blue Hoodie"></div>
-    <div class="ugc-field"><label for="ugcSlot">Clothing type</label><select id="ugcSlot"><option value="torso">Shirt</option><option value="legs">Pants</option><option value="head">Hat</option></select></div>
-    <div class="ugc-field"><label for="ugcDescription">Description</label><textarea id="ugcDescription" maxlength="300" rows="3" placeholder="Describe the clothing item"></textarea></div>
-    <div class="ugc-preview">
-      <div class="template-box"><h3>Shirt Template</h3><img src="shirt-template.svg" alt="Shirt template"><a class="green-btn" href="shirt-template.svg" download>Download Template</a></div>
-      <div><div class="ugc-field"><label for="ugcImage">Finished clothing image</label><input id="ugcImage" type="file" accept="image/png,image/jpeg,image/webp"></div><div id="ugcStatus" class="scan-status"></div><button id="submitUgc" class="green-btn" type="button">Submit for Review</button></div>
-    </div>
-  </section>
-</main>
+<main class="ugc-page"><section class="ugc-panel">
+  <h1>Create T-Shirt</h1>
+  <div class="notice">Download the PNG template, design the torso area, then upload your finished PNG. Submissions are reviewed before appearing in the catalog.</div>
+  <div class="ugc-field"><label for="ugcName">T-shirt name</label><input id="ugcName" maxlength="40" placeholder="Blue T-shirt"></div>
+  <div class="ugc-field"><label for="ugcDescription">Description</label><textarea id="ugcDescription" maxlength="300" rows="3" placeholder="Describe the T-shirt"></textarea></div>
+  <div class="ugc-preview">
+    <div class="template-box"><h3>T-shirt PNG template</h3><canvas id="templateCanvas" width="585" height="559"></canvas><button id="downloadTemplate" class="green-btn" type="button">Download PNG Template</button></div>
+    <div><div class="ugc-field"><label for="ugcImage">Finished T-shirt PNG</label><input id="ugcImage" type="file" accept="image/png"></div><div id="ugcStatus" class="scan-status"></div><button id="submitUgc" class="green-btn" type="button">Submit for Review</button></div>
+  </div>
+</section></main>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="search.js"></script>
 <script>
 var config={apiKey:'AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ',authDomain:'dynaduck-19dbb.firebaseapp.com',databaseURL:'https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app',projectId:'dynaduck-19dbb',storageBucket:'dynaduck-19dbb.firebasestorage.app',messagingSenderId:'777148453502',appId:'1:777148453502:web:2f67ac439ec29dc4fc3e2f'};
-if(!firebase.apps.length) firebase.initializeApp(config); var db=firebase.database(); var user=localStorage.getItem('loggedInUser');
+if(!firebase.apps.length)firebase.initializeApp(config);var db=firebase.database(),user=localStorage.getItem('loggedInUser');
 function esc(v){var d=document.createElement('div');d.textContent=String(v||'');return d.innerHTML;}
-function updateHeader(){var el=document.getElementById('authButtons');if(!user){el.innerHTML='<a href="signup.html"><button class="header-btn">Sign Up</button></a><a href="login.html"><button class="header-btn">Log In</button></a>';return;}el.innerHTML='<span style="color:white;font-weight:bold;">Welcome, '+esc(user)+'!</span><a href="settings.html"><button class="header-btn">Settings</button></a><button class="header-btn" onclick="localStorage.removeItem(\'loggedInUser\');location.reload();">Logout</button>';}
-function readFile(file){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=reject;reader.readAsDataURL(file);});}
-document.getElementById('submitUgc').onclick=async function(){if(!user){alert('Please log in first.');return;}var name=document.getElementById('ugcName').value.trim(),description=document.getElementById('ugcDescription').value.trim(),file=document.getElementById('ugcImage').files[0],status=document.getElementById('ugcStatus');if(!name||!description||!file){alert('Please complete every field and choose an image.');return;}if(file.size>2*1024*1024){alert('The image must be smaller than 2 MB.');return;}status.textContent='Submitting for review...';try{var image=await readFile(file);await db.ref('ugcSubmissions').push({name:name,description:description,slot:document.getElementById('ugcSlot').value,creator:user,image:image,status:'pending',createdAt:Date.now()});status.textContent='Submitted for review.';alert('Your UGC was submitted for review.');}catch(e){status.textContent='Submission failed.';alert('Could not submit UGC: '+e.message);}};
-window.addEventListener('DOMContentLoaded',updateHeader);
+function updateHeader(){var el=document.getElementById('authButtons');if(!user){el.innerHTML='<a href="signup.html"><button class="header-btn">Sign Up</button></a><a href="login.html"><button class="header-btn">Log In</button></a>';return;}el.innerHTML='<span style="color:white;font-weight:bold;">Welcome, '+esc(user)+'!</span><a href="settings.html"><button class="header-btn">Settings</button></a><button class="header-btn" onclick="localStorage.removeItem(\'loggedInUser\');location.href=\'login.html\';">Logout</button>';}
+function drawTemplate(){var c=document.getElementById('templateCanvas'),x=c.getContext('2d'),w=c.width,h=c.height;x.fillStyle='#fff';x.fillRect(0,0,w,h);x.strokeStyle='#11AD36';x.lineWidth=3;x.setLineDash([10,8]);x.strokeRect(12,12,w-24,h-24);x.setLineDash([]);x.fillStyle='#555';x.font='bold 24px Arial';x.textAlign='center';x.fillText('TORSO / FRONT',145,280);x.fillText('TORSO / BACK',440,280);x.font='16px Arial';x.fillText('LEFT ARM',145,55);x.fillText('RIGHT ARM',440,55);x.strokeStyle='#aaa';x.lineWidth=1;x.beginPath();x.moveTo(292,12);x.lineTo(292,h-12);x.moveTo(12,80);x.lineTo(w-12,80);x.stroke();x.fillStyle='#777';x.font='14px Arial';x.fillText('585 × 559 PNG — design inside the green border',292,535);}
+function readFile(file){return new Promise(function(resolve,reject){var r=new FileReader();r.onload=function(){resolve(r.result)};r.onerror=reject;r.readAsDataURL(file);});}
+document.getElementById('downloadTemplate').onclick=function(){var a=document.createElement('a');a.download='dynaduck-tshirt-template.png';a.href=document.getElementById('templateCanvas').toDataURL('image/png');a.click();};
+document.getElementById('submitUgc').onclick=async function(){if(!user){alert('Please log in first.');return;}var name=document.getElementById('ugcName').value.trim(),description=document.getElementById('ugcDescription').value.trim(),file=document.getElementById('ugcImage').files[0],status=document.getElementById('ugcStatus');if(!name||!description||!file){alert('Complete every field and choose a PNG.');return;}if(file.type!=='image/png'){alert('T-shirts must be PNG files.');return;}if(file.size>2*1024*1024){alert('The PNG must be smaller than 2 MB.');return;}status.textContent='Submitting for review...';try{await db.ref('ugcSubmissions').push({name:name,description:description,slot:'torso',type:'tshirt',creator:user,image:await readFile(file),status:'pending',createdAt:Date.now()});status.textContent='Submitted for review.';alert('Your T-shirt was submitted for review.');}catch(e){status.textContent='Submission failed.';alert('Could not submit T-shirt: '+e.message);}};
+window.addEventListener('DOMContentLoaded',function(){updateHeader();drawTemplate();});
 </script>
 </body>
 </html>
