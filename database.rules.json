@@ -1,0 +1,27 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "catalog": {
+      ".read": true,
+      "$itemId": {
+        ".write": "auth != null && auth.token.admin === true",
+        ".validate": "newData.hasChildren(['name','slot','price','status']) && newData.child('price').isNumber() && newData.child('price').val() >= 0 && newData.child('price').val() <= 100 && newData.child('status').val() === 'approved'"
+      }
+    },
+    "ugcSubmissions": {
+      "$submissionId": {
+        ".read": "auth != null && auth.token.admin === true",
+        ".write": "auth != null && (auth.token.admin === true || (!data.exists() && newData.child('creatorUid').val() === auth.uid && newData.child('status').val() === 'pending'))",
+        ".validate": "newData.hasChildren(['name','description','image','price','creatorUid','status']) && newData.child('price').isNumber() && newData.child('price').val() >= 0 && newData.child('price').val() <= 100 && newData.child('status').val() === 'pending' || auth.token.admin === true"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['username','email'])"
+      }
+    }
+  }
+}
