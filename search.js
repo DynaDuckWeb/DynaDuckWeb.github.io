@@ -15,6 +15,12 @@
       });
       input.setAttribute('aria-label', 'Search games and people');
     });
+
+    if (location.pathname.endsWith('/catalog.html') || location.pathname === 'catalog.html') {
+      var fix = document.createElement('script');
+      fix.src = 'catalog-fix.js';
+      document.body.appendChild(fix);
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSearch);
