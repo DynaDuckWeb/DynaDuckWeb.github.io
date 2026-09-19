@@ -5,11 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DynaDuck Search</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .search-page { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .search-page h1 { margin: 0 0 30px; }
+    .results-section { margin-bottom: 35px; }
+    .results-section h2 { margin: 0 0 15px; padding-bottom: 8px; border-bottom: 2px solid #11AD36; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 15px; }
+    .result-card { display: flex; flex-direction: column; background: white; border-radius: 12px; padding: 18px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+    .result-card h3 { margin: 0 0 8px; }
+    .result-card p { color: #666; font-size: .9em; line-height: 1.4; margin: 5px 0; }
+    .result-card button { align-self: flex-start; margin-top: 12px; background: #11AD36; color: white; border: none; border-radius: 8px; padding: 10px 18px; font-weight: bold; cursor: pointer; }
+    .result-card button:hover { background: #0E8E2C; }
+    .result-card button:disabled { background: #999; cursor: default; }
+    .empty-results { color: #666; background: white; border-radius: 12px; padding: 18px; box-shadow: 0 3px 12px rgba(0,0,0,0.08); }
+    @media (max-width: 700px) { header { flex-wrap: wrap; gap: 12px; padding: 12px 18px; } .search-container { order: 3; flex-basis: 100%; } .search-bar { width: 100%; } }
+  </style>
 </head>
 <body>
 <header>
   <div class="header-left">
-    <a href="index.html"><img src="logo.png" class="logo" alt="DynaDuck"></a>
+    <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
     <nav>
       <a href="catalog.html">Catalog</a>
       <a href="ideas.html">Ideas</a>
@@ -18,21 +33,18 @@
     </nav>
   </div>
   <div class="search-container">
-    <input id="searchInput" class="search-bar" type="search" placeholder="Search games and people..." aria-label="Search games and people">
+    <input id="searchInput" class="search-bar" type="search" placeholder="Search places, creators..." aria-label="Search games and people">
   </div>
-  <div id="authButtons"></div>
+  <div id="authButtons">
+    <a href="signup.html"><button class="header-btn">Sign Up</button></a>
+    <a href="login.html"><button class="header-btn">Log In</button></a>
+  </div>
 </header>
 
 <main class="search-page">
   <h1 id="searchHeading">Search games and people</h1>
-  <section class="results-section">
-    <h2>Games</h2>
-    <div id="gameResults" class="results-grid"><p>Loading games...</p></div>
-  </section>
-  <section class="results-section">
-    <h2>People</h2>
-    <div id="peopleResults" class="results-grid"><p>Loading people...</p></div>
-  </section>
+  <section class="results-section"><h2>Games</h2><div id="gameResults" class="results-grid"><p>Loading games...</p></div></section>
+  <section class="results-section"><h2>People</h2><div id="peopleResults" class="results-grid"><p>Loading people...</p></div></section>
 </main>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -46,10 +58,12 @@ var currentUser=localStorage.getItem('loggedInUser');
 function esc(value){var d=document.createElement('div');d.textContent=String(value||'');return d.innerHTML;}
 function query(){return new URLSearchParams(location.search).get('q')||'';}
 function matches(value,q){return String(value||'').toLocaleLowerCase().includes(q.toLocaleLowerCase());}
+function updateHeader(){var auth=document.getElementById('authButtons');if(!currentUser)return;auth.innerHTML='<span style="color:white;font-weight:bold;">Welcome, '+esc(currentUser)+'!</span><a href="settings.html"><button class="header-btn">Settings</button></a><button class="header-btn" onclick="logout()">Logout</button>';}
+function logout(){localStorage.removeItem('loggedInUser');localStorage.removeItem('isAdmin');location.reload();}
 function renderGames(data,q){var el=document.getElementById('gameResults');el.innerHTML='';var found=Object.entries(data||{}).filter(function(e){var g=e[1]||{};return matches(g.title,q)||matches(g.description,q)||matches(g.creator,q);});if(!found.length){el.innerHTML='<p class="empty-results">No games matched your search.</p>';return;}found.forEach(function(e){var g=e[1]||{},card=document.createElement('article');card.className='result-card';card.innerHTML='<h3>'+esc(g.title||'Untitled game')+'</h3><p>By '+esc(g.creator||'Anonymous')+'</p><p>'+esc(g.description||'')+'</p>';el.appendChild(card);});}
 function sendRequest(name,button){if(!currentUser){alert('Log in to add friends.');return;}if(name===currentUser){alert('You cannot add yourself.');return;}button.disabled=true;db.ref('users/'+name).once('value').then(function(s){if(!s.exists())throw Error('That user does not exist.');var ts=Date.now();return db.ref('users/'+currentUser+'/outgoingRequests/'+name).set(ts).then(function(){return db.ref('users/'+name+'/friendRequests/'+currentUser).set(ts);});}).then(function(){button.textContent='Requested';}).catch(function(e){button.disabled=false;alert(e.message||'Friend request failed.');});}
 function renderPeople(data,q){var el=document.getElementById('peopleResults');el.innerHTML='';var found=Object.entries(data||{}).filter(function(e){var u=e[1]||{};return matches(e[0],q)||matches(u.username,q)||matches(u.displayName,q);});if(!found.length){el.innerHTML='<p class="empty-results">No people matched your search.</p>';return;}found.forEach(function(e){var name=e[0],u=e[1]||{},card=document.createElement('article');card.className='result-card';card.innerHTML='<h3>'+esc(u.displayName||name)+'</h3><p>@'+esc(name)+'</p>';if(currentUser&&name!==currentUser){var b=document.createElement('button');b.textContent='Add Friend';b.onclick=function(){sendRequest(name,b);};card.appendChild(b);}el.appendChild(card);});}
-function load(){var q=query().trim();document.getElementById('searchInput').value=q;document.getElementById('searchHeading').textContent=q?'Results for “'+q+'”':'Search games and people';Promise.all([db.ref('games').once('value'),db.ref('users').once('value')]).then(function(s){renderGames(s[0].val(),q);renderPeople(s[1].val(),q);}).catch(function(){document.getElementById('gameResults').innerHTML='<p class="empty-results">Could not load search results.</p>';});}
+function load(){var q=query().trim();document.getElementById('searchInput').value=q;document.getElementById('searchHeading').textContent=q?'Results for “'+q+'”':'Search games and people';updateHeader();Promise.all([db.ref('games').once('value'),db.ref('users').once('value')]).then(function(s){renderGames(s[0].val(),q);renderPeople(s[1].val(),q);}).catch(function(){document.getElementById('gameResults').innerHTML='<p class="empty-results">Could not load search results.</p>';});}
 window.addEventListener('DOMContentLoaded',load);
 </script>
 </body>
