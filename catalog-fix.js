@@ -1,6 +1,3 @@
-/* Recovery script for catalog.html. The page contains a stray text line in its
-   inline script, which prevents that script from parsing. This restores the
-   catalog initialization without replacing the page. */
 (function () {
   var config = {
     apiKey: 'AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ',
