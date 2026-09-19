@@ -2,6 +2,20 @@
   "rules": {
     ".read": false,
     ".write": false,
+
+    "motd": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true"
+    },
+
+    "games": {
+      ".read": true,
+      "$gameId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('creatorUid').val() === auth.uid) || (data.child('creatorUid').val() === auth.uid) || auth.token.admin === true)",
+        ".validate": "newData.hasChildren(['title','description','creatorUid','maxPlayers','fileData','timestamp']) && newData.child('title').isString() && newData.child('description').isString() && newData.child('creatorUid').isString() && newData.child('creatorUid').val() === (data.exists() ? data.child('creatorUid').val() : auth.uid) && newData.child('maxPlayers').isNumber() && newData.child('maxPlayers').val() >= 1 && newData.child('maxPlayers').val() <= 20"
+      }
+    },
+
     "catalog": {
       ".read": true,
       "$itemId": {
@@ -9,18 +23,29 @@
         ".validate": "newData.hasChildren(['name','slot','price','status']) && newData.child('price').isNumber() && newData.child('price').val() >= 0 && newData.child('price').val() <= 100 && newData.child('status').val() === 'approved'"
       }
     },
+
     "ugcSubmissions": {
       "$submissionId": {
         ".read": "auth != null && auth.token.admin === true",
         ".write": "auth != null && (auth.token.admin === true || (!data.exists() && newData.child('creatorUid').val() === auth.uid && newData.child('status').val() === 'pending'))",
-        ".validate": "newData.hasChildren(['name','description','image','price','creatorUid','status']) && newData.child('price').isNumber() && newData.child('price').val() >= 0 && newData.child('price').val() <= 100 && newData.child('status').val() === 'pending' || auth.token.admin === true"
+        ".validate": "newData.hasChildren(['name','description','image','price','creatorUid','status']) && newData.child('price').isNumber() && newData.child('price').val() >= 0 && newData.child('price').val() <= 100 && (newData.child('status').val() === 'pending' || auth.token.admin === true)"
       }
     },
+
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
-        ".validate": "newData.hasChildren(['username','email'])"
+        "Dynamites": {
+          ".write": "auth != null && auth.token.admin === true"
+        }
+      }
+    },
+
+    "usernames": {
+      "$username": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
       }
     }
   }
