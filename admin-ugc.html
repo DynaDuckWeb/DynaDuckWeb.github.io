@@ -116,6 +116,17 @@
       gap: 6px;
     }
 
+    .item-preview-img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fff;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
     .item-preview-box {
       width: 50px;
       height: 50px;
@@ -276,7 +287,7 @@
         card.className = "request-card";
 
         const imageOrColorPreview = item.image 
-          ? `<img src="${item.image}" style="height:50px; width:50px; object-fit:contain; border:1px solid #000; vertical-align:middle; border-radius:4px;">`
+          ? `<img src="${item.image}" class="item-preview-img" alt="${item.name}">`
           : `<span class="item-preview-box" style="background-color: ${item.color || '#fff'}"></span>`;
 
         card.innerHTML = `
@@ -285,9 +296,11 @@
               <strong>Item Name:</strong> ${item.name} 
               ${imageOrColorPreview}
             </div>
-            <div><strong>Category/Slot:</strong> ${item.slot || 'torso'}</div>
+            <div><strong>Description:</strong> ${item.description || 'N/A'}</div>
+            <div><strong>Type / Slot:</strong> ${item.type || 'tshirt'} (${item.slot || 'torso'})</div>
             <div><strong>Price:</strong> ${item.price} Dynamites</div>
             <div><strong>Creator:</strong> ${item.creator || "Unknown"}</div>
+            <div><strong>Status:</strong> ${item.status || "pending"}</div>
           </div>
           <div class="actions">
             <button class="btn-approve" onclick="approveRequest('${requestId}')">Accept</button>
@@ -309,11 +322,14 @@
       const newCatalogRef = db.ref("catalog").push();
       await newCatalogRef.set({
         name: item.name,
+        description: item.description || "",
+        type: item.type || "tshirt",
         slot: item.slot || 'torso',
         price: Number(item.price || 0),
         color: item.color || null,
         image: item.image || null,
-        creator: item.creator || "Community"
+        creator: item.creator || "Community",
+        createdAt: item.createdAt || Date.now()
       });
 
       await requestRef.remove();
