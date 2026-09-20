@@ -1,22 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Create UGC</title>
+  <meta charset="UTF-8">
+  <title>DynaDuck Admin - Review UGC Requests</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #eeeeee;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #333;
+      padding: 15px 40px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      height: 70px;
+      cursor: pointer;
+    }
+
+    nav {
+      display: flex;
+      gap: 25px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1.05em;
+    }
+
+    .admin-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 26px;
+      color: #333;
+    }
+
+    .access-denied {
+      color: #d9534f;
+      text-align: center;
+      font-size: 1.2em;
+      margin-top: 50px;
+    }
+
+    .request-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .request-card {
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafafa;
+    }
+
+    .request-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .item-preview-box {
+      width: 50px;
+      height: 50px;
+      border: 2px solid black;
+      display: inline-block;
+      vertical-align: middle;
+      border-radius: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-approve {
+      background: #11AD36;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-approve:hover {
+      background: #0E8E2C;
+    }
+
+    .btn-reject {
+      background: #e3242b;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-reject:hover {
+      background: #b81b21;
+    }
+
+    .empty-msg {
+      color: #777;
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
-  <h1>Submit T-Shirt</h1>
 
-  <input id="name" placeholder="T-shirt name" /><br><br>
-  <textarea id="desc" placeholder="Description"></textarea><br><br>
-  <input id="price" type="number" min="0" max="100" value="0" /><br><br>
-  <input id="file" type="file" accept="image/png" /><br><br>
+  <header>
+    <div class="header-left">
+      <img src="logo.png" class="logo" alt="DynaDuck" onclick="window.location.href='index.html'">
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="admin-requests.html" style="color: #11AD36;">Admin Panel</a>
+      </nav>
+    </div>
+  </header>
 
-  <button id="submitBtn">Submit for Review</button>
+  <div class="admin-container" id="adminContent">
+    <h1>Pending UGC Catalog Requests</h1>
+    <div id="requestsList" class="request-list">
+      <p>Loading requests...</p>
+    </div>
+  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
@@ -28,72 +172,107 @@
       appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
 
-    function readFileAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+    const db = firebase.database();
+    const username = localStorage.getItem('loggedInUser');
+
+    async function checkAdminAndLoad() {
+      if (!username) {
+        showAccessDenied("Please log in first.");
+        return;
+      }
+
+      const userSnap = await db.ref("users/" + username).once("value");
+      const userData = userSnap.val() || {};
+
+      if (!userData.isAdmin && username.toLowerCase() !== "admin") {
+        showAccessDenied("Access Denied: You must be an administrator to view this page.");
+        return;
+      }
+
+      loadUgcRequests();
+    }
+
+    function showAccessDenied(msg) {
+      const container = document.getElementById('adminContent');
+      container.innerHTML = `<div class="access-denied"><h2>${msg}</h2></div>`;
+    }
+
+    async function loadUgcRequests() {
+      const requestsRef = db.ref("ugc_requests");
+      const snapshot = await requestsRef.once("value");
+      const requests = snapshot.val() || {};
+
+      const listContainer = document.getElementById("requestsList");
+      listContainer.innerHTML = "";
+
+      const keys = Object.keys(requests);
+
+      if (keys.length === 0) {
+        listContainer.innerHTML = `<p class="empty-msg">No pending requests at the moment.</p>`;
+        return;
+      }
+
+      keys.forEach(requestId => {
+        const item = requests[requestId];
+        
+        const card = document.createElement("div");
+        card.className = "request-card";
+
+        card.innerHTML = `
+          <div class="request-info">
+            <div>
+              <strong>Item Name:</strong> ${item.name} 
+              <span class="item-preview-box" style="background-color: ${item.color || '#fff'}"></span>
+            </div>
+            <div><strong>Category/Slot:</strong> ${item.slot}</div>
+            <div><strong>Price:</strong> ${item.price} Dynamites</div>
+            <div><strong>Creator:</strong> ${item.creator || "Unknown"}</div>
+          </div>
+          <div class="actions">
+            <button class="btn-approve" onclick="approveRequest('${requestId}')">Accept</button>
+            <button class="btn-reject" onclick="rejectRequest('${requestId}')">Reject</button>
+          </div>
+        `;
+
+        listContainer.appendChild(card);
       });
     }
 
-    document.getElementById("submitBtn").addEventListener("click", async function () {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Please log in first.");
-        return;
-      }
+    async function approveRequest(requestId) {
+      const requestRef = db.ref("ugc_requests/" + requestId);
+      const snap = await requestRef.once("value");
+      const item = snap.val();
 
-      const name = document.getElementById("name").value.trim();
-      const desc = document.getElementById("desc").value.trim();
-      const price = Number(document.getElementById("price").value);
-      const file = document.getElementById("file").files[0];
+      if (!item) return;
 
-      if (!name || !desc || !file) {
-        alert("Fill in all fields and pick a PNG.");
-        return;
-      }
+      const newCatalogRef = db.ref("catalog").push();
+      await newCatalogRef.set({
+        name: item.name,
+        slot: item.slot,
+        price: Number(item.price),
+        color: item.color,
+        creator: item.creator || "Community"
+      });
 
-      if (!Number.isInteger(price) || price < 0 || price > 100) {
-        alert("Price must be a whole number from 0 to 100.");
-        return;
-      }
+      await requestRef.remove();
 
-      if (file.type !== "image/png") {
-        alert("Only PNG files are allowed.");
-        return;
-      }
+      alert(`Approved "${item.name}"! It is now live in the catalog.`);
+      loadUgcRequests();
+    }
 
-      try {
-        const imageData = await readFileAsDataURL(file);
+    async function rejectRequest(requestId) {
+      if (!confirm("Are you sure you want to reject and delete this request?")) return;
 
-        await db.ref("ugcSubmissions").push({
-          name: name,
-          description: desc,
-          slot: "torso",
-          type: "tshirt",
-          price: price,
-          creator: user.email || "Unknown user",
-          creatorUid: user.uid,
-          image: imageData,
-          status: "pending",
-          createdAt: Date.now()
-        });
+      await db.ref("ugc_requests/" + requestId).remove();
+      alert("Request rejected.");
+      loadUgcRequests();
+    }
 
-        alert("Submitted for review!");
-        document.getElementById("name").value = "";
-        document.getElementById("desc").value = "";
-        document.getElementById("price").value = "0";
-        document.getElementById("file").value = "";
-      } catch (err) {
-        console.error(err);
-        alert("Submission failed: " + err.message);
-      }
-    });
+    window.addEventListener('DOMContentLoaded', checkAdminAndLoad);
   </script>
 </body>
 </html>
