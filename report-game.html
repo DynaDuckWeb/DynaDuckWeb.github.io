@@ -14,12 +14,35 @@
     }
 
     .report-container {
-      width: 600px;
+      width: 700px;
       margin: 40px auto;
       background: white;
       border-radius: 12px;
       padding: 30px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .access-denied {
+      text-align: center;
+      color: #d9534f;
+      padding: 60px 20px;
+    }
+
+    .access-denied h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .access-denied p {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .access-denied a {
+      color: #11AD36;
+      text-decoration: none;
+      font-weight: bold;
     }
 
     .report-container h1 {
@@ -37,14 +60,14 @@
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
     label {
       display: block;
       font-weight: bold;
       color: #333;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-size: 14px;
     }
 
@@ -53,6 +76,8 @@
     }
 
     input[type="text"],
+    input[type="email"],
+    input[type="number"],
     select,
     textarea {
       width: 100%;
@@ -67,6 +92,8 @@
     }
 
     input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
     select:focus,
     textarea:focus {
       border-color: #11AD36;
@@ -75,14 +102,14 @@
 
     textarea {
       resize: vertical;
-      min-height: 120px;
+      min-height: 100px;
       font-family: Arial, sans-serif;
     }
 
     .form-hint {
       font-size: 12px;
       color: #777;
-      margin-top: 4px;
+      margin-top: 5px;
     }
 
     .button-group {
@@ -131,7 +158,7 @@
     }
 
     .alert {
-      padding: 12px 16px;
+      padding: 14px 16px;
       border-radius: 6px;
       margin-bottom: 20px;
       font-size: 14px;
@@ -153,40 +180,88 @@
     }
 
     .info-box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
       border-radius: 6px;
       padding: 14px;
       margin-bottom: 20px;
       font-size: 13px;
-      color: #555;
+      color: #0c4a6e;
+      line-height: 1.5;
     }
 
-    .category-options {
+    .category-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .category-radio {
       display: flex;
       align-items: center;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
+      padding: 10px 12px;
+      border: 2px solid #e5e7eb;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
+      background: #f9fafb;
     }
 
     .category-radio:hover {
-      background: #f9fafb;
+      background: #f3f4f6;
       border-color: #11AD36;
     }
 
     .category-radio input[type="radio"] {
       margin-right: 8px;
       cursor: pointer;
+      width: 16px;
+      height: 16px;
     }
+
+    .category-radio label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: normal;
+      flex: 1;
+    }
+
+    .severity-section {
+      background: #fafbff;
+      padding: 14px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 20px;
+    }
+
+    .severity-options {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .severity-radio {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .severity-radio input[type="radio"] {
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .severity-radio label {
+      margin: 0;
+      font-weight: normal;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .severity-low { color: #16a34a; }
+    .severity-medium { color: #ea580c; }
+    .severity-high { color: #dc2626; }
 
     @media (max-width: 768px) {
       .report-container {
@@ -194,7 +269,7 @@
         padding: 20px;
       }
 
-      .category-options {
+      .category-grid {
         grid-template-columns: 1fr;
       }
 
@@ -229,82 +304,117 @@
   </div>
 </header>
 
-<div class="report-container">
-  <h1>Report a Game</h1>
-  <p>Help us keep DynaDuck safe and fun for everyone. Please provide details about the issue you encountered.</p>
+<div id="reportContent">
+  <div class="report-container">
+    <h1>Report a Game</h1>
+    <p>Help us keep DynaDuck safe and fun for everyone. Please provide details about the issue you encountered.</p>
 
-  <div class="info-box">
-    📋 Your report will be reviewed by our moderation team. Thank you for helping improve the community!
-  </div>
-
-  <div id="alertBox" class="alert"></div>
-
-  <form id="reportForm" onsubmit="submitReport(event)">
-
-    <div class="form-group">
-      <label for="gameName">Game Name <span class="required">*</span></label>
-      <input type="text" id="gameName" name="gameName" placeholder="Enter the name of the game you're reporting" required>
-      <div class="form-hint">The game/place name as it appears in the catalog</div>
+    <div class="info-box">
+      ℹ️ Your report will be reviewed by our moderation team within 24-48 hours. Thank you for helping improve the community!
     </div>
 
-    <div class="form-group">
-      <label>Report Category <span class="required">*</span></label>
-      <div class="category-options">
-        <label class="category-radio">
-          <input type="radio" name="category" value="inappropriate-content" required>
-          Inappropriate Content
-        </label>
-        <label class="category-radio">
-          <input type="radio" name="category" value="bugs-glitches">
-          Bugs/Glitches
-        </label>
-        <label class="category-radio">
-          <input type="radio" name="category" value="offensive-behavior">
-          Offensive Behavior
-        </label>
-        <label class="category-radio">
-          <input type="radio" name="category" value="copyright-ip">
-          Copyright/IP Violation
-        </label>
-        <label class="category-radio">
-          <input type="radio" name="category" value="performance-issues">
-          Performance Issues
-        </label>
-        <label class="category-radio">
-          <input type="radio" name="category" value="other">
-          Other
-        </label>
+    <div id="alertBox" class="alert"></div>
+
+    <form id="reportForm" onsubmit="submitReport(event)">
+
+      <!-- Game Selection -->
+      <div class="form-group">
+        <label for="gameSelect">Select Game <span class="required">*</span></label>
+        <select id="gameSelect" name="gameSelect" required onchange="updateGameInfo()">
+          <option value="">-- Choose a game --</option>
+        </select>
+        <div class="form-hint">Select the game you want to report</div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label for="creatorName">Game Creator Name</label>
-      <input type="text" id="creatorName" name="creatorName" placeholder="(Optional) The creator's username">
-    </div>
+      <!-- Game Info Display -->
+      <div id="gameInfoBox" style="display: none; background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; margin-bottom: 20px; font-size: 13px;">
+        <div><strong>Creator:</strong> <span id="infoCreator">-</span></div>
+        <div><strong>Max Players:</strong> <span id="infoMaxPlayers">-</span></div>
+      </div>
 
-    <div class="form-group">
-      <label for="description">Description <span class="required">*</span></label>
-      <textarea id="description" name="description" placeholder="Describe the issue in detail. What happened? When did it happen? Any steps to reproduce?" required></textarea>
-      <div class="form-hint">Be as specific as possible to help our team investigate</div>
-    </div>
+      <!-- Report Category -->
+      <div class="form-group">
+        <label>Report Category <span class="required">*</span></label>
+        <div class="category-grid">
+          <div class="category-radio">
+            <input type="radio" id="cat-inappropriate" name="category" value="inappropriate-content" required>
+            <label for="cat-inappropriate">Inappropriate Content</label>
+          </div>
+          <div class="category-radio">
+            <input type="radio" id="cat-bugs" name="category" value="bugs-glitches">
+            <label for="cat-bugs">Bugs/Glitches</label>
+          </div>
+          <div class="category-radio">
+            <input type="radio" id="cat-offensive" name="category" value="offensive-behavior">
+            <label for="cat-offensive">Offensive Behavior</label>
+          </div>
+          <div class="category-radio">
+            <input type="radio" id="cat-copyright" name="category" value="copyright-ip">
+            <label for="cat-copyright">Copyright/IP</label>
+          </div>
+          <div class="category-radio">
+            <input type="radio" id="cat-performance" name="category" value="performance-issues">
+            <label for="cat-performance">Performance Issues</label>
+          </div>
+          <div class="category-radio">
+            <input type="radio" id="cat-other" name="category" value="other">
+            <label for="cat-other">Other</label>
+          </div>
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label for="evidence">Evidence/Screenshots (Optional)</label>
-      <input type="text" id="evidence" name="evidence" placeholder="Paste a URL to an image or include relevant details">
-      <div class="form-hint">If you have screenshots or other evidence, describe or link them here</div>
-    </div>
+      <!-- Severity Level -->
+      <div class="severity-section">
+        <label>Severity Level <span class="required">*</span></label>
+        <div class="severity-options">
+          <div class="severity-radio">
+            <input type="radio" id="sev-low" name="severity" value="low" required>
+            <label for="sev-low" class="severity-low">🟢 Low</label>
+          </div>
+          <div class="severity-radio">
+            <input type="radio" id="sev-medium" name="severity" value="medium">
+            <label for="sev-medium" class="severity-medium">🟡 Medium</label>
+          </div>
+          <div class="severity-radio">
+            <input type="radio" id="sev-high" name="severity" value="high">
+            <label for="sev-high" class="severity-high">🔴 High</label>
+          </div>
+        </div>
+        <div class="form-hint">Low: Minor issue | Medium: Noticeable problem | High: Game-breaking/dangerous</div>
+      </div>
 
-    <div class="form-group">
-      <label for="email">Your Email (Optional)</label>
-      <input type="text" id="email" name="email" placeholder="We may contact you for more details">
-      <div class="form-hint">Leave blank if you prefer to remain anonymous</div>
-    </div>
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Detailed Description <span class="required">*</span></label>
+        <textarea id="description" name="description" placeholder="Describe the issue in detail:&#10;- What happened?&#10;- When did it happen?&#10;- Steps to reproduce (if applicable)&#10;- Any other relevant information" required></textarea>
+      </div>
 
-    <div class="button-group">
-      <button type="button" class="btn-cancel" onclick="cancelReport()">Cancel</button>
-      <button type="submit" class="btn-submit" id="submitBtn">Submit Report</button>
-    </div>
-  </form>
+      <!-- Screenshot/Evidence URL -->
+      <div class="form-group">
+        <label for="evidence">Screenshot/Evidence URL (Optional)</label>
+        <input type="text" id="evidence" name="evidence" placeholder="https://example.com/screenshot.png">
+        <div class="form-hint">Paste a direct link to an image showing the issue</div>
+      </div>
+
+      <!-- Reporter Email -->
+      <div class="form-group">
+        <label for="email">Your Email (Optional)</label>
+        <input type="email" id="email" name="email" placeholder="your@email.com">
+        <div class="form-hint">Leave blank to remain anonymous. We may contact you for follow-up.</div>
+      </div>
+
+      <!-- Additional Details -->
+      <div class="form-group">
+        <label for="additionalInfo">Additional Information (Optional)</label>
+        <textarea id="additionalInfo" name="additionalInfo" placeholder="Anything else we should know? (system info, devices used, etc.)" style="min-height: 70px;"></textarea>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="btn-cancel" onclick="cancelReport()">Cancel</button>
+        <button type="submit" class="btn-submit" id="submitBtn">Submit Report</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -324,6 +434,7 @@
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const db = firebase.database();
   const loggedInUser = localStorage.getItem('loggedInUser');
+  let allGames = {};
 
   function updateHeader() {
     const authDiv = document.getElementById('authButtons');
@@ -350,22 +461,73 @@
     const alertBox = document.getElementById('alertBox');
     alertBox.textContent = message;
     alertBox.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-    alertBox.style.display = 'block';
     window.scrollTo(0, 0);
+  }
+
+  function showAccessDenied() {
+    const reportContent = document.getElementById('reportContent');
+    reportContent.innerHTML = `
+      <div class="report-container access-denied">
+        <h2>Access Denied</h2>
+        <p>Only authorized administrators can access the reporting system.</p>
+        <p><a href="index.html">← Back to Home</a></p>
+      </div>
+    `;
+  }
+
+  async function loadGames() {
+    try {
+      const snapshot = await db.ref('games').once('value');
+      allGames = snapshot.val() || {};
+      
+      const gameSelect = document.getElementById('gameSelect');
+      const keys = Object.keys(allGames).reverse();
+      
+      keys.forEach(key => {
+        const game = allGames[key];
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = game.title || 'Unnamed Game';
+        gameSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error loading games:', error);
+      showAlert('Failed to load games list.', false);
+    }
+  }
+
+  function updateGameInfo() {
+    const gameSelect = document.getElementById('gameSelect');
+    const gameKey = gameSelect.value;
+    
+    if (!gameKey) {
+      document.getElementById('gameInfoBox').style.display = 'none';
+      return;
+    }
+
+    const game = allGames[gameKey];
+    if (game) {
+      document.getElementById('infoCreator').textContent = escapeHtml(game.creator || 'Unknown');
+      document.getElementById('infoMaxPlayers').textContent = game.maxPlayers || '12';
+      document.getElementById('gameInfoBox').style.display = 'block';
+    }
   }
 
   async function submitReport(event) {
     event.preventDefault();
 
-    const gameName = document.getElementById('gameName').value.trim();
+    const gameSelect = document.getElementById('gameSelect').value;
+    const gameName = allGames[gameSelect]?.title || document.getElementById('gameSelect').value;
+    const creatorName = allGames[gameSelect]?.creator || 'Unknown';
     const category = document.querySelector('input[name="category"]:checked')?.value;
-    const creatorName = document.getElementById('creatorName').value.trim();
+    const severity = document.querySelector('input[name="severity"]:checked')?.value;
     const description = document.getElementById('description').value.trim();
     const evidence = document.getElementById('evidence').value.trim();
     const email = document.getElementById('email').value.trim();
+    const additionalInfo = document.getElementById('additionalInfo').value.trim();
     const submitBtn = document.getElementById('submitBtn');
 
-    if (!gameName || !category || !description) {
+    if (!gameSelect || !category || !severity || !description) {
       showAlert('Please fill in all required fields.', false);
       return;
     }
@@ -376,39 +538,49 @@
     try {
       const reportRef = db.ref('gameReports').push();
       await reportRef.set({
+        gameKey: gameSelect,
         gameName: gameName,
+        creatorName: creatorName,
         category: category,
-        creatorName: creatorName || 'Unknown',
+        severity: severity,
         description: description,
         evidence: evidence || '',
+        additionalInfo: additionalInfo || '',
         reporter: loggedInUser || 'Anonymous',
         reporterEmail: email || '',
         status: 'pending',
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        reviewed: false
       });
 
-      showAlert('✓ Report submitted successfully! Thank you for helping keep DynaDuck safe.', true);
+      showAlert('✅ Report submitted successfully! Our moderation team will review it shortly.', true);
       document.getElementById('reportForm').reset();
+      document.getElementById('gameInfoBox').style.display = 'none';
       
       setTimeout(() => {
         window.location.href = 'index.html';
-      }, 2000);
+      }, 2500);
 
     } catch (error) {
       console.error('Error submitting report:', error);
-      showAlert('Failed to submit report. Please try again later.', false);
+      showAlert('❌ Failed to submit report. Please try again later.', false);
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Report';
     }
   }
 
   function cancelReport() {
-    if (confirm('Discard this report?')) {
+    if (confirm('Cancel and return to home?')) {
       window.location.href = 'index.html';
     }
   }
 
-  window.addEventListener('DOMContentLoaded', updateHeader);
+  window.addEventListener('DOMContentLoaded', async () => {
+    updateHeader();
+    // Reports can be submitted by any logged-in user
+    // (Admin-only viewing is handled in a separate admin panel)
+    await loadGames();
+  });
 </script>
 </body>
 </html>
