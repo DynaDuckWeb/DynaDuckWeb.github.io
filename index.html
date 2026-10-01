@@ -104,10 +104,15 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .game-card-menu {
+    /* 3-dot menu */
+    .game-card-menu-wrap {
       position: absolute;
       top: 8px;
       right: 8px;
+      z-index: 5;
+    }
+
+    .game-card-menu {
       background: white;
       border: none;
       border-radius: 4px;
@@ -116,14 +121,49 @@
       font-size: 16px;
       opacity: 0;
       transition: opacity 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
-    .game-card:hover .game-card-menu {
+    .game-card:hover .game-card-menu,
+    .game-card-menu.active {
       opacity: 1;
     }
 
     .game-card-menu:hover {
       background: #f0f0f0;
+    }
+
+    .card-dropdown {
+      display: none;
+      position: absolute;
+      top: 30px;
+      right: 0;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      min-width: 110px;
+      overflow: hidden;
+    }
+
+    .card-dropdown.open {
+      display: block;
+    }
+
+    .card-dropdown button {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      color: #d9534f;
+      font-weight: bold;
+    }
+
+    .card-dropdown button:hover {
+      background: #f5f5f5;
     }
 
     .game-thumb {
@@ -329,39 +369,205 @@
       color: #fff;
     }
 
-    .admin-banner {
+    /* Admin reports panel */
+    .admin-panel {
       background: #fef3c7;
       border-left: 4px solid #f59e0b;
       border-radius: 4px;
       padding: 12px 16px;
       margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    .admin-banner p {
-      margin: 0;
+    .admin-panel-title {
+      margin: 0 0 8px 0;
       color: #92400e;
       font-weight: bold;
+      font-size: 14px;
+    }
+
+    .admin-empty {
+      margin: 0;
+      font-size: 13px;
+      color: #92400e;
+    }
+
+    .report-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .report-item {
+      background: #fff;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
       font-size: 13px;
     }
 
-    .btn-admin-dashboard {
-      background: #f59e0b;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 12px;
-      text-decoration: none;
-      display: inline-block;
+    .report-item:last-child {
+      margin-bottom: 0;
     }
 
-    .btn-admin-dashboard:hover {
-      background: #d97706;
+    .report-item-head {
+      font-weight: bold;
+      color: #111;
+    }
+
+    .report-item-meta {
+      font-size: 11px;
+      color: #777;
+      margin: 2px 0 6px 0;
+    }
+
+    .report-item-reason {
+      color: #d9534f;
+      font-weight: bold;
+    }
+
+    .report-item-details {
+      color: #444;
+      margin: 4px 0 8px 0;
+      word-break: break-word;
+    }
+
+    .report-item-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-report-dismiss {
+      background: #fff;
+      color: #555;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-report-dismiss:hover {
+      background: #f0f0f0;
+    }
+
+    .btn-report-delete {
+      background: #d9534f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-report-delete:hover {
+      background: #c9302c;
+    }
+
+    /* Report modal */
+    .report-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .report-overlay.open {
+      display: flex;
+    }
+
+    .report-modal {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      width: 360px;
+      max-width: 90%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .report-modal h3 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      color: #111;
+    }
+
+    .report-game-name {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .report-modal label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 4px;
+    }
+
+    .report-modal select,
+    .report-modal textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+
+    .report-modal textarea {
+      height: 80px;
+      resize: vertical;
+    }
+
+    .report-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-report-cancel {
+      background: #fff;
+      color: #555;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-report-submit {
+      background: #d9534f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-report-submit:hover {
+      background: #c9302c;
+    }
+
+    .btn-report-submit:disabled {
+      background: #e0a4a2;
+      cursor: default;
     }
   </style>
 </head>
@@ -392,7 +598,7 @@
 
 <div class="dashboard-container">
   <main>
-    <div id="adminBanner"></div>
+    <div id="adminReports"></div>
 
     <div class="motd-banner">
       <div class="motd-title">Message of the Day</div>
@@ -414,6 +620,31 @@
   </aside>
 </div>
 
+<!-- Report modal -->
+<div class="report-overlay" id="reportOverlay" onclick="if(event.target===this)closeReportModal()">
+  <div class="report-modal">
+    <h3>Report Game</h3>
+    <div class="report-game-name" id="reportGameName"></div>
+
+    <label for="reportReason">Reason</label>
+    <select id="reportReason">
+      <option value="Inappropriate content">Inappropriate content</option>
+      <option value="Harassment or hate">Harassment or hate</option>
+      <option value="Scam or spam">Scam or spam</option>
+      <option value="Stolen work">Stolen work</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="reportDetails">Details (optional)</label>
+    <textarea id="reportDetails" maxlength="500" placeholder="Tell us what's wrong..."></textarea>
+
+    <div class="report-actions">
+      <button class="btn-report-cancel" onclick="closeReportModal()">Cancel</button>
+      <button class="btn-report-submit" id="reportSubmitBtn" onclick="submitReport()">Submit</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -432,8 +663,13 @@ if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 var db = firebase.database();
 const loggedInUser = localStorage.getItem('loggedInUser');
 var allGames = {};
+var reportingGameKey = null;
 
 const ADMIN_ACCOUNTS = ['dynaduckbest', 'Admin'];
+
+function isAdmin() {
+  return !!loggedInUser && ADMIN_ACCOUNTS.includes(loggedInUser);
+}
 
 function updateHeader() {
   const authDiv = document.getElementById('authButtons');
@@ -447,17 +683,6 @@ function updateHeader() {
     authDiv.innerHTML = `
       <a href="signup.html"><button class="header-btn">Sign Up</button></a>
       <a href="login.html"><button class="header-btn">Log In</button></a>
-    `;
-  }
-
-  // Show admin banner if user is admin
-  const adminBanner = document.getElementById('adminBanner');
-  if (loggedInUser && ADMIN_ACCOUNTS.includes(loggedInUser)) {
-    adminBanner.innerHTML = `
-      <div class="admin-banner">
-        <p>🔑 Admin Mode - Access Reports Dashboard</p>
-        <a href="admin-reports.html" class="btn-admin-dashboard">📊 Dashboard</a>
-      </div>
     `;
   }
 }
@@ -514,7 +739,12 @@ function renderGames(gamesObj) {
     const card = document.createElement('div');
     card.className = 'game-card';
     card.innerHTML = `
-      <button class="game-card-menu" onclick="openGameMenu(event, '${escapeHtml(game.title)}', '${key}')">⋮</button>
+      <div class="game-card-menu-wrap">
+        <button class="game-card-menu" onclick="toggleCardMenu(event, this)">⋮</button>
+        <div class="card-dropdown">
+          <button onclick="openReportModal(event, '${encodeURIComponent(key)}')">🚩 Report</button>
+        </div>
+      </div>
       <div>
         <img src="${thumbSrc}" class="game-thumb" alt="${escapeHtml(game.title)}" onerror="this.onerror=null;this.src='photo.png';">
         <div class="game-title" title="${escapeHtml(game.title)}">${escapeHtml(game.title)}</div>
@@ -532,11 +762,163 @@ function renderGames(gamesObj) {
   });
 }
 
-function openGameMenu(event, gameName, gameKey) {
-  event.stopPropagation();
-  const reportUrl = `report-game.html?game=${encodeURIComponent(gameName)}&gameKey=${encodeURIComponent(gameKey)}`;
-  window.location.href = reportUrl;
+// ---------- 3-dot card menu ----------
+
+function closeAllCardMenus() {
+  document.querySelectorAll('.card-dropdown.open').forEach(function(d) {
+    d.classList.remove('open');
+  });
+  document.querySelectorAll('.game-card-menu.active').forEach(function(b) {
+    b.classList.remove('active');
+  });
 }
+
+function toggleCardMenu(event, btn) {
+  event.stopPropagation();
+  const dropdown = btn.nextElementSibling;
+  const wasOpen = dropdown.classList.contains('open');
+  closeAllCardMenus();
+  if (!wasOpen) {
+    dropdown.classList.add('open');
+    btn.classList.add('active');
+  }
+}
+
+document.addEventListener('click', closeAllCardMenus);
+
+// ---------- Game reporting ----------
+
+function openReportModal(event, encodedKey) {
+  event.stopPropagation();
+  closeAllCardMenus();
+
+  if (!loggedInUser) {
+    alert("You need to log in to report a game.");
+    return;
+  }
+
+  const key = decodeURIComponent(encodedKey);
+  const game = allGames[key];
+  if (!game) {
+    alert("This place could not be found.");
+    return;
+  }
+
+  reportingGameKey = key;
+  document.getElementById('reportGameName').textContent = game.title || 'Untitled';
+  document.getElementById('reportReason').selectedIndex = 0;
+  document.getElementById('reportDetails').value = '';
+  document.getElementById('reportSubmitBtn').disabled = false;
+  document.getElementById('reportOverlay').classList.add('open');
+}
+
+function closeReportModal() {
+  reportingGameKey = null;
+  document.getElementById('reportOverlay').classList.remove('open');
+}
+
+function submitReport() {
+  if (!loggedInUser || !reportingGameKey) return;
+
+  const game = allGames[reportingGameKey];
+  if (!game) {
+    closeReportModal();
+    return;
+  }
+
+  const submitBtn = document.getElementById('reportSubmitBtn');
+  submitBtn.disabled = true;
+
+  const report = {
+    gameKey: reportingGameKey,
+    gameTitle: game.title || '',
+    gameCreator: game.creator || '',
+    reporter: loggedInUser,
+    reason: document.getElementById('reportReason').value,
+    details: document.getElementById('reportDetails').value.trim().substring(0, 500),
+    timestamp: Date.now()
+  };
+
+  db.ref('reports').push(report).then(function() {
+    closeReportModal();
+    alert("Thanks! Your report has been submitted.");
+  }).catch(function(e) {
+    submitBtn.disabled = false;
+    alert("Failed to submit report: " + e.message);
+  });
+}
+
+// ---------- Admin: reported games ----------
+
+function loadAdminReports() {
+  if (!isAdmin()) return;
+
+  db.ref('reports').on('value', function(snapshot) {
+    renderAdminReports(snapshot.val() || {});
+  }, function(error) {
+    console.error("Reports read error: ", error);
+    document.getElementById('adminReports').innerHTML =
+      '<div class="admin-panel"><p class="admin-empty">Could not load reports: ' + escapeHtml(error.message) + '</p></div>';
+  });
+}
+
+function renderAdminReports(reportsObj) {
+  const container = document.getElementById('adminReports');
+  const keys = Object.keys(reportsObj).sort(function(a, b) {
+    return (reportsObj[b].timestamp || 0) - (reportsObj[a].timestamp || 0);
+  });
+
+  let html = '<div class="admin-panel">';
+  html += '<p class="admin-panel-title">🔑 Admin - Reported Games (' + keys.length + ')</p>';
+
+  if (keys.length === 0) {
+    html += '<p class="admin-empty">No reports right now.</p>';
+  } else {
+    html += '<div class="report-list">';
+    keys.forEach(function(rKey) {
+      const r = reportsObj[rKey];
+      const when = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
+      const gameStillExists = !!allGames[r.gameKey];
+      html += `
+        <div class="report-item">
+          <div class="report-item-head">${escapeHtml(r.gameTitle || 'Untitled')} <span style="font-weight:normal;color:#666;">by ${escapeHtml(r.gameCreator || 'Anonymous')}</span></div>
+          <div class="report-item-meta">Reported by ${escapeHtml(r.reporter || 'Unknown')} - ${escapeHtml(when)}</div>
+          <div><span class="report-item-reason">${escapeHtml(r.reason || '')}</span></div>
+          ${r.details ? '<div class="report-item-details">' + escapeHtml(r.details) + '</div>' : ''}
+          <div class="report-item-actions">
+            <button class="btn-report-dismiss" onclick="dismissReport('${encodeURIComponent(rKey)}')">Dismiss</button>
+            ${gameStillExists ? '<button class="btn-report-delete" onclick="deleteReportedGame(\'' + encodeURIComponent(rKey) + '\', \'' + encodeURIComponent(r.gameKey) + '\')">Delete Game</button>' : '<span style="font-size:12px;color:#999;">Game already removed</span>'}
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function dismissReport(encodedReportKey) {
+  if (!isAdmin()) return;
+  db.ref('reports/' + decodeURIComponent(encodedReportKey)).remove();
+}
+
+function deleteReportedGame(encodedReportKey, encodedGameKey) {
+  if (!isAdmin()) return;
+  const gameKey = decodeURIComponent(encodedGameKey);
+  const game = allGames[gameKey];
+  if (!game) return;
+  if (!confirm('Delete "' + (game.title || 'Untitled') + '" permanently?')) return;
+
+  db.ref('games/' + gameKey).remove().then(function() {
+    db.ref('reports/' + decodeURIComponent(encodedReportKey)).remove();
+  }).catch(function(e) {
+    alert("Failed to delete game: " + e.message);
+  });
+}
+
+// ---------- Friends ----------
 
 function loadFriendsList() {
   const container = document.getElementById('friendsWidget');
@@ -756,7 +1138,7 @@ function filterGames() {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 function avatarToString(colors) {
@@ -774,7 +1156,7 @@ function buildLaunchUrl(mapData) {
 }
 
 function launchGame(key) {
-  const game = allGames[key];
+  const game = allGames[decodeURIComponent(key)] || allGames[key];
   if (!game) {
     alert("This place could not be found.");
     return;
@@ -809,6 +1191,7 @@ window.addEventListener('DOMContentLoaded', function() {
   loadMOTD();
   loadGames();
   loadFriendsList();
+  loadAdminReports();
 });
 </script>
   <script src="search.js"></script>
