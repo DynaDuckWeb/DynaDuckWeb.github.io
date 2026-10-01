@@ -1,5 +1,160 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Log In - DynaDuck</title><link rel="stylesheet" href="style.css"><style>.auth-container{display:flex;justify-content:center;align-items:center;min-height:80vh}.auth-box{background:#fff;padding:30px;border-radius:12px;box-shadow:0 4px 20px #0001;width:100%;max-width:400px;text-align:center}.auth-box input{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;margin-bottom:15px;box-sizing:border-box;font-size:1em}.auth-box button{width:100%;padding:12px}.auth-box p{margin-top:20px;color:#666}</style></head>
-<body><header><div class="header-left"><img src="logo.png" class="logo" alt="DynaDuck" onclick="location.href='index.html'"><nav><a href="catalog.html">Catalog</a><a href="ideas.html">Ideas</a><a href="create.html">Create</a><a href="dynamites.html">Dynamites</a></nav></div><div class="search-container"><input class="search-bar" type="text" placeholder="Search..."></div><div id="authButtons"></div></header><div class="auth-container"><div class="auth-box"><h1>Log In</h1><form id="loginForm"><input type="email" id="loginEmail" placeholder="Email" required><input type="password" id="loginPassword" placeholder="Password" required><button class="green-btn" type="submit">Log In</button></form><p>Don’t have an account? <a href="signup.html">Sign Up</a></p></div></div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><script src="firebase-auth.js"></script><script>
-document.getElementById('loginForm').addEventListener('submit',function(e){e.preventDefault();var email=document.getElementById('loginEmail').value.trim(),password=document.getElementById('loginPassword').value;firebaseAuth.signInWithEmailAndPassword(email,password).then(function(cred){return cred.user.getIdTokenResult(true);}).then(function(token){localStorage.setItem('firebaseUid',firebaseAuth.currentUser.uid);localStorage.setItem('firebaseEmail',firebaseAuth.currentUser.email);if(token.claims.admin===true){localStorage.setItem('loggedInUser','Admin');localStorage.setItem('isAdmin','true');}else{localStorage.removeItem('isAdmin');}location.href='index.html';}).catch(function(error){alert('Login failed: '+error.message);});});</script><script src="search.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In - DynaDuck</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      padding: 20px;
+    }
+
+    .auth-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px #0001;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      font-size: 1em;
+    }
+
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+    }
+
+    .auth-box p {
+      margin-top: 20px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-left">
+      <img
+        src="logo.png"
+        class="logo"
+        alt="DynaDuck"
+        onclick="location.href='index.html'"
+      >
+
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
+    </div>
+
+    <div class="search-container">
+      <input
+        class="search-bar"
+        type="text"
+        placeholder="Search..."
+      >
+    </div>
+
+    <div id="authButtons"></div>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-box">
+      <h1>Log In</h1>
+
+      <form id="loginForm">
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="Email"
+          autocomplete="email"
+          required
+        >
+
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button class="green-btn" type="submit">
+          Log In
+        </button>
+      </form>
+
+      <p>
+        Don't have an account?
+        <a href="signup.html">Sign Up</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="firebase-auth.js"></script>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      firebaseAuth
+        .signInWithEmailAndPassword(email, password)
+        .then(function (cred) {
+          return cred.user.getIdTokenResult(true);
+        })
+        .then(function (token) {
+          const user = firebaseAuth.currentUser;
+
+          if (!user) {
+            throw new Error("Login succeeded, but no user was found.");
+          }
+
+          localStorage.setItem("firebaseUid", user.uid);
+          localStorage.setItem("firebaseEmail", user.email);
+
+          if (token.claims.admin === true) {
+            localStorage.setItem("loggedInUser", "Admin");
+            localStorage.setItem("isAdmin", "true");
+          } else {
+            localStorage.removeItem("isAdmin");
+            localStorage.removeItem("loggedInUser");
+          }
+
+          window.location.href = "index.html";
+        })
+        .catch(function (error) {
+          console.error("Login error:", error);
+          alert("Login failed: " + error.message);
+        });
+    });
+  </script>
+
+  <script src="search.js"></script>
+
+</body>
+</html>
