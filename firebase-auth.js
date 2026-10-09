@@ -1,25 +1,42 @@
 (function () {
   'use strict';
 
-  function boot() {
-    if (!window.__FIREBASE_CONFIG__) {
-      document.body.innerHTML = '<div style="padding:20px;background:#ffcccc;color:#a00;">Security Error: configuration missing.</div>';
-      return;
-    }
+  var fallbackConfig = {
+    apiKey: 'AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ',
+    authDomain: 'dynaduck-19dbb.firebaseapp.com',
+    databaseURL: 'https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId: 'dynaduck-19dbb',
+    storageBucket: 'dynaduck-19dbb.firebasestorage.app',
+    messagingSenderId: '777148453502',
+    appId: '1:777148453502:web:2f67ac439ec29dc4fc3e2f'
+  };
+
+  function setLocalSession(user, username) {
+    localStorage.setItem('loggedInUser', username || 'User');
+    localStorage.setItem('firebaseUid', user.uid);
+    localStorage.setItem('firebaseEmail', user.email || '');
+  }
+
+  function clearLocalSession() {
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('firebaseUid');
+    localStorage.removeItem('firebaseEmail');
+    localStorage.removeItem('isAdmin');
+  }
+
+  function init() {
+    var config = window.__FIREBASE_CONFIG__ || fallbackConfig;
 
     if (!firebase.apps.length) {
-      firebase.initializeApp(window.__FIREBASE_CONFIG__);
+      firebase.initializeApp(config);
     }
 
     window.firebaseAuth = firebase.auth();
     window.firebaseDb = firebase.database();
-    window.firebaseStorage = firebase.storage();
 
     firebaseAuth.onAuthStateChanged(function (user) {
       if (!user) {
-        if (window.SecurityTokenHandler) {
-          window.SecurityTokenHandler.clearSessionToken();
-        }
+        clearLocalSession();
         return;
       }
 
@@ -27,29 +44,28 @@
         var profile = snap.val() || {};
         var username = profile.username || (user.email ? user.email.split('@')[0] : 'User');
 
-        if (window.SecurityTokenHandler) {
-          window.SecurityTokenHandler.setSessionToken(user.uid, user.email, username);
-        }
+        setLocalSession(user, username);
 
         user.getIdTokenResult(true).then(function (result) {
-          sessionStorage.setItem('isAdmin', result && result.claims && result.claims.admin === true ? 'true' : 'false');
+          localStorage.setItem('isAdmin', result && result.claims && result.claims.admin === true ? 'true' : 'false');
         }).catch(function () {
-          sessionStorage.setItem('isAdmin', 'false');
+          localStorage.setItem('isAdmin', 'false');
         });
+      }).catch(function () {
+        setLocalSession(user, user.email ? user.email.split('@')[0] : 'User');
+        localStorage.setItem('isAdmin', 'false');
       });
     });
 
     window.logoutCurrentUser = function () {
-      if (window.SecurityTokenHandler) {
-        window.SecurityTokenHandler.clearSessionToken();
-      }
+      clearLocalSession();
       return firebaseAuth.signOut();
     };
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    boot();
+    init();
   }
 })();
