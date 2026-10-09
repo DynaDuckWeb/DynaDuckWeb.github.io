@@ -1,5 +1,164 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Sign Up - DynaDuck</title><link rel="stylesheet" href="style.css"><style>.auth-container{display:flex;justify-content:center;align-items:center;min-height:80vh}.auth-box{background:#fff;padding:30px;border-radius:12px;box-shadow:0 4px 20px #0001;width:100%;max-width:400px;text-align:center}.auth-box input{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;margin-bottom:15px;box-sizing:border-box;font-size:1em}.auth-box button{width:100%;padding:12px}.auth-box p{margin-top:20px;color:#666}</style></head>
-<body><header><div class="header-left"><a href="index.html"><img src="logo.png" class="logo" alt="DynaDuck"></a><nav><a href="catalog.html">Catalog</a><a href="ideas.html">Ideas</a><a href="create.html">Create</a><a href="dynamites.html">Dynamites</a></nav></div><div class="search-container"><input class="search-bar" type="text" placeholder="Search..."></div><div id="authButtons"></div></header><div class="auth-container"><div class="auth-box"><h1>Create Account</h1><form id="signupForm"><input id="username" placeholder="Username" required><input id="email" type="email" placeholder="Email" required><input id="password" type="password" minlength="6" placeholder="Password (6+ characters)" required><button class="green-btn" type="submit">Sign Up</button></form><p>Already have an account? <a href="login.html">Log In</a></p></div></div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><script src="firebase-auth.js"></script><script>
-document.getElementById('signupForm').addEventListener('submit',function(e){e.preventDefault();var username=document.getElementById('username').value.trim(),email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!/^[A-Za-z0-9_]{3,15}$/.test(username)){alert('Username must be 3–15 letters, numbers, or underscores.');return;}firebaseDb.ref('usernames/'+username).once('value').then(function(s){if(s.exists())throw Error('Username is already taken.');return firebaseAuth.createUserWithEmailAndPassword(email,password);}).then(function(cred){var uid=cred.user.uid;return firebaseDb.ref('usernames/'+username).set(uid).then(function(){return firebaseDb.ref('users/'+uid).set({username:username,email:email,joinedDate:Date.now(),Dynamites:1000,inventory:{'Starter Pack':true},colors:{head:'#ffcd3a',torso:'#e3242b','l-arm':'#ffcd3a','r-arm':'#ffcd3a','l-leg':'#ffcd3a','r-leg':'#ffcd3a'},equipped:{}});});}).then(function(){localStorage.setItem('loggedInUser',username);location.href='index.html';}).catch(function(error){alert('Sign-up failed: '+error.message);});});</script><script src="search.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up - DynaDuck</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-container { display:flex; justify-content:center; align-items:center; min-height:80vh; }
+    .auth-box { background:white; padding:30px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); width:100%; max-width:400px; text-align:center; }
+    .auth-box h1 { margin-top:0; margin-bottom:20px; font-size:2em; color:#333; }
+    .auth-box input { width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:15px; box-sizing:border-box; font-size:1em; outline:none; }
+    .auth-box input:focus { border-color:#11AD36; }
+    .auth-box button { width:100%; padding:12px; font-size:1.05em; }
+    .auth-box p { margin-top:20px; font-size:0.9em; color:#666; }
+    .auth-box p a { color:#11AD36; text-decoration:none; font-weight:600; }
+    .auth-box p a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
+    </div>
+    <div class="search-container"><input type="text" class="search-bar" placeholder="Search..."></div>
+    <div id="authButtons"></div>
+  </header>
+
+  <div class="auth-container">
+    <div class="auth-box">
+      <h1>Create Account</h1>
+      <form id="signupForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit" class="green-btn">Sign Up</button>
+      </form>
+      <p>Already have an account? <a href="login.html">Log In</a></p>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="firebase-auth.js"></script>
+
+  <script>
+    var auth = firebaseAuth;
+    var db = firebaseDb;
+
+    function normalizeForModeration(input) {
+      var s = String(input || '');
+      s = s.replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '');
+      s = s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+      s = s.toLowerCase();
+      s = s.split('').map(function (ch) {
+        var map = {
+          'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+          'α': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'ζ': 'z', 'η': 'h', 'θ': 'th', 'ι': 'i', 'κ': 'k', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'ξ': 'x', 'ο': 'o', 'π': 'p', 'ρ': 'r', 'σ': 's', 'τ': 't', 'υ': 'y', 'φ': 'f', 'χ': 'x', 'ψ': 'ps', 'ω': 'o',
+          '4': 'a', '@': 'a', '8': 'b', '3': 'e', '€': 'e', '9': 'g', '1': 'i', '!': 'i', '|': 'i', '0': 'o', '5': 's', '$': 's', '7': 't', '+': 't', '2': 'z'
+        };
+        return map[ch] || ch;
+      }).join('');
+      s = s.replace(/[^a-z0-9]/g, '');
+      s = s.replace(/(.)\1{2,}/g, '$1');
+      return s;
+    }
+
+    function updateHeader() {
+      var authDiv = document.getElementById('authButtons');
+      var loggedInUser = localStorage.getItem('loggedInUser');
+      if (loggedInUser) {
+        authDiv.innerHTML = '<span style="color:white;font-weight:bold;">Welcome, ' + loggedInUser + '!</span>' +
+          '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
+          '<button class="header-btn" onclick="logoutCurrentUser().then(function(){location.reload();})">Logout</button>';
+      } else {
+        authDiv.innerHTML = '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
+          '<a href="login.html"><button class="header-btn">Log In</button></a>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', updateHeader);
+
+    document.getElementById('signupForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      var username = document.getElementById('username').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
+
+      var usernameRegex = /^[A-Za-z0-9_]+$/;
+      var normalized = normalizeForModeration(username);
+      var bannedWords = ['gay','lesbian','bi','bisexual','nigga','nigger','fag','faggot','retard','fuck','shit','bitch','asshole','dick','pussy','cunt','idiot','trash','discord','youtube','tiktok','instagram','twitter','x.com','nazi','hitler'];
+
+      if (!username || username.length < 3 || username.length > 15) {
+        alert('Username must be 3 to 15 characters long.');
+        return;
+      }
+
+      if (!usernameRegex.test(username)) {
+        alert('Usernames can only contain letters, numbers, and underscores.');
+        return;
+      }
+
+      if (normalized.includes('admin') || normalized.includes('system') || normalized.includes('dynaduck')) {
+        alert('That username is reserved.');
+        return;
+      }
+
+      for (var i = 0; i < bannedWords.length; i++) {
+        if (normalized.indexOf(bannedWords[i]) !== -1) {
+          alert('Username contains restricted text.');
+          return;
+        }
+      }
+
+      try {
+        var usernameTaken = await db.ref('usernames/' + username).once('value');
+        if (usernameTaken.exists()) {
+          alert('This username is already taken.');
+          return;
+        }
+
+        var cred = await auth.createUserWithEmailAndPassword(email, password);
+        var uid = cred.user.uid;
+
+        await db.ref('usernames/' + username).set(uid);
+        await db.ref('users/' + uid).set({
+          username: username,
+          email: email,
+          joinedDate: Date.now(),
+          Dynamites: 1000,
+          inventory: { 'Starter Pack': true },
+          colors: { head: '#ffcd3a', torso: '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' },
+          equipped: {},
+          friends: {},
+          friendRequests: {},
+          outgoingRequests: {}
+        });
+
+        localStorage.setItem('loggedInUser', username);
+        localStorage.setItem('firebaseUid', uid);
+        localStorage.setItem('firebaseEmail', email);
+
+        var token = await cred.user.getIdTokenResult(true);
+        localStorage.setItem('isAdmin', token.claims && token.claims.admin === true ? 'true' : 'false');
+
+        alert('Account created successfully!');
+        window.location.href = 'index.html';
+      } catch (error) {
+        console.error(error);
+        alert('Sign-up failed: ' + (error.message || 'Unknown error'));
+      }
+    });
+  </script>
+
+  <script src="search.js"></script>
+</body>
+</html>

@@ -6,1189 +6,420 @@
   <title>DynaDuck - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background-color: #f4f5f7;
-      color: #172b4d;
-      margin: 0;
-    }
-
-    .dashboard-container {
-      width: 1000px;
-      margin: 25px auto;
-      display: grid;
-      grid-template-columns: 1fr 260px;
-      gap: 24px;
-    }
-
-    main {
-      background: #ffffff;
-      border: none;
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-
-    aside {
-      background: #ffffff;
-      border: none;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      height: fit-content;
-    }
-
-    .motd-banner {
-      background: #f0fdf4;
-      border-left: 4px solid #11AD36;
-      border-radius: 4px;
-      padding: 12px 16px;
-      margin-bottom: 24px;
-    }
-
-    .motd-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #11AD36;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      letter-spacing: 0.5px;
-    }
-
-    .motd-text {
-      margin: 0;
-      font-size: 14px;
-      color: #333;
-      line-height: 1.4;
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #111;
-      margin-top: 0;
-      margin-bottom: 16px;
-    }
-
-    .sidebar-title {
-      font-size: 16px;
-      font-weight: bold;
-      color: #111;
-      margin-top: 0;
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 16px;
-    }
-
-    .game-card {
-      border: none;
-      border-radius: 8px;
-      background: #ffffff;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      position: relative;
-    }
-
-    .game-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .game-card-menu-wrap {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 5;
-    }
-
-    .game-card-menu {
-      background: white;
-      border: none;
-      border-radius: 4px;
-      padding: 4px 8px;
-      cursor: pointer;
-      font-size: 16px;
-      opacity: 0;
-      transition: opacity 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    .game-card:hover .game-card-menu,
-    .game-card-menu.active {
-      opacity: 1;
-    }
-
-    .game-card-menu:hover {
-      background: #f0f0f0;
-    }
-
-    .card-dropdown {
-      display: none;
-      position: absolute;
-      top: 30px;
-      right: 0;
-      background: #fff;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      min-width: 110px;
-      overflow: hidden;
-    }
-
-    .card-dropdown.open {
-      display: block;
-    }
-
-    .card-dropdown button {
-      display: block;
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 8px 12px;
-      text-align: left;
-      font-size: 13px;
-      cursor: pointer;
-      color: #d9534f;
-      font-weight: bold;
-    }
-
-    .card-dropdown button:hover {
-      background: #f5f5f5;
-    }
-
-    .game-thumb {
-      width: 100%;
-      height: 110px;
-      object-fit: cover;
-      border: none;
-      border-radius: 6px;
-      background: #eee;
-    }
-
-    .game-title {
-      font-size: 15px;
-      font-weight: bold;
-      margin: 8px 0 2px 0;
-      color: #111;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .game-creator {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-
-    .game-desc {
-      font-size: 12px;
-      color: #444;
-      height: 32px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .game-info {
-      font-size: 11px;
-      color: #777;
-      padding-top: 6px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .btn-play {
-      background: #11AD36;
-      color: white;
-      text-align: center;
-      padding: 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      text-decoration: none;
-      margin-top: 8px;
-      border: none;
-      display: block;
-      font-size: 13px;
-      transition: background 0.15s ease;
-      cursor: pointer;
-    }
-
-    .btn-play:hover {
-      background: #0e912d;
-    }
-
-    .add-friend-box {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-
-    .add-friend-input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 12px;
-      outline: none;
-      background: #fafafa;
-    }
-
-    .add-friend-input:focus {
-      border-color: #11AD36;
-      background: #fff;
-    }
-
-    .btn-add-friend {
-      background: #11AD36;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-add-friend:hover {
-      background: #0e912d;
-    }
-
-    .friends-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      max-height: 380px;
-      overflow-y: auto;
-    }
-
-    .friend-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 13px;
-    }
-
-    .friend-item:last-child {
-      border-bottom: none;
-    }
-
-    .friend-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .status-online {
-      background-color: #28a745;
-    }
-
-    .friend-name {
-      font-weight: bold;
-      color: #333;
-    }
-
-    .btn-remove-friend {
-      color: #aaa;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 13px;
-      padding: 2px 4px;
-      transition: color 0.15s ease;
-    }
-
-    .btn-remove-friend:hover {
-      color: #d9534f;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #444;
-      margin: 12px 0 6px 0;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .requests-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 6px 0;
-    }
-
-    .btn-req-accept {
-      background: #11AD36;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-right: 4px;
-    }
-
-    .btn-req-accept:hover {
-      background: #0e912d;
-    }
-
-    .btn-req-decline {
-      background: #fff;
-      color: #d9534f;
-      border: 1px solid #d9534f;
-      border-radius: 6px;
-      padding: 3px 10px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-req-decline:hover {
-      background: #d9534f;
-      color: #fff;
-    }
-
-    .admin-panel {
-      background: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      border-radius: 4px;
-      padding: 12px 16px;
-      margin-bottom: 24px;
-    }
-
-    .admin-panel-title {
-      margin: 0 0 8px 0;
-      color: #92400e;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .admin-empty {
-      margin: 0;
-      font-size: 13px;
-      color: #92400e;
-    }
-
-    .report-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .report-item {
-      background: #fff;
-      border-radius: 6px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-
-    .report-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .report-item-head {
-      font-weight: bold;
-      color: #111;
-    }
-
-    .report-item-meta {
-      font-size: 11px;
-      color: #777;
-      margin: 2px 0 6px 0;
-    }
-
-    .report-item-reason {
-      color: #d9534f;
-      font-weight: bold;
-    }
-
-    .report-item-details {
-      color: #444;
-      margin: 4px 0 8px 0;
-      word-break: break-word;
-    }
-
-    .report-item-actions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-report-dismiss {
-      background: #fff;
-      color: #555;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-report-dismiss:hover {
-      background: #f0f0f0;
-    }
-
-    .btn-report-delete {
-      background: #d9534f;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-report-delete:hover {
-      background: #c9302c;
-    }
-
-    .report-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .report-overlay.open {
-      display: flex;
-    }
-
-    .report-modal {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      width: 360px;
-      max-width: 90%;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    }
-
-    .report-modal h3 {
-      margin: 0 0 4px 0;
-      font-size: 18px;
-      color: #111;
-    }
-
-    .report-game-name {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 14px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .report-modal label {
-      display: block;
-      font-size: 12px;
-      font-weight: bold;
-      color: #444;
-      margin-bottom: 4px;
-    }
-
-    .report-modal select,
-    .report-modal textarea {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 13px;
-      font-family: inherit;
-      margin-bottom: 12px;
-      background: #fafafa;
-    }
-
-    .report-modal textarea {
-      height: 80px;
-      resize: vertical;
-    }
-
-    .report-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    .btn-report-cancel {
-      background: #fff;
-      color: #555;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-report-submit {
-      background: #d9534f;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-report-submit:hover {
-      background: #c9302c;
-    }
-
-    .btn-report-submit:disabled {
-      background: #e0a4a2;
-      cursor: default;
-    }
+    body { font-family: Arial, Helvetica, sans-serif; background: #f4f5f7; color: #172b4d; margin: 0; }
+    .dashboard-container { width: 1000px; margin: 25px auto; display: grid; grid-template-columns: 1fr 260px; gap: 24px; }
+    main { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    aside { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); height: fit-content; }
+    .motd-banner { background: #f0fdf4; border-left: 4px solid #11AD36; border-radius: 4px; padding: 12px 16px; margin-bottom: 24px; }
+    .motd-title { font-size: 13px; font-weight: bold; color: #11AD36; text-transform: uppercase; margin-bottom: 4px; }
+    .motd-text { margin: 0; font-size: 14px; color: #333; }
+    .section-title { font-size: 22px; font-weight: bold; color: #111; margin: 0 0 16px 0; }
+    .games-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap:16px; }
+    .game-card { border:none; border-radius:8px; background:#fff; padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .game-thumb { width:100%; height:110px; object-fit:cover; border-radius:6px; background:#eee; }
+    .game-title { font-size:15px; font-weight:bold; margin:8px 0 2px 0; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .game-creator { font-size:12px; color:#666; margin-bottom:6px; }
+    .game-desc { font-size:12px; color:#444; height:32px; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px; line-height:1.3; }
+    .game-info { font-size:11px; color:#777; padding-top:6px; display:flex; justify-content:space-between; }
+    .btn-play { background:#11AD36; color:white; text-align:center; padding:8px; border-radius:6px; font-weight:bold; text-decoration:none; margin-top:8px; display:block; font-size:13px; }
+    .add-friend-box { display:flex; gap:6px; margin-bottom:14px; }
+    .add-friend-input { flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:12px; background:#fafafa; }
+    .btn-add-friend { background:#11AD36; color:white; border:none; border-radius:6px; padding:8px 12px; font-size:12px; font-weight:bold; cursor:pointer; }
+    .friends-list { list-style:none; padding:0; margin:0; max-height:380px; overflow-y:auto; }
+    .friend-item { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:13px; }
+    .friend-info { display:flex; align-items:center; gap:8px; }
+    .status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .status-online { background-color:#28a745; }
+    .friend-name { font-weight:bold; color:#333; }
+    .btn-remove-friend { color:#aaa; background:none; border:none; cursor:pointer; font-size:13px; padding:2px 4px; }
+    .subtitle { font-size:13px; font-weight:bold; color:#444; margin:12px 0 6px 0; padding-bottom:4px; border-bottom:1px solid #f0f0f0; }
+    .requests-list { list-style:none; padding:0; margin:0 0 6px 0; }
+    .btn-req-accept { background:#11AD36; color:#fff; border:none; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; cursor:pointer; margin-right:4px; }
+    .btn-req-decline { background:#fff; color:#d9534f; border:1px solid #d9534f; border-radius:6px; padding:3px 10px; font-size:12px; font-weight:bold; cursor:pointer; }
   </style>
 </head>
 <body>
-
-<header>
-  <div class="header-left">
-    <a href="index.html">
-      <img src="logo.png" class="logo" alt="Logo" />
-    </a>
-    <nav>
-      <a href="catalog.html">Catalog</a>
-      <a href="ideas.html">Ideas</a>
-      <a href="create.html">Create</a>
-      <a href="dynamites.html">Dynamites</a>
-    </nav>
-  </div>
-
-  <div class="search-container">
-    <input type="text" class="search-bar" id="searchInput" placeholder="Search..." oninput="filterGames()">
-  </div>
-
-  <div id="authButtons">
-    <a href="signup.html"><button class="header-btn">Sign Up</button></a>
-    <a href="login.html"><button class="header-btn">Log In</button></a>
-  </div>
-</header>
-
-<div class="dashboard-container">
-  <main>
-    <div id="adminReports"></div>
-
-    <div class="motd-banner">
-      <div class="motd-title">Message of the Day</div>
-      <p id="motdText" class="motd-text">Loading announcement...</p>
+  <header>
+    <div class="header-left">
+      <a href="index.html"><img src="logo.png" class="logo" alt="Logo"></a>
+      <nav>
+        <a href="catalog.html">Catalog</a>
+        <a href="ideas.html">Ideas</a>
+        <a href="create.html">Create</a>
+        <a href="dynamites.html">Dynamites</a>
+      </nav>
     </div>
-
-    <h1 class="section-title">Games Directory</h1>
-    
-    <div id="gamesContainer" class="games-grid">
-      <p>Loading place directory...</p>
+    <div class="search-container">
+      <input type="text" class="search-bar" id="searchInput" placeholder="Search..." oninput="filterGames()">
     </div>
-  </main>
-
-  <aside>
-    <h2 class="sidebar-title">Friends List</h2>
-    <div id="friendsWidget">
-      <p style="font-size: 12px; color: #666;">Log in to manage your friends list!</p>
-    </div>
-  </aside>
-</div>
-
-<div class="report-overlay" id="reportOverlay" onclick="if(event.target===this)closeReportModal()">
-  <div class="report-modal">
-    <h3>Report Game</h3>
-    <div class="report-game-name" id="reportGameName"></div>
-
-    <label for="reportReason">Reason</label>
-    <select id="reportReason">
-      <option value="Inappropriate content">Inappropriate content</option>
-      <option value="Harassment or hate">Harassment or hate</option>
-      <option value="Scam or spam">Scam or spam</option>
-      <option value="Stolen work">Stolen work</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <label for="reportDetails">Details (optional)</label>
-    <textarea id="reportDetails" maxlength="500" placeholder="Tell us what's wrong..."></textarea>
-
-    <div class="report-actions">
-      <button class="btn-report-cancel" onclick="closeReportModal()">Cancel</button>
-      <button class="btn-report-submit" id="reportSubmitBtn" onclick="submitReport()">Submit</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-var firebaseConfig = {
-  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-  authDomain: "dynaduck-19dbb.firebaseapp.com",
-  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dynaduck-19dbb",
-  storageBucket: "dynaduck-19dbb.firebasestorage.app",
-  messagingSenderId: "777148453502",
-  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-};
-
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-var db = firebase.database();
-const loggedInUser = localStorage.getItem('loggedInUser');
-var allGames = {};
-var reportingGameKey = null;
-
-const ADMIN_ACCOUNTS = ['dynaduckbest', 'Admin'];
-
-function isAdmin() {
-  return !!loggedInUser && ADMIN_ACCOUNTS.includes(loggedInUser);
-}
-
-function updateHeader() {
-  const authDiv = document.getElementById('authButtons');
-  if(loggedInUser){
-    authDiv.innerHTML = `
-      <span style="color:#fff;font-weight:bold;">Welcome, ${escapeHtml(loggedInUser)}!</span>
-      <a href="settings.html"><button class="header-btn">Settings</button></a>
-      <button class="header-btn" onclick="logout()">Logout</button>
-    `;
-  } else {
-    authDiv.innerHTML = `
+    <div id="authButtons">
       <a href="signup.html"><button class="header-btn">Sign Up</button></a>
       <a href="login.html"><button class="header-btn">Log In</button></a>
-    `;
-  }
-}
+    </div>
+  </header>
 
-function logout(){
-  localStorage.removeItem('loggedInUser');
-  localStorage.removeItem('adminSessionId');
-  location.reload();
-}
+  <div class="dashboard-container">
+    <main>
+      <div class="motd-banner">
+        <div class="motd-title">Message of the Day</div>
+        <p id="motdText" class="motd-text">Loading announcement...</p>
+      </div>
 
-function loadMOTD() {
-  db.ref('motd').on('value', function(snapshot) {
-    const message = snapshot.val();
-    const motdElem = document.getElementById('motdText');
-    if (message) {
-      motdElem.textContent = message;
-    } else {
-      motdElem.textContent = "Welcome to DynaDuck! Build, Play, Have Fun Log: Improved Site Added Photos to games";
+      <h1 class="section-title">Games Directory</h1>
+      <div id="gamesContainer" class="games-grid"><p>Loading place directory...</p></div>
+    </main>
+
+    <aside>
+      <h2 class="sidebar-title">Friends List</h2>
+      <div id="friendsWidget">
+        <p style="font-size:12px;color:#666;">Log in to manage your friends list!</p>
+      </div>
+    </aside>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="firebase-auth.js"></script>
+
+  <script>
+    var db = firebaseDb;
+    var allGames = {};
+
+    function currentUid() {
+      return firebaseAuth && firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : localStorage.getItem('firebaseUid');
     }
-  });
-}
 
-function loadGames() {
-  db.ref('games').on('value', function(snapshot) {
-    allGames = snapshot.val() || {};
-    renderGames(allGames);
-  }, function(error) {
-    console.error("Firebase read error: ", error);
-    const container = document.getElementById('gamesContainer');
-    container.innerHTML = '<p style="color:red;">Error loading games list.</p>';
-  });
-}
+    function currentUsername() {
+      return localStorage.getItem('loggedInUser') || '';
+    }
 
-function renderGames(gamesObj) {
-  const container = document.getElementById('gamesContainer');
-  container.innerHTML = '';
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
 
-  const keys = Object.keys(gamesObj);
-  if (keys.length === 0) {
-    container.innerHTML = '<p>No places published yet!</p>';
-    return;
-  }
-
-  keys.reverse().forEach(function(key) {
-    const game = gamesObj[key];
-    let thumbSrc = 'photo.png';
-    if (game.thumbnail && typeof game.thumbnail === 'string' && game.thumbnail.trim() !== '') {
-      const cleanThumb = game.thumbnail.trim();
-      if (cleanThumb.startsWith('data:image') || cleanThumb.startsWith('http://') || cleanThumb.startsWith('https://')) {
-        thumbSrc = cleanThumb;
+    function updateHeader() {
+      var authDiv = document.getElementById('authButtons');
+      var username = currentUsername();
+      if (username) {
+        authDiv.innerHTML = '<span style="color:#fff;font-weight:bold;">Welcome, ' + escapeHtml(username) + '!</span>' +
+          '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
+          '<button class="header-btn" onclick="logoutCurrentUser().then(function(){location.reload();})">Logout</button>';
+      } else {
+        authDiv.innerHTML = '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
+          '<a href="login.html"><button class="header-btn">Log In</button></a>';
       }
     }
-    
-    const card = document.createElement('div');
-    card.className = 'game-card';
-    card.innerHTML = `
-      <div class="game-card-menu-wrap">
-        <button class="game-card-menu" onclick="toggleCardMenu(event, this)">⋮</button>
-        <div class="card-dropdown">
-          <button onclick="openReportModal(event, '${encodeURIComponent(key)}')">🚩 Report</button>
-        </div>
-      </div>
-      <div>
-        <img src="${thumbSrc}" class="game-thumb" alt="${escapeHtml(game.title)}" onerror="this.onerror=null;this.src='photo.png';">
-        <div class="game-title" title="${escapeHtml(game.title)}">${escapeHtml(game.title)}</div>
-        <div class="game-creator">By <b>${escapeHtml(game.creator || 'Anonymous')}</b></div>
-        <div class="game-desc">${escapeHtml(game.description || '')}</div>
-      </div>
-      <div>
-        <div class="game-info">
-          <span>Max Players: ${game.maxPlayers || 12}</span>
-        </div>
-        <button class="btn-play" onclick="launchGame('${encodeURIComponent(key)}')">PLAY</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
 
-// ---------- 3-dot card menu ----------
-
-function closeAllCardMenus() {
-  document.querySelectorAll('.card-dropdown.open').forEach(function(d) {
-    d.classList.remove('open');
-  });
-  document.querySelectorAll('.game-card-menu.active').forEach(function(b) {
-    b.classList.remove('active');
-  });
-}
-
-function toggleCardMenu(event, btn) {
-  event.stopPropagation();
-  const dropdown = btn.nextElementSibling;
-  const wasOpen = dropdown.classList.contains('open');
-  closeAllCardMenus();
-  if (!wasOpen) {
-    dropdown.classList.add('open');
-    btn.classList.add('active');
-  }
-}
-
-document.addEventListener('click', closeAllCardMenus);
-
-// ---------- Game reporting ----------
-
-function openReportModal(event, encodedKey) {
-  event.stopPropagation();
-  closeAllCardMenus();
-
-  if (!loggedInUser) {
-    alert("You need to log in to report a game.");
-    return;
-  }
-
-  const key = decodeURIComponent(encodedKey);
-  const game = allGames[key];
-  if (!game) {
-    alert("This place could not be found.");
-    return;
-  }
-
-  reportingGameKey = key;
-  document.getElementById('reportGameName').textContent = game.title || 'Untitled';
-  document.getElementById('reportReason').selectedIndex = 0;
-  document.getElementById('reportDetails').value = '';
-  document.getElementById('reportSubmitBtn').disabled = false;
-  document.getElementById('reportOverlay').classList.add('open');
-}
-
-function closeReportModal() {
-  reportingGameKey = null;
-  document.getElementById('reportOverlay').classList.remove('open');
-}
-
-function submitReport() {
-  if (!loggedInUser || !reportingGameKey) return;
-
-  const game = allGames[reportingGameKey];
-  if (!game) {
-    closeReportModal();
-    return;
-  }
-
-  const submitBtn = document.getElementById('reportSubmitBtn');
-  submitBtn.disabled = true;
-
-  const report = {
-    gameKey: reportingGameKey,
-    gameTitle: game.title || '',
-    gameCreator: game.creator || '',
-    reporter: loggedInUser,
-    reason: document.getElementById('reportReason').value,
-    details: document.getElementById('reportDetails').value.trim().substring(0, 500),
-    timestamp: Date.now()
-  };
-
-  db.ref('reports').push(report).then(function() {
-    closeReportModal();
-    alert("Thanks! Your report has been submitted.");
-  }).catch(function(e) {
-    submitBtn.disabled = false;
-    alert("Failed to submit report: " + e.message);
-  });
-}
-
-
-function loadAdminReports() {
-  if (!isAdmin()) return;
-
-  db.ref('reports').on('value', function(snapshot) {
-    renderAdminReports(snapshot.val() || {});
-  }, function(error) {
-    console.error("Reports read error: ", error);
-    document.getElementById('adminReports').innerHTML =
-      '<div class="admin-panel"><p class="admin-empty">Could not load reports: ' + escapeHtml(error.message) + '</p></div>';
-  });
-}
-
-function renderAdminReports(reportsObj) {
-  const container = document.getElementById('adminReports');
-  const keys = Object.keys(reportsObj).sort(function(a, b) {
-    return (reportsObj[b].timestamp || 0) - (reportsObj[a].timestamp || 0);
-  });
-
-  let html = '<div class="admin-panel">';
-  html += '<p class="admin-panel-title">🔑 Admin - Reported Games (' + keys.length + ')</p>';
-
-  if (keys.length === 0) {
-    html += '<p class="admin-empty">No reports right now.</p>';
-  } else {
-    html += '<div class="report-list">';
-    keys.forEach(function(rKey) {
-      const r = reportsObj[rKey];
-      const when = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
-      const gameStillExists = !!allGames[r.gameKey];
-      html += `
-        <div class="report-item">
-          <div class="report-item-head">${escapeHtml(r.gameTitle || 'Untitled')} <span style="font-weight:normal;color:#666;">by ${escapeHtml(r.gameCreator || 'Anonymous')}</span></div>
-          <div class="report-item-meta">Reported by ${escapeHtml(r.reporter || 'Unknown')} - ${escapeHtml(when)}</div>
-          <div><span class="report-item-reason">${escapeHtml(r.reason || '')}</span></div>
-          ${r.details ? '<div class="report-item-details">' + escapeHtml(r.details) + '</div>' : ''}
-          <div class="report-item-actions">
-            <button class="btn-report-dismiss" onclick="dismissReport('${encodeURIComponent(rKey)}')">Dismiss</button>
-            ${gameStillExists ? '<button class="btn-report-delete" onclick="deleteReportedGame(\'' + encodeURIComponent(rKey) + '\', \'' + encodeURIComponent(r.gameKey) + '\')">Delete Game</button>' : '<span style="font-size:12px;color:#999;">Game already removed</span>'}
-          </div>
-        </div>
-      `;
-    });
-    html += '</div>';
-  }
-
-  html += '</div>';
-  container.innerHTML = html;
-}
-
-function dismissReport(encodedReportKey) {
-  if (!isAdmin()) return;
-  db.ref('reports/' + decodeURIComponent(encodedReportKey)).remove();
-}
-
-function deleteReportedGame(encodedReportKey, encodedGameKey) {
-  if (!isAdmin()) return;
-  const gameKey = decodeURIComponent(encodedGameKey);
-  const game = allGames[gameKey];
-  if (!game) return;
-  if (!confirm('Delete "' + (game.title || 'Untitled') + '" permanently?')) return;
-
-  db.ref('games/' + gameKey).remove().then(function() {
-    db.ref('reports/' + decodeURIComponent(encodedReportKey)).remove();
-  }).catch(function(e) {
-    alert("Failed to delete game: " + e.message);
-  });
-}
-
-// ---------- Friends ----------
-
-function loadFriendsList() {
-  const container = document.getElementById('friendsWidget');
-  if (!loggedInUser) {
-    container.innerHTML = `<p style="font-size: 12px; color: #666; text-align: center;">Log in to add and view friends!</p>`;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="add-friend-box">
-      <input type="text" id="friendNameInput" class="add-friend-input" placeholder="Username...">
-      <button class="btn-add-friend" onclick="sendFriendRequest()">Add</button>
-    </div>
-    <div id="requestsSection" style="display:none;">
-      <div class="subtitle">Friend Requests</div>
-      <ul class="requests-list" id="requestsUl"></ul>
-    </div>
-    <div class="subtitle">Friends</div>
-    <ul class="friends-list" id="friendsUl">
-      <li style="font-size:12px; color:#666;">Loading friends...</li>
-    </ul>
-  `;
-
-  db.ref('users/' + loggedInUser + '/friends').on('value', function(snapshot) {
-    renderFriendsData(snapshot.val() || {});
-  });
-
-  db.ref('users/' + loggedInUser + '/friendRequests').on('value', function(snapshot) {
-    renderRequests(snapshot.val() || {});
-  });
-}
-
-function renderFriendsData(friendsData) {
-  const friendsUl = document.getElementById('friendsUl');
-  if (!friendsUl) return;
-  
-  friendsUl.innerHTML = '';
-
-  let friendList = [];
-  if (Array.isArray(friendsData)) {
-    friendList = friendsData.filter(Boolean);
-  } else if (typeof friendsData === 'object' && friendsData !== null) {
-    friendList = Object.keys(friendsData);
-  }
-
-  if (friendList.length === 0) {
-    friendsUl.innerHTML = `<li style="font-size: 12px; color: #777; text-align: center; padding: 10px 0;">No friends added yet.</li>`;
-    return;
-  }
-
-  friendList.forEach(function(friendName) {
-    const li = document.createElement('li');
-    li.className = 'friend-item';
-    
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'friend-info';
-    infoDiv.innerHTML = `<span class="status-dot status-online"></span><span class="friend-name">${escapeHtml(friendName)}</span>`;
-    
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'btn-remove-friend';
-    removeBtn.textContent = '✕';
-    removeBtn.onclick = function() { removeFriend(friendName); };
-    
-    li.appendChild(infoDiv);
-    li.appendChild(removeBtn);
-    friendsUl.appendChild(li);
-  });
-}
-
-function renderRequests(requestsData) {
-  const requestsUl = document.getElementById('requestsUl');
-  const section = document.getElementById('requestsSection');
-  if (!requestsUl || !section) return;
-
-  let requestList = [];
-  if (Array.isArray(requestsData)) {
-    requestList = requestsData.filter(Boolean);
-  } else if (typeof requestsData === 'object' && requestsData !== null) {
-    requestList = Object.keys(requestsData);
-  }
-
-  if (requestList.length === 0) {
-    section.style.display = 'none';
-    return;
-  }
-
-  section.style.display = 'block';
-  requestsUl.innerHTML = '';
-
-  requestList.forEach(function(fromName) {
-    const li = document.createElement('li');
-    li.className = 'friend-item';
-
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'friend-name';
-    nameSpan.textContent = fromName;
-
-    const btnWrap = document.createElement('span');
-    const acceptBtn = document.createElement('button');
-    acceptBtn.className = 'btn-req-accept';
-    acceptBtn.textContent = 'Accept';
-    acceptBtn.onclick = function() { acceptFriendRequest(fromName); };
-
-    const declineBtn = document.createElement('button');
-    declineBtn.className = 'btn-req-decline';
-    declineBtn.textContent = 'Decline';
-    declineBtn.onclick = function() { declineFriendRequest(fromName); };
-
-    btnWrap.appendChild(acceptBtn);
-    btnWrap.appendChild(declineBtn);
-
-    li.appendChild(nameSpan);
-    li.appendChild(btnWrap);
-    requestsUl.appendChild(li);
-  });
-}
-
-async function sendFriendRequest() {
-  const friendInput = document.getElementById('friendNameInput');
-  const friendName = friendInput.value.trim();
-  if (!friendName) return;
-
-  if (/[.#$[\]/]/.test(friendName)) {
-    alert("That name contains invalid characters.");
-    return;
-  }
-
-  if (friendName.toLowerCase() === loggedInUser.toLowerCase()) {
-    alert("You cannot add yourself as a friend!");
-    return;
-  }
-
-  const targetSnap = await db.ref('users/' + friendName).once('value');
-  if (!targetSnap.val()) {
-    alert("That user does not exist.");
-    return;
-  }
-
-  const friendsSnap = await db.ref('users/' + loggedInUser + '/friends/' + friendName).once('value');
-  if (friendsSnap.val()) {
-    alert("You are already friends with " + friendName + "!");
-    return;
-  }
-
-  const incomingSnap = await db.ref('users/' + loggedInUser + '/friendRequests/' + friendName).once('value');
-  if (incomingSnap.val()) {
-    acceptFriendRequest(friendName);
-    return;
-  }
-
-  const outgoingSnap = await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).once('value');
-  if (outgoingSnap.val()) {
-    alert("Friend request already sent to " + friendName + ".");
-    return;
-  }
-
-  const ts = Date.now();
-  await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).set(ts);
-  try {
-    await db.ref('users/' + friendName + '/friendRequests/' + loggedInUser).set(ts);
-    friendInput.value = '';
-    alert("Friend request sent to " + friendName + "!");
-  } catch (e) {
-    await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).remove();
-    alert("Failed to send request: " + e.message);
-  }
-}
-
-async function acceptFriendRequest(fromName) {
-  const updates = {};
-  updates['users/' + loggedInUser + '/friends/' + fromName] = true;
-  updates['users/' + fromName + '/friends/' + loggedInUser] = true;
-  updates['users/' + loggedInUser + '/friendRequests/' + fromName] = null;
-  updates['users/' + fromName + '/outgoingRequests/' + loggedInUser] = null;
-  try {
-    await db.ref().update(updates);
-    alert("You are now friends with " + fromName + "!");
-  } catch (e) {
-    alert("Failed to accept request: " + e.message);
-  }
-}
-
-function declineFriendRequest(fromName) {
-  const updates = {};
-  updates['users/' + loggedInUser + '/friendRequests/' + fromName] = null;
-  updates['users/' + fromName + '/outgoingRequests/' + loggedInUser] = null;
-  db.ref().update(updates);
-}
-
-function removeFriend(friendName) {
-  if (!confirm("Remove " + friendName + " from your friends list?")) return;
-  const updates = {};
-  updates['users/' + loggedInUser + '/friends/' + friendName] = null;
-  updates['users/' + friendName + '/friends/' + loggedInUser] = null;
-  db.ref().update(updates);
-}
-
-function filterGames() {
-  const query = document.getElementById('searchInput').value.toLowerCase().trim();
-  if (!query) {
-    renderGames(allGames);
-    return;
-  }
-
-  const filtered = {};
-  Object.keys(allGames).forEach(function(key) {
-    const game = allGames[key];
-    const title = (game.title || '').toLowerCase();
-    const creator = (game.creator || '').toLowerCase();
-    if (title.includes(query) || creator.includes(query)) {
-      filtered[key] = game;
+    function loadMOTD() {
+      db.ref('motd').on('value', function (snapshot) {
+        var message = snapshot.val();
+        var motdElem = document.getElementById('motdText');
+        motdElem.textContent = message || 'Welcome to DynaDuck! Build, Play, Have Fun.';
+      }, function () {
+        document.getElementById('motdText').textContent = 'Welcome to DynaDuck! Build, Play, Have Fun.';
+      });
     }
-  });
 
-  renderGames(filtered);
-}
+    function loadGames() {
+      db.ref('games').on('value', function (snapshot) {
+        allGames = snapshot.val() || {};
+        renderGames(allGames);
+      }, function () {
+        document.getElementById('gamesContainer').innerHTML = '<p style="color:red;">Error loading games list.</p>';
+      });
+    }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
+    function renderGames(gamesObj) {
+      var container = document.getElementById('gamesContainer');
+      container.innerHTML = '';
+      var keys = Object.keys(gamesObj || {});
+      if (!keys.length) {
+        container.innerHTML = '<p>No places published yet!</p>';
+        return;
+      }
 
-function avatarToString(colors) {
-  const keys = ['head', 'torso', 'l-arm', 'r-arm', 'l-leg', 'r-leg'];
-  const parts = [];
-  keys.forEach(function(k) {
-    const c = (colors && colors[k]) ? colors[k] : '#ffcd3a';
-    parts.push(k + '=' + c);
-  });
-  return parts.join(',');
-}
+      keys.reverse().forEach(function (key) {
+        var game = gamesObj[key] || {};
+        var thumbSrc = 'photo.png';
+        if (game.thumbnail && typeof game.thumbnail === 'string' && game.thumbnail.trim() !== '') {
+          var cleanThumb = game.thumbnail.trim();
+          if (cleanThumb.indexOf('data:image') === 0 || cleanThumb.indexOf('http://') === 0 || cleanThumb.indexOf('https://') === 0) {
+            thumbSrc = cleanThumb;
+          }
+        }
 
-function buildLaunchUrl(mapData) {
-  return "dynaduck://launch?mapData=" + encodeURIComponent(mapData);
-}
+        var card = document.createElement('div');
+        card.className = 'game-card';
+        card.innerHTML = '<div>' +
+          '<img src="' + thumbSrc + '" class="game-thumb" alt="' + escapeHtml(game.title || 'Game') + '" onerror="this.onerror=null;this.src=\'photo.png\';">' +
+          '<div class="game-title" title="' + escapeHtml(game.title || '') + '">' + escapeHtml(game.title || 'Untitled') + '</div>' +
+          '<div class="game-creator">By <b>' + escapeHtml(game.creator || 'Anonymous') + '</b></div>' +
+          '<div class="game-desc">' + escapeHtml(game.description || '') + '</div>' +
+          '</div>' +
+          '<div>' +
+          '<div class="game-info"><span>Max Players: ' + (game.maxPlayers || 12) + '</span></div>' +
+          '<button class="btn-play" onclick="launchGame(\'' + key + '\')">PLAY</button>' +
+          '</div>';
+        container.appendChild(card);
+      });
+    }
 
-function launchGame(key) {
-  const game = allGames[decodeURIComponent(key)] || allGames[key];
-  if (!game) {
-    alert("This place could not be found.");
-    return;
-  }
+    function getUidFromUsername(username) {
+      if (!username) return Promise.resolve(null);
+      return db.ref('usernames/' + username).once('value').then(function (snap) {
+        return snap.exists() ? snap.val() : null;
+      });
+    }
 
-  const mapData = game.fileData || '';
-  if (!mapData) {
-    alert("This place has no map data to launch.");
-    return;
-  }
+    function loadFriendsList() {
+      var container = document.getElementById('friendsWidget');
+      var uid = currentUid();
+      if (!uid) {
+        container.innerHTML = '<p style="font-size:12px;color:#666;text-align:center;">Log in to add and view friends!</p>';
+        return;
+      }
 
-  if (!loggedInUser) {
-    window.location.href = buildLaunchUrl(mapData);
-    return;
-  }
+      container.innerHTML = '<div class="add-friend-box"><input type="text" id="friendNameInput" class="add-friend-input" placeholder="Username..."><button class="btn-add-friend" onclick="sendFriendRequest()">Add</button></div><div id="requestsSection" style="display:none;"><div class="subtitle">Friend Requests</div><ul class="requests-list" id="requestsUl"></ul></div><div class="subtitle">Friends</div><ul class="friends-list" id="friendsUl"><li style="font-size:12px;color:#666;">Loading friends...</li></ul>';
 
-  db.ref('users/' + loggedInUser).once('value', function(snapshot) {
-    const profile = snapshot.val() || {};
-    const colors = profile.colors || {};
-    const avatar = avatarToString(colors);
-    const url = buildLaunchUrl(mapData) +
-      "&username=" + encodeURIComponent(loggedInUser) +
-      "&avatar=" + encodeURIComponent(avatar);
-    window.location.href = url;
-  }, function() {
-    window.location.href = buildLaunchUrl(mapData);
-  });
-}
+      db.ref('users/' + uid + '/friends').on('value', function (snapshot) {
+        renderFriendsData(snapshot.val() || {});
+      });
 
-window.addEventListener('DOMContentLoaded', function() {
-  updateHeader();
-  loadMOTD();
-  loadGames();
-  loadFriendsList();
-  loadAdminReports();
-});
-</script>
+      db.ref('users/' + uid + '/friendRequests').on('value', function (snapshot) {
+        renderRequests(snapshot.val() || {});
+      });
+    }
+
+    function renderFriendsData(friendsData) {
+      var friendsUl = document.getElementById('friendsUl');
+      if (!friendsUl) return;
+      friendsUl.innerHTML = '';
+
+      var friendList = [];
+      if (friendsData && typeof friendsData === 'object') {
+        friendList = Object.keys(friendsData);
+      }
+
+      if (!friendList.length) {
+        friendsUl.innerHTML = '<li style="font-size:12px;color:#777;text-align:center;padding:10px 0;">No friends added yet.</li>';
+        return;
+      }
+
+      friendList.forEach(function (friendName) {
+        var li = document.createElement('li');
+        li.className = 'friend-item';
+        li.innerHTML = '<div class="friend-info"><span class="status-dot status-online"></span><span class="friend-name">' + escapeHtml(friendName) + '</span></div><button class="btn-remove-friend" onclick="removeFriend(\'' + friendName + '\')">✕</button>';
+        friendsUl.appendChild(li);
+      });
+    }
+
+    function renderRequests(requestsData) {
+      var requestsUl = document.getElementById('requestsUl');
+      var section = document.getElementById('requestsSection');
+      if (!requestsUl || !section) return;
+
+      var requestList = [];
+      if (requestsData && typeof requestsData === 'object') {
+        requestList = Object.keys(requestsData);
+      }
+
+      if (!requestList.length) {
+        section.style.display = 'none';
+        return;
+      }
+
+      section.style.display = 'block';
+      requestsUl.innerHTML = '';
+
+      requestList.forEach(function (fromName) {
+        var li = document.createElement('li');
+        li.className = 'friend-item';
+        li.innerHTML = '<span class="friend-name">' + escapeHtml(fromName) + '</span><span><button class="btn-req-accept" onclick="acceptFriendRequest(\'' + fromName + '\')">Accept</button><button class="btn-req-decline" onclick="declineFriendRequest(\'' + fromName + '\')">Decline</button></span>';
+        requestsUl.appendChild(li);
+      });
+    }
+
+    async function sendFriendRequest() {
+      var uid = currentUid();
+      var currentUserName = currentUsername();
+      var friendInput = document.getElementById('friendNameInput');
+      var friendName = friendInput ? friendInput.value.trim() : '';
+
+      if (!uid || !currentUserName) {
+        alert('Please log in first.');
+        return;
+      }
+
+      if (!friendName) return;
+      if (friendName === currentUserName) {
+        alert('You cannot add yourself as a friend.');
+        return;
+      }
+
+      if (/[.#$\[\]/]/.test(friendName)) {
+        alert('That name contains invalid characters.');
+        return;
+      }
+
+      var targetUid = await getUidFromUsername(friendName);
+      if (!targetUid) {
+        alert('That user does not exist.');
+        return;
+      }
+
+      var existingFriendSnap = await db.ref('users/' + uid + '/friends/' + friendName).once('value');
+      if (existingFriendSnap.val()) {
+        alert('You are already friends with ' + friendName + '!');
+        return;
+      }
+
+      var incomingSnap = await db.ref('users/' + uid + '/friendRequests/' + friendName).once('value');
+      if (incomingSnap.val()) {
+        acceptFriendRequest(friendName);
+        return;
+      }
+
+      var outgoingSnap = await db.ref('users/' + uid + '/outgoingRequests/' + friendName).once('value');
+      if (outgoingSnap.val()) {
+        alert('Friend request already sent.');
+        return;
+      }
+
+      var timestamp = Date.now();
+      await db.ref('users/' + uid + '/outgoingRequests/' + friendName).set(timestamp);
+      try {
+        await db.ref('users/' + targetUid + '/friendRequests/' + currentUserName).set(timestamp);
+        if (friendInput) friendInput.value = '';
+        alert('Friend request sent to ' + friendName + '!');
+      } catch (error) {
+        await db.ref('users/' + uid + '/outgoingRequests/' + friendName).remove();
+        alert('Failed to send request: ' + error.message);
+      }
+    }
+
+    async function acceptFriendRequest(fromName) {
+      var uid = currentUid();
+      var currentUserName = currentUsername();
+      if (!uid || !currentUserName) return;
+
+      var targetUid = await getUidFromUsername(fromName);
+      if (!targetUid) return;
+
+      var updates = {};
+      updates['users/' + uid + '/friends/' + fromName] = true;
+      updates['users/' + targetUid + '/friends/' + currentUserName] = true;
+      updates['users/' + uid + '/friendRequests/' + fromName] = null;
+      updates['users/' + targetUid + '/outgoingRequests/' + currentUserName] = null;
+
+      try {
+        await db.ref().update(updates);
+        alert('You are now friends with ' + fromName + '!');
+      } catch (error) {
+        alert('Failed to accept request: ' + error.message);
+      }
+    }
+
+    function declineFriendRequest(fromName) {
+      var uid = currentUid();
+      if (!uid) return;
+      var updates = {};
+      updates['users/' + uid + '/friendRequests/' + fromName] = null;
+      if (fromName) {
+        getUidFromUsername(fromName).then(function (targetUid) {
+          if (targetUid) {
+            updates['users/' + targetUid + '/outgoingRequests/' + currentUsername()] = null;
+            db.ref().update(updates);
+          }
+        });
+      }
+    }
+
+    function removeFriend(friendName) {
+      if (!friendName) return;
+      if (!confirm('Remove ' + friendName + ' from your friends list?')) return;
+      var uid = currentUid();
+      if (!uid) return;
+
+      getUidFromUsername(friendName).then(function (targetUid) {
+        if (!targetUid) return;
+        var updates = {};
+        updates['users/' + uid + '/friends/' + friendName] = null;
+        updates['users/' + targetUid + '/friends/' + currentUsername()] = null;
+        db.ref().update(updates);
+      });
+    }
+
+    function filterGames() {
+      var query = document.getElementById('searchInput').value.toLowerCase().trim();
+      if (!query) {
+        renderGames(allGames);
+        return;
+      }
+
+      var filtered = {};
+      Object.keys(allGames).forEach(function (key) {
+        var game = allGames[key] || {};
+        var title = (game.title || '').toLowerCase();
+        var creator = (game.creator || '').toLowerCase();
+        if (title.indexOf(query) !== -1 || creator.indexOf(query) !== -1) {
+          filtered[key] = game;
+        }
+      });
+      renderGames(filtered);
+    }
+
+    function avatarToString(colors) {
+      var keys = ['head', 'torso', 'l-arm', 'r-arm', 'l-leg', 'r-leg'];
+      var parts = [];
+      keys.forEach(function (k) {
+        parts.push(k + '=' + ((colors && colors[k]) || '#ffcd3a'));
+      });
+      return parts.join(',');
+    }
+
+    function buildLaunchUrl(mapData) {
+      return 'dynaduck://launch?mapData=' + encodeURIComponent(mapData);
+    }
+
+    function launchGame(key) {
+      var game = allGames[key];
+      if (!game) {
+        alert('This place could not be found.');
+        return;
+      }
+
+      var mapData = game.fileData || '';
+      if (!mapData) {
+        alert('This place has no map data to launch.');
+        return;
+      }
+
+      if (!currentUid()) {
+        window.location.href = buildLaunchUrl(mapData);
+        return;
+      }
+
+      db.ref('users/' + currentUid()).once('value', function (snapshot) {
+        var profile = snapshot.val() || {};
+        var colors = profile.colors || {};
+        var avatar = avatarToString(colors);
+        var url = buildLaunchUrl(mapData) + '&username=' + encodeURIComponent(currentUsername()) + '&avatar=' + encodeURIComponent(avatar);
+        window.location.href = url;
+      }, function () {
+        window.location.href = buildLaunchUrl(mapData);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      updateHeader();
+      loadMOTD();
+      loadGames();
+      loadFriendsList();
+    });
+  </script>
+
   <script src="search.js"></script>
 </body>
 </html>

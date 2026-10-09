@@ -11,8 +11,8 @@
     "games": {
       ".read": true,
       "$gameId": {
-        ".write": "auth != null && ((!data.exists() && newData.child('creatorUid').val() === auth.uid) || (data.child('creatorUid').val() === auth.uid) || auth.token.admin === true)",
-        ".validate": "newData.hasChildren(['title','description','creatorUid','maxPlayers','fileData','timestamp']) && newData.child('title').isString() && newData.child('description').isString() && newData.child('creatorUid').isString() && newData.child('creatorUid').val() === (data.exists() ? data.child('creatorUid').val() : auth.uid) && newData.child('maxPlayers').isNumber() && newData.child('maxPlayers').val() >= 1 && newData.child('maxPlayers').val() <= 20"
+        ".write": "auth != null && ((newData.child('creatorUid').val() === auth.uid) || auth.token.admin === true)",
+        ".validate": "newData.hasChildren(['title','description','creatorUid','maxPlayers','fileData','timestamp']) && newData.child('title').isString() && newData.child('description').isString() && newData.child('creatorUid').isString() && newData.child('creatorUid').val() === auth.uid && newData.child('maxPlayers').isNumber() && newData.child('maxPlayers').val() >= 1 && newData.child('maxPlayers').val() <= 20"
       }
     },
 
@@ -36,15 +36,13 @@
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
-        "Dynamites": {
-          ".write": "auth != null && auth.token.admin === true"
-        }
+        ".validate": "newData.hasChildren(['username','email'])"
       }
     },
 
     "usernames": {
       "$username": {
-        ".read": "auth != null",
+        ".read": true,
         ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
       }
     }
