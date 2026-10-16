@@ -96,13 +96,25 @@
         var email = loginInput;
         var typedUsername = null;
         // Username login: resolve username -> uid -> email via public mappings.
-        // Usernames are case-sensitive in DB; also try exact match first (fixes "Admin" not found when typed "admin").
+        // Usernames are case-sensitive in DB; try exact first, then case-insensitive scan (fixes "admin" vs "Admin").
         if (loginInput.indexOf('@') === -1) {
           typedUsername = loginInput;
           if (/[.#$[\]/]/.test(typedUsername)) { alert('Invalid username.'); return; }
           var nameSnap = await db.ref('usernames/' + typedUsername).once('value');
           if (!nameSnap.exists()) {
-            alert('Username "' + typedUsername + '" not found. If this is the legacy "Admin" account, log in with its email once — I will repair the username mapping automatically.');
+            try {
+              var allSnap = await db.ref('usernames').once('value');
+              var all = allSnap.val() || {};
+              var lower = typedUsername.toLowerCase();
+              var hit = Object.keys(all).filter(function (k) { return k.toLowerCase() === lower; })[0];
+              if (hit) {
+                typedUsername = hit; // use DB-canonical casing (e.g. "Admin")
+                nameSnap = await db.ref('usernames/' + hit).once('value');
+              }
+            } catch (scanErr) {}
+          }
+          if (!nameSnap.exists()) {
+            alert('Username "' + loginInput + '" not found in Firebase (checked usernames/' + loginInput + '). Open Firebase site → Realtime Database → Data → check if usernames/' + loginInput + ' exists. If this is legacy "Admin", log in with its EMAIL once — mapping will self-repair.');
             return;
           }
           var uid = nameSnap.val();
