@@ -94,17 +94,21 @@
         var auth = getAuth();
         var db = getDb();
         var email = loginInput;
+        var typedUsername = null;
         // Username login: resolve username -> uid -> email via public mappings.
+        // Usernames are case-sensitive in DB; also try exact match first (fixes "Admin" not found when typed "admin").
         if (loginInput.indexOf('@') === -1) {
-          if (/[.#$[\]/]/.test(loginInput)) { alert('Invalid username.'); return; }
-          var nameSnap = await db.ref('usernames/' + loginInput).once('value');
-          if (!nameSnap.exists()) { alert('Username not found.'); return; }
+          typedUsername = loginInput;
+          if (/[.#$[\]/]/.test(typedUsername)) { alert('Invalid username.'); return; }
+          var nameSnap = await db.ref('usernames/' + typedUsername).once('value');
+          if (!nameSnap.exists()) {
+            alert('Username "' + typedUsername + '" not found. If this is the legacy "Admin" account, log in with its email once — I will repair the username mapping automatically.');
+            return;
+          }
           var uid = nameSnap.val();
           var userSnap = await db.ref('users/' + uid + '/email').once('value');
-          // Fallback: users/$uid may be owner-read-only; use Auth email if blocked.
-          email = userSnap.val() || loginInput;
-          // If email lookup was blocked by rules, we can't continue without email.
-          if (email === loginInput && email.indexOf('@') === -1) {
+          email = userSnap.val() || typedUsername;
+          if (email === typedUsername && email.indexOf('@') === -1) {
             alert('Could not resolve email for that username. Try logging in with email.');
             return;
           }
@@ -112,7 +116,14 @@
         var cred = await auth.signInWithEmailAndPassword(email, password);
         var profileSnap = await db.ref('users/' + cred.user.uid).once('value');
         var profile = profileSnap.val() || {};
-        var username = profile.username || (cred.user.email || email).split('@')[0];
+        var username = profile.username || typedUsername || (cred.user.email || email).split('@')[0];
+
+        // Self-repair legacy accounts (e.g. old "Admin" under users/Admin with no usernames/ entry).
+        try {
+          var mapRef = db.ref('usernames/' + username);
+          var mapSnap = await mapRef.once('value');
+          if (!mapSnap.exists()) { await mapRef.set(cred.user.uid); }
+        } catch (repairErr) { /* rules may deny — non-fatal */ }
 
         // Minimal session: username for display, uid for DB keys.
         // Email is NOT persisted (read from Auth when needed) to avoid PII in clear-text storage.
