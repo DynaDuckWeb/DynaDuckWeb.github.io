@@ -39,6 +39,10 @@
         <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
         <button type="submit" class="green-btn">Log In</button>
       </form>
+      <div id="accountChooser" style="display:none;margin-top:15px;">
+        <p style="font-size:.9em;color:#666;margin:0 0 8px;">That email owns several accounts — choose one:</p>
+        <div id="accountBtns" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
       <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
     </div>
   </div>
@@ -79,8 +83,37 @@
 
     document.addEventListener('DOMContentLoaded', updateHeader);
 
+    // If one email maps to several usernames, show buttons and pause login until a pick.
+    // Returns: username string (picked / single / none found -> original input), null = waiting.
+    async function maybeChooseAccount(db, emailInput) {
+      var ekey = emailInput.replace(/\./g, ',').slice(0, 120);
+      var snap;
+      try { snap = await db.ref('emails/' + ekey).once('value'); }
+      catch (e) { return emailInput; }
+      var val = snap.val() || {};
+      var names = Object.keys(val).filter(function (n) { return /^[A-Za-z0-9_]{3,15}$/.test(n); });
+      if (names.length <= 1) return emailInput;
+      var box = document.getElementById('accountChooser');
+      var btns = document.getElementById('accountBtns');
+      btns.textContent = '';
+      box.style.display = 'block';
+      names.sort().forEach(function (n) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'green-btn'; b.textContent = n;
+        b.onclick = function () {
+          document.getElementById('loginEmail').value = n;
+          box.style.display = 'none';
+          document.getElementById('loginForm').requestSubmit();
+        };
+        btns.appendChild(b);
+      });
+      return null;
+    }
+
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
       e.preventDefault();
+      document.getElementById('accountChooser').style.display = 'none';
+      document.getElementById('accountBtns').textContent = '';
 
       var loginInput = document.getElementById('loginEmail').value.trim();
       var password = document.getElementById('loginPassword').value;
@@ -93,8 +126,15 @@
       try {
         var auth = getAuth();
         var db = getDb();
+        // Email input with several usernames on it? Offer a chooser first (no password check yet).
+        if (loginInput.indexOf('@') !== -1) {
+          var picked = await maybeChooseAccount(db, loginInput);
+          if (picked === null) return; // chooser shown, waiting for click
+          if (picked) loginInput = picked; // user picked a username, continue as username flow
+        }
         var email = loginInput;
         var typedUsername = null;
+        var assumedUid = null;
         // Username login: resolve username -> uid -> email via public mappings.
         // Usernames are case-sensitive in DB; try exact first, then case-insensitive scan (fixes "admin" vs "Admin").
         if (loginInput.indexOf('@') === -1) {
@@ -118,6 +158,7 @@
             return;
           }
           var uid = nameSnap.val();
+          assumedUid = uid;
           var userSnap = await db.ref('users/' + uid + '/email').once('value');
           email = userSnap.val() || typedUsername;
           if (email === typedUsername && email.indexOf('@') === -1) {
@@ -126,6 +167,12 @@
           }
         }
         var cred = await auth.signInWithEmailAndPassword(email, password);
+        // Shared-email guard: typed username A's password may actually belong to sibling account B.
+        if (assumedUid && cred.user.uid !== assumedUid) {
+          var actualSnap = await db.ref('users/' + cred.user.uid).once('value');
+          var actualName = (actualSnap.val() || {}).username || cred.user.email;
+          alert('That password belongs to "' + actualName + '", not "' + typedUsername + '". Logged into "' + actualName + '" instead — pick the right account next time.');
+        }
         var profileSnap = await db.ref('users/' + cred.user.uid).once('value');
         var profile = profileSnap.val() || {};
         var username = profile.username || typedUsername || (cred.user.email || email).split('@')[0];
@@ -135,6 +182,10 @@
           var mapRef = db.ref('usernames/' + username);
           var mapSnap = await mapRef.once('value');
           if (!mapSnap.exists()) { await mapRef.set(cred.user.uid); }
+          var ek = (cred.user.email || email).replace(/\./g, ',').slice(0, 120);
+          var emRef = db.ref('emails/' + ek + '/' + username);
+          var emSnap = await emRef.once('value');
+          if (!emSnap.exists()) { await emRef.set(cred.user.uid); }
         } catch (repairErr) { /* rules may deny — non-fatal */ }
 
         // Minimal session: username for display, uid for DB keys.

@@ -158,9 +158,11 @@
 
         var cred = await auth.createUserWithEmailAndPassword(email, password);
         var uid = cred.user.uid;
+        var ekey = email.replace(/\./g, ',').slice(0, 120);
 
         try {
           await db.ref('usernames/' + username).set(uid);
+          await db.ref('emails/' + ekey + '/' + username).set(uid);
         } catch (e) {
           // Roll back auth user if reservation fails (name race).
           try { await cred.user.delete(); } catch (delErr) {}
@@ -187,6 +189,7 @@
           } catch (legacyErr) {}
         } catch (e) {
           try { await db.ref('usernames/' + username).remove(); } catch (cleanupErr) {}
+          try { var _ek = email.replace(/\./g, ',').slice(0, 120); await db.ref('emails/' + _ek + '/' + username).remove(); } catch (cleanupErr2) {}
           try { await cred.user.delete(); } catch (delErr) {}
           throw e;
         }
