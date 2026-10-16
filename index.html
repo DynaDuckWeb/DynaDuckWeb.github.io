@@ -83,11 +83,13 @@
   <script src="firebase-auth.js"></script>
 
   <script>
-    var db = firebaseDb;
+    function getDb() { return window.firebaseDb || (typeof firebase !== 'undefined' ? firebase.database() : null); }
+    function getAuth() { return window.firebaseAuth || (typeof firebase !== 'undefined' ? firebase.auth() : null); }
     var allGames = {};
 
     function currentUid() {
-      return firebaseAuth && firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : localStorage.getItem('firebaseUid');
+      try { var a = getAuth(); if (a && a.currentUser) return a.currentUser.uid; } catch (e) {}
+      return localStorage.getItem('firebaseUid');
     }
 
     function currentUsername() {
@@ -98,76 +100,113 @@
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
+    // Strict thumbnail allowlist: https + raster base64 only (no http, no svg).
+    function safeThumbSrc(v) {
+      if (typeof v !== 'string') return 'photo.png';
+      var s = v.trim();
+      if (!s || s.length > 300000 || /^data:image\/svg/i.test(s)) return 'photo.png';
+      if (/^data:image\/(png|jpeg|jpg|gif|webp);base64,/.test(s)) return s;
+      if (/^https:\/\//.test(s)) {
+        try { var u = new URL(s); if (u.protocol === 'https:' && !u.username && !u.password) return s; } catch (e) {}
+      }
+      return 'photo.png';
+    }
 
     function updateHeader() {
       var authDiv = document.getElementById('authButtons');
       var username = currentUsername();
+      authDiv.textContent = '';
       if (username) {
-        authDiv.innerHTML = '<span style="color:#fff;font-weight:bold;">Welcome, ' + escapeHtml(username) + '!</span>' +
-          '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
-          '<button class="header-btn" onclick="logoutCurrentUser().then(function(){location.reload();})">Logout</button>';
+        var span = document.createElement('span');
+        span.style.cssText = 'color:#fff;font-weight:bold;';
+        span.textContent = 'Welcome, ' + username + '!';
+        var a = document.createElement('a'); a.href = 'settings.html';
+        var sb = document.createElement('button'); sb.className = 'header-btn'; sb.textContent = 'Settings';
+        a.appendChild(sb);
+        var lo = document.createElement('button'); lo.className = 'header-btn'; lo.textContent = 'Logout';
+        lo.onclick = function () {
+          try { var au = getAuth(); if (au) { au.signOut().finally(function(){ try{localStorage.clear();}catch(e){} location.reload(); }); return; } } catch (e) {}
+          try { localStorage.clear(); } catch (e2) {}
+          location.reload();
+        };
+        authDiv.appendChild(span); authDiv.appendChild(a); authDiv.appendChild(lo);
       } else {
-        authDiv.innerHTML = '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
-          '<a href="login.html"><button class="header-btn">Log In</button></a>';
+        var sA = document.createElement('a'); sA.href = 'signup.html';
+        var sB = document.createElement('button'); sB.className = 'header-btn'; sB.textContent = 'Sign Up';
+        sA.appendChild(sB);
+        var lA = document.createElement('a'); lA.href = 'login.html';
+        var lB = document.createElement('button'); lB.className = 'header-btn'; lB.textContent = 'Log In';
+        lA.appendChild(lB);
+        authDiv.appendChild(sA); authDiv.appendChild(lA);
       }
     }
 
     function loadMOTD() {
-      db.ref('motd').on('value', function (snapshot) {
+      var db = getDb(); if (!db) return;
+      db.ref('motd').once('value').then(function (snapshot) {
         var message = snapshot.val();
-        var motdElem = document.getElementById('motdText');
-        motdElem.textContent = message || 'Welcome to DynaDuck! Build, Play, Have Fun.';
-      }, function () {
+        document.getElementById('motdText').textContent = message || 'Welcome to DynaDuck! Build, Play, Have Fun.';
+      }).catch(function () {
         document.getElementById('motdText').textContent = 'Welcome to DynaDuck! Build, Play, Have Fun.';
       });
     }
 
     function loadGames() {
-      db.ref('games').on('value', function (snapshot) {
+      var db = getDb(); if (!db) return;
+      // limitToLast(30) + once (not .on) to avoid re-downloading huge fileData blobs / API-spam blocks.
+      db.ref('games').limitToLast(30).once('value').then(function (snapshot) {
         allGames = snapshot.val() || {};
+        // Drop heavy map blobs from memory after caching for launch.
         renderGames(allGames);
-      }, function () {
-        document.getElementById('gamesContainer').innerHTML = '<p style="color:red;">Error loading games list.</p>';
+      }).catch(function () {
+        document.getElementById('gamesContainer').textContent = 'Error loading games list.';
       });
     }
 
     function renderGames(gamesObj) {
       var container = document.getElementById('gamesContainer');
-      container.innerHTML = '';
+      container.textContent = '';
       var keys = Object.keys(gamesObj || {});
       if (!keys.length) {
-        container.innerHTML = '<p>No places published yet!</p>';
+        container.textContent = 'No places published yet!';
         return;
       }
 
       keys.reverse().forEach(function (key) {
+        if (/[.#$[\]]/.test(key)) return;
         var game = gamesObj[key] || {};
-        var thumbSrc = 'photo.png';
-        if (game.thumbnail && typeof game.thumbnail === 'string' && game.thumbnail.trim() !== '') {
-          var cleanThumb = game.thumbnail.trim();
-          if (cleanThumb.indexOf('data:image') === 0 || cleanThumb.indexOf('http://') === 0 || cleanThumb.indexOf('https://') === 0) {
-            thumbSrc = cleanThumb;
-          }
-        }
+        var thumbSrc = safeThumbSrc(game.thumbnail);
 
         var card = document.createElement('div');
         card.className = 'game-card';
-        card.innerHTML = '<div>' +
-          '<img src="' + thumbSrc + '" class="game-thumb" alt="' + escapeHtml(game.title || 'Game') + '" onerror="this.onerror=null;this.src=\'photo.png\';">' +
-          '<div class="game-title" title="' + escapeHtml(game.title || '') + '">' + escapeHtml(game.title || 'Untitled') + '</div>' +
-          '<div class="game-creator">By <b>' + escapeHtml(game.creator || 'Anonymous') + '</b></div>' +
-          '<div class="game-desc">' + escapeHtml(game.description || '') + '</div>' +
-          '</div>' +
-          '<div>' +
-          '<div class="game-info"><span>Max Players: ' + (game.maxPlayers || 12) + '</span></div>' +
-          '<button class="btn-play" onclick="launchGame(\'' + key + '\')">PLAY</button>' +
-          '</div>';
+        var top = document.createElement('div');
+        var img = document.createElement('img');
+        img.className = 'game-thumb'; img.alt = String(game.title || 'Game');
+        img.referrerPolicy = 'no-referrer'; img.src = thumbSrc;
+        img.onerror = function () { img.onerror = null; img.src = 'photo.png'; };
+        var t = document.createElement('div');
+        t.className = 'game-title'; t.title = String(game.title || ''); t.textContent = String(game.title || 'Untitled');
+        var cr = document.createElement('div'); cr.className = 'game-creator';
+        cr.appendChild(document.createTextNode('By '));
+        var b = document.createElement('b'); b.textContent = String(game.creator || 'Anonymous');
+        cr.appendChild(b);
+        var ds = document.createElement('div'); ds.className = 'game-desc'; ds.textContent = String(game.description || '');
+        top.appendChild(img); top.appendChild(t); top.appendChild(cr); top.appendChild(ds);
+        var bot = document.createElement('div');
+        var info = document.createElement('div'); info.className = 'game-info';
+        var sp = document.createElement('span'); sp.textContent = 'Max Players: ' + (Number(game.maxPlayers) || 12);
+        info.appendChild(sp);
+        var play = document.createElement('button'); play.className = 'btn-play'; play.textContent = 'PLAY';
+        play.onclick = (function (k) { return function () { launchGame(k); }; })(key);
+        bot.appendChild(info); bot.appendChild(play);
+        card.appendChild(top); card.appendChild(bot);
         container.appendChild(card);
       });
     }
 
     function getUidFromUsername(username) {
-      if (!username) return Promise.resolve(null);
+      if (!username || /[.#$[\]/]/.test(username)) return Promise.resolve(null);
+      var db = getDb(); if (!db) return Promise.resolve(null);
       return db.ref('usernames/' + username).once('value').then(function (snap) {
         return snap.exists() ? snap.val() : null;
       });
@@ -176,18 +215,18 @@
     function loadFriendsList() {
       var container = document.getElementById('friendsWidget');
       var uid = currentUid();
-      if (!uid) {
+      var db = getDb();
+      if (!uid || !db) {
         container.innerHTML = '<p style="font-size:12px;color:#666;text-align:center;">Log in to add and view friends!</p>';
         return;
       }
 
       container.innerHTML = '<div class="add-friend-box"><input type="text" id="friendNameInput" class="add-friend-input" placeholder="Username..."><button class="btn-add-friend" onclick="sendFriendRequest()">Add</button></div><div id="requestsSection" style="display:none;"><div class="subtitle">Friend Requests</div><ul class="requests-list" id="requestsUl"></ul></div><div class="subtitle">Friends</div><ul class="friends-list" id="friendsUl"><li style="font-size:12px;color:#666;">Loading friends...</li></ul>';
 
-      db.ref('users/' + uid + '/friends').on('value', function (snapshot) {
+      db.ref('users/' + uid + '/friends').once('value').then(function (snapshot) {
         renderFriendsData(snapshot.val() || {});
       });
-
-      db.ref('users/' + uid + '/friendRequests').on('value', function (snapshot) {
+      db.ref('users/' + uid + '/friendRequests').once('value').then(function (snapshot) {
         renderRequests(snapshot.val() || {});
       });
     }
@@ -195,22 +234,28 @@
     function renderFriendsData(friendsData) {
       var friendsUl = document.getElementById('friendsUl');
       if (!friendsUl) return;
-      friendsUl.innerHTML = '';
+      friendsUl.textContent = '';
 
       var friendList = [];
       if (friendsData && typeof friendsData === 'object') {
-        friendList = Object.keys(friendsData);
+        friendList = Object.keys(friendsData).filter(function (n) { return /^[A-Za-z0-9_]{3,15}$/.test(n); });
       }
 
       if (!friendList.length) {
-        friendsUl.innerHTML = '<li style="font-size:12px;color:#777;text-align:center;padding:10px 0;">No friends added yet.</li>';
+        friendsUl.textContent = 'No friends added yet.';
         return;
       }
 
       friendList.forEach(function (friendName) {
         var li = document.createElement('li');
         li.className = 'friend-item';
-        li.innerHTML = '<div class="friend-info"><span class="status-dot status-online"></span><span class="friend-name">' + escapeHtml(friendName) + '</span></div><button class="btn-remove-friend" onclick="removeFriend(\'' + friendName + '\')">✕</button>';
+        var wrap = document.createElement('div'); wrap.className = 'friend-info';
+        var dot = document.createElement('span'); dot.className = 'status-dot status-online';
+        var nm = document.createElement('span'); nm.className = 'friend-name'; nm.textContent = friendName;
+        wrap.appendChild(dot); wrap.appendChild(nm);
+        var btn = document.createElement('button'); btn.className = 'btn-remove-friend'; btn.textContent = '✕';
+        btn.onclick = (function (n) { return function () { removeFriend(n); }; })(friendName);
+        li.appendChild(wrap); li.appendChild(btn);
         friendsUl.appendChild(li);
       });
     }
@@ -222,7 +267,7 @@
 
       var requestList = [];
       if (requestsData && typeof requestsData === 'object') {
-        requestList = Object.keys(requestsData);
+        requestList = Object.keys(requestsData).filter(function (n) { return /^[A-Za-z0-9_]{3,15}$/.test(n); });
       }
 
       if (!requestList.length) {
@@ -231,12 +276,19 @@
       }
 
       section.style.display = 'block';
-      requestsUl.innerHTML = '';
+      requestsUl.textContent = '';
 
       requestList.forEach(function (fromName) {
         var li = document.createElement('li');
         li.className = 'friend-item';
-        li.innerHTML = '<span class="friend-name">' + escapeHtml(fromName) + '</span><span><button class="btn-req-accept" onclick="acceptFriendRequest(\'' + fromName + '\')">Accept</button><button class="btn-req-decline" onclick="declineFriendRequest(\'' + fromName + '\')">Decline</button></span>';
+        var nameSpan = document.createElement('span'); nameSpan.className = 'friend-name'; nameSpan.textContent = fromName;
+        var btnWrap = document.createElement('span');
+        var acceptBtn = document.createElement('button'); acceptBtn.className = 'btn-req-accept'; acceptBtn.textContent = 'Accept';
+        acceptBtn.onclick = (function (n) { return function () { acceptFriendRequest(n); }; })(fromName);
+        var declineBtn = document.createElement('button'); declineBtn.className = 'btn-req-decline'; declineBtn.textContent = 'Decline';
+        declineBtn.onclick = (function (n) { return function () { declineFriendRequest(n); }; })(fromName);
+        btnWrap.appendChild(acceptBtn); btnWrap.appendChild(declineBtn);
+        li.appendChild(nameSpan); li.appendChild(btnWrap);
         requestsUl.appendChild(li);
       });
     }
@@ -244,10 +296,11 @@
     async function sendFriendRequest() {
       var uid = currentUid();
       var currentUserName = currentUsername();
+      var db = getDb();
       var friendInput = document.getElementById('friendNameInput');
       var friendName = friendInput ? friendInput.value.trim() : '';
 
-      if (!uid || !currentUserName) {
+      if (!uid || !currentUserName || !db) {
         alert('Please log in first.');
         return;
       }
@@ -302,7 +355,9 @@
     async function acceptFriendRequest(fromName) {
       var uid = currentUid();
       var currentUserName = currentUsername();
-      if (!uid || !currentUserName) return;
+      var db = getDb();
+      if (!uid || !currentUserName || !db) return;
+      if (/[.#$[\]/]/.test(fromName)) return;
 
       var targetUid = await getUidFromUsername(fromName);
       if (!targetUid) return;
@@ -323,7 +378,9 @@
 
     function declineFriendRequest(fromName) {
       var uid = currentUid();
-      if (!uid) return;
+      var db = getDb();
+      if (!uid || !db) return;
+      if (/[.#$[\]/]/.test(fromName)) return;
       var updates = {};
       updates['users/' + uid + '/friendRequests/' + fromName] = null;
       if (fromName) {
@@ -337,10 +394,11 @@
     }
 
     function removeFriend(friendName) {
-      if (!friendName) return;
+      if (!friendName || /[.#$[\]/]/.test(friendName)) return;
       if (!confirm('Remove ' + friendName + ' from your friends list?')) return;
       var uid = currentUid();
-      if (!uid) return;
+      var db = getDb();
+      if (!uid || !db) return;
 
       getUidFromUsername(friendName).then(function (targetUid) {
         if (!targetUid) return;
@@ -384,6 +442,7 @@
     }
 
     function launchGame(key) {
+      if (!key || /[.#$[\]]/.test(key)) { alert('Invalid place.'); return; }
       var game = allGames[key];
       if (!game) {
         alert('This place could not be found.');
@@ -401,6 +460,7 @@
         return;
       }
 
+      var db = getDb(); if (!db) { window.location.href = buildLaunchUrl(mapData); return; }
       db.ref('users/' + currentUid()).once('value', function (snapshot) {
         var profile = snapshot.val() || {};
         var colors = profile.colors || {};
