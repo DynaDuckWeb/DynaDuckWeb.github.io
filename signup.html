@@ -123,19 +123,8 @@
         return;
       }
 
-      if (normalized.includes('system') || normalized.includes('dynaduck')) {
-        alert('That username is reserved.');
-        return;
-      }
-
-      // "admin" variants stay reserved, except a one-time legacy reclaim of the exact
-      // "Admin" account when its old username-keyed data still exists with the same email.
-      // This lets the owner convert users/Admin -> users/<uid> without opening all admin names.
-      var isAdminReclaim = (username === 'Admin');
-      if (!isAdminReclaim && normalized.includes('admin')) {
-        alert('That username is reserved.');
-        return;
-      }
+      // Reserved names removed per owner request so deleted accounts like
+      // "Admin" / "DynaDuck" can be remade. First-come first-served via usernames/.
 
       for (var i = 0; i < bannedWords.length; i++) {
         if (normalized.indexOf(bannedWords[i]) !== -1) {
