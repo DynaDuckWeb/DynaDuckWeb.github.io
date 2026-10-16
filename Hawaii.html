@@ -95,13 +95,14 @@
             debug.style.backgroundColor = "rgba(0, 200, 0, 0.85)";
             debug.innerText = "Status: Video playing perfectly backgrounded.";
             setTimeout(() => { debug.style.display = 'none'; }, 3000);
-        };                
-                document.body.addEventListener('click', () => {
-                    video.play();
-                    document.body.style.cursor = "default";
-                }, { once: true });
-            });
-        });
+        };
+        video.onerror = function() {
+            debug.innerText = "Status: Could not load Hawaii.mp4. Check the file exists next to Hawaii.html.";
+        };
+        document.body.addEventListener('click', () => {
+            video.play().catch(function() {});
+            document.body.style.cursor = "default";
+        }, { once: true });
     </script>
 
 </body>

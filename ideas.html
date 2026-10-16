@@ -126,7 +126,9 @@ nav a:hover { color:#11AD36; }
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="firebase-auth.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -141,10 +143,15 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+function getUid() {
+  try { if (window.firebaseAuth && firebaseAuth.currentUser) return firebaseAuth.currentUser.uid; } catch (e) {}
+  return localStorage.getItem('firebaseUid');
+}
 
 function getUser() {
   return localStorage.getItem("loggedInUser");
 }
+function escHtml(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
 
 const urlRegex = /(https?:\/\/|www\.|[a-zA-Z0-9-]+\.(com|net|org|io|gg|co|xyz|ru|cn|uk|us|ca|de|fr|ro|br|it|nl|pl|gov|edu|info|me|tv|app|dev|link|site|store|online))/i;
 
@@ -196,19 +203,26 @@ function updateHeader() {
     return;
   }
 
-  authDiv.innerHTML = `
-    <span style="color:white;font-weight:bold;">${user}</span>
-    <a href="settings.html"><button class="header-btn">Settings</button></a>
-    <button class="header-btn" onclick="logout()">Logout</button>
-  `;
+  authDiv.textContent = '';
+  var span = document.createElement('span');
+  span.style.cssText = 'color:white;font-weight:bold;';
+  span.textContent = user;
+  var setA = document.createElement('a'); setA.href = 'settings.html';
+  var setB = document.createElement('button'); setB.className = 'header-btn'; setB.textContent = 'Settings';
+  setA.appendChild(setB);
+  var out = document.createElement('button'); out.className = 'header-btn'; out.textContent = 'Logout';
+  out.onclick = logout;
+  authDiv.appendChild(span); authDiv.appendChild(setA); authDiv.appendChild(out);
   document.getElementById("notLoggedIn").style.display = "none";
   document.getElementById("ideasContent").style.display = "block";
   loadPosts();
-  if (user === "Admin") loadReports();
+  // Admin reports require the `admin` custom claim; server rules enforce read.
+  if (localStorage.getItem('isAdmin') === 'true') loadReports();
 }
 
 function logout() {
-  localStorage.removeItem("loggedInUser");
+  try { localStorage.removeItem("loggedInUser"); localStorage.removeItem("firebaseUid"); localStorage.removeItem("firebaseEmail"); localStorage.removeItem("isAdmin"); } catch (e) {}
+  try { if (window.firebaseAuth) { firebaseAuth.signOut().finally(function(){ location.reload(); }); return; } } catch (e) {}
   location.reload();
 }
 
@@ -216,18 +230,20 @@ window.addEventListener("DOMContentLoaded", updateHeader);
 
 function addIdea() {
   const user = getUser();
-  if (!user) return alert("Login required");
-  const title = document.getElementById("ideaTitle").value.trim();
-  const text = document.getElementById("ideaDesc").value.trim();
+  const uid = getUid();
+  if (!user || !uid) return alert("Login required");
+  const title = document.getElementById("ideaTitle").value.trim().slice(0, 80);
+  const text = document.getElementById("ideaDesc").value.trim().slice(0, 1000);
   if (!title || !text) return alert("Fill all fields");
   if (isBlocked(title + " " + text)) return alert("Blocked content detected");
-  const id = db.ref("posts").push().key;
-  db.ref("posts/" + id).set({
-    title,
-    text,
-    user,
+  db.ref("posts").push().set({
+    title: title,
+    text: text,
+    user: user,
+    creator: user,
+    creatorUid: uid,
     timestamp: Date.now()
-  });
+  }).catch(function (e) { alert('Could not post: ' + (e.message || e)); });
   document.getElementById("ideaTitle").value = "";
   document.getElementById("ideaDesc").value = "";
 }
@@ -238,27 +254,30 @@ function loadPosts() {
   if (postsListenerAttached) return;
   postsListenerAttached = true;
   const container = document.getElementById("ideasList");
-  db.ref("posts").on("value", snap => {
+  db.ref("posts").limitToLast(100).on("value", snap => {
     container.innerHTML = "";
     snap.forEach(postSnap => {
-      const post = postSnap.val();
+      const post = postSnap.val() || {};
       const id = postSnap.key;
+      if (/[.#$[\]]/.test(id)) return;
       const div = document.createElement("div");
       div.className = "idea";
-      div.innerHTML = `
-        <h3>${post.title}</h3>
-        <div class="meta">By ${post.user}</div>
-        <p>${post.text}</p>
-        <div class="actions">
-          <button class="green-btn" onclick="toggleReply('${id}')">Reply</button>
-          <button class="green-btn" onclick="reportPost('${id}')">Report</button>
-        </div>
-        <div id="replies-${id}"></div>
-        <div id="replyBox-${id}" style="display:none;margin-top:10px;">
-          <input id="replyInput-${id}" style="width:100%;padding:8px;">
-          <button class="green-btn" onclick="addReply('${id}')">Send</button>
-        </div>
-      `;
+      var h = document.createElement('h3'); h.textContent = post.title || 'Untitled';
+      var meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = 'By ' + (post.user || post.creator || 'Anonymous');
+      var p = document.createElement('p'); p.textContent = post.text || '';
+      var acts = document.createElement('div'); acts.className = 'actions';
+      var rb = document.createElement('button'); rb.className = 'green-btn'; rb.textContent = 'Reply';
+      rb.onclick = (function (pid) { return function () { toggleReply(pid); }; })(id);
+      var rp = document.createElement('button'); rp.className = 'green-btn'; rp.textContent = 'Report';
+      rp.onclick = (function (pid) { return function () { reportPost(pid); }; })(id);
+      acts.appendChild(rb); acts.appendChild(rp);
+      var replies = document.createElement('div'); replies.id = 'replies-' + id;
+      var box = document.createElement('div'); box.id = 'replyBox-' + id; box.style.display = 'none'; box.style.marginTop = '10px';
+      var inp = document.createElement('input'); inp.id = 'replyInput-' + id; inp.style.cssText = 'width:100%;padding:8px;box-sizing:border-box;';
+      var send = document.createElement('button'); send.className = 'green-btn'; send.textContent = 'Send';
+      send.onclick = (function (pid) { return function () { addReply(pid); }; })(id);
+      box.appendChild(inp); box.appendChild(send);
+      div.appendChild(h); div.appendChild(meta); div.appendChild(p); div.appendChild(acts); div.appendChild(replies); div.appendChild(box);
       container.appendChild(div);
       loadReplies(id);
     });
@@ -272,16 +291,21 @@ function toggleReply(id) {
 
 function addReply(postId) {
   const user = getUser();
-  if (!user) return alert("Login required");
+  const uid = getUid();
+  if (!user || !uid) return alert("Login required");
+  if (/[.#$[\]]/.test(postId)) return;
   const input = document.getElementById("replyInput-" + postId);
-  const text = input.value.trim();
+  if (!input) return;
+  const text = input.value.trim().slice(0, 500);
   if (!text) return;
   if (isBlocked(text)) return alert("Blocked content");
   db.ref("replies/" + postId).push().set({
-    user,
-    text,
+    user: user,
+    creator: user,
+    creatorUid: uid,
+    text: text,
     timestamp: Date.now()
-  });
+  }).catch(function (e) { alert('Could not reply: ' + (e.message || e)); });
   input.value = "";
 }
 
@@ -289,14 +313,14 @@ function loadReplies(postId) {
   const container = document.getElementById("replies-" + postId);
   if (!container) return;
   db.ref("replies/" + postId).off();
-  db.ref("replies/" + postId).on("value", snap => {
+  db.ref("replies/" + postId).limitToLast(50).on("value", snap => {
     container.innerHTML = "";
     snap.forEach(r => {
-      const reply = r.val();
+      const reply = r.val() || {};
       const div = document.createElement("div");
       div.style.borderTop = "1px solid #ddd";
       div.style.padding = "5px";
-      div.innerHTML = `<b>${reply.user}:</b> ${reply.text}`;
+      div.textContent = (reply.user || reply.creator || 'User') + ': ' + (reply.text || '');
       container.appendChild(div);
     });
   });
@@ -304,56 +328,67 @@ function loadReplies(postId) {
 
 function reportPost(postId) {
   const user = getUser();
-  if (!user) return alert("Login required");
-  const reason = prompt("Why report?");
+  const uid = getUid();
+  if (!user || !uid) return alert("Login required");
+  if (/[.#$[\]]/.test(postId)) return;
+  const reason = prompt("Why report? (max 200 chars)");
   if (!reason) return;
   db.ref("reports").push().set({
-    postId,
+    postId: postId,
     reporter: user,
-    reason,
+    reporterUid: uid,
+    reason: String(reason).slice(0, 200),
     timestamp: Date.now()
-  });
-  alert("Reported!");
+  }).then(function () { alert("Reported!"); })
+    .catch(function (e) { alert('Report failed: ' + (e.message || e)); });
 }
 
 function loadReports() {
-  const user = getUser();
-  if (user !== "Admin") return;
+  if (localStorage.getItem('isAdmin') !== 'true') return;
   document.getElementById("adminReports").style.display = "block";
   const container = document.getElementById("reportsContainer");
-  db.ref("reports").on("value", snap => {
+  db.ref("reports").limitToLast(100).on("value", snap => {
     container.innerHTML = "";
     snap.forEach(repSnap => {
-      const rep = repSnap.val();
+      const rep = repSnap.val() || {};
       const repId = repSnap.key;
+      if (!rep.postId || /[.#$[\]]/.test(rep.postId) || /[.#$[\]]/.test(repId)) return;
       db.ref("posts/" + rep.postId).once("value").then(postSnap => {
         if (!postSnap.exists()) return;
-        const post = postSnap.val();
+        const post = postSnap.val() || {};
         const div = document.createElement("div");
         div.className = "report-card";
-        div.innerHTML = `
-          <p><b>Reporter:</b> ${rep.reporter}</p>
-          <p><b>Reason:</b> ${rep.reason}</p>
-          <p><b>Post:</b> ${post.title}</p>
-          <div class="report-actions">
-            <button class="green-btn" onclick="deletePost('${rep.postId}','${repId}')">Delete</button>
-            <button class="green-btn" style="background:#ccc" onclick="dismissReport('${repId}')">Dismiss</button>
-          </div>
-        `;
+        var p1 = document.createElement('p'); p1.textContent = 'Reporter: ' + (rep.reporter || '');
+        var p2 = document.createElement('p'); p2.textContent = 'Reason: ' + (rep.reason || '');
+        var p3 = document.createElement('p'); p3.textContent = 'Post: ' + (post.title || '');
+        var acts = document.createElement('div'); acts.className = 'report-actions';
+        var del = document.createElement('button'); del.className = 'green-btn'; del.textContent = 'Delete';
+        del.onclick = (function (pid, rid) { return function () { deletePost(pid, rid); }; })(rep.postId, repId);
+        var dis = document.createElement('button'); dis.className = 'green-btn'; dis.style.background = '#ccc'; dis.textContent = 'Dismiss';
+        dis.onclick = (function (rid) { return function () { dismissReport(rid); }; })(repId);
+        acts.appendChild(del); acts.appendChild(dis);
+        div.appendChild(p1); div.appendChild(p2); div.appendChild(p3); div.appendChild(acts);
         container.appendChild(div);
       });
     });
+  }, function () {
+    container.textContent = 'Cannot load reports (admin claim required).';
   });
 }
 
 function deletePost(postId, reportId) {
-  db.ref("posts/" + postId).remove();
+  if (localStorage.getItem('isAdmin') !== 'true') { alert('Admin only.'); return; }
+  if (/[.#$[\]]/.test(postId) || /[.#$[\]]/.test(reportId)) return;
+  if (!confirm('Delete this post and its replies?')) return;
+  db.ref("posts/" + postId).remove().catch(function (e) { alert('Delete failed (admin claim required): ' + e.message); });
   db.ref("replies/" + postId).remove();
   db.ref("reports/" + reportId).remove();
 }
 
 function dismissReport(reportId) {
-  db.ref("reports/" + reportId).remove();
+  if (localStorage.getItem('isAdmin') !== 'true') { alert('Admin only.'); return; }
+  if (/[.#$[\]]/.test(reportId)) return;
+  db.ref("reports/" + reportId).remove().catch(function (e) { alert('Dismiss failed: ' + e.message); });
 }
 </script>
   <script src="search.js"></script>

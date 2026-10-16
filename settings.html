@@ -145,80 +145,120 @@
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="firebase-auth.js"></script>
 <script>
-var firebaseConfig = {
-  apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
-  authDomain: "dynaduck-19dbb.firebaseapp.com",
-  databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dynaduck-19dbb",
-  storageBucket: "dynaduck-19dbb.firebasestorage.app",
-  messagingSenderId: "777148453502",
-  appId: "1:777148453502:web:2f67ac439ec29dc4fc3e2f"
-};
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-var db = firebase.database();
-const loggedInUser = localStorage.getItem('loggedInUser');
+var db = null;
+function currentUid() {
+  if (window.firebaseAuth && firebaseAuth.currentUser) return firebaseAuth.currentUser.uid;
+  return localStorage.getItem('firebaseUid');
+}
+function escHtml(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
 
-if(!loggedInUser){
-  alert('Please log in to access your platform configuration panel.');
-  window.location.href = 'login.html';
+function requireLogin() {
+  var uid = currentUid();
+  var loggedInUser = localStorage.getItem('loggedInUser');
+  if (!uid || !loggedInUser) {
+    alert('Please log in to access settings.');
+    window.location.href = 'login.html';
+    return false;
+  }
+  return true;
 }
 
 function initSettings() {
-  const authDiv = document.getElementById('authButtons');
-  if(authDiv) {
-    authDiv.innerHTML = '<span style="color:white; font-weight:bold;">Editing Profile: ' + loggedInUser + '</span>' +
-      '<button class="header-btn" onclick="localStorage.removeItem(\'loggedInUser\'); localStorage.removeItem(\'isAdmin\'); window.location.href=\'login.html\';">Logout</button>';
+  if (!window.firebaseDb) { setTimeout(initSettings, 100); return; }
+  db = window.firebaseDb;
+  if (!requireLogin()) return;
+  var loggedInUser = localStorage.getItem('loggedInUser');
+  var authDiv = document.getElementById('authButtons');
+  if (authDiv) {
+    authDiv.innerHTML = '<span style="color:white; font-weight:bold;">Editing Profile: ' + escHtml(loggedInUser) + '</span>' +
+      '<button class="header-btn" onclick="logoutCurrentUser().then(function(){window.location.href=\'login.html\';})">Logout</button>';
   }
-
-  db.ref('users/' + loggedInUser).get().then(function(snapshot) {
+  var uid = currentUid();
+  db.ref('users/' + uid).once('value').then(function (snapshot) {
     if (snapshot.exists()) {
-      var userData = snapshot.val();
+      var userData = snapshot.val() || {};
       if (userData.displayName) document.getElementById('displayName').value = userData.displayName;
+      else if (userData.username) document.getElementById('displayName').value = userData.username;
       if (userData.email) document.getElementById('userEmail').value = userData.email;
+      else if (window.firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.email) {
+        document.getElementById('userEmail').value = firebaseAuth.currentUser.email;
+      }
     }
-  }).catch(function(err) {
-    console.error("Error pulling live configuration: ", err);
+  }).catch(function (err) {
+    console.error("Error loading profile: ", err);
   });
 }
 
-document.getElementById('settingsForm').addEventListener('submit', function(e){
+document.getElementById('settingsForm').addEventListener('submit', function (e) {
   e.preventDefault();
-  
-  const displayName = document.getElementById('displayName').value.trim();
-  const newPassword = document.getElementById('newPassword').value;
-  const email = document.getElementById('userEmail').value.trim();
+  if (!db || !requireLogin()) return;
+  var uid = currentUid();
+  var user = (window.firebaseAuth && firebaseAuth.currentUser) || null;
+  if (!user) { alert('Auth session not ready. Please re-login.'); return; }
 
-  var updates = {};
-  if(displayName) updates['/users/' + loggedInUser + '/displayName'] = displayName;
-  if(email) updates['/users/' + loggedInUser + '/email'] = email;
+  var displayName = document.getElementById('displayName').value.trim().slice(0, 40);
+  var newPassword = document.getElementById('newPassword').value;
+  var email = document.getElementById('userEmail').value.trim().slice(0, 100);
 
-  if(newPassword && newPassword.trim() !== "") {
-    updates['/users/' + loggedInUser + '/password'] = newPassword;
+  var tasks = [];
+  // Display name is profile-only, safe to store in RTDB (never a password).
+  if (displayName) {
+    tasks.push(db.ref('users/' + uid + '/displayName').set(displayName));
   }
-
-  db.ref().update(updates, function(error) {
-    if (error) {
-      alert("Error pushing changes directly to clusters.");
+  // Email change must go through Firebase Auth (sends verification, updates token).
+  if (email && email !== (user.email || '')) {
+    tasks.push(user.updateEmail(email).then(function () {
+      return db.ref('users/' + uid + '/email').set(email);
+    }));
+  }
+  // Password change must go through Firebase Auth — NEVER store passwords in RTDB.
+  if (newPassword && newPassword.trim() !== "") {
+    if (newPassword.length < 6) { alert('Password must be at least 6 characters.'); return; }
+    tasks.push(user.updatePassword(newPassword));
+  }
+  if (!tasks.length) { alert('Nothing to update.'); return; }
+  Promise.all(tasks).then(function () {
+    alert("Settings saved securely via Firebase Auth.");
+    document.getElementById('newPassword').value = '';
+  }).catch(function (err) {
+    console.error(err);
+    if (err && err.code === 'auth/requires-recent-login') {
+      alert('For security, please log out and log back in, then try again.');
     } else {
-      alert("Firebase live user settings synchronized successfully!");
-
-      document.getElementById('newPassword').value = ''; 
+      alert("Failed to save: " + ((err && err.message) || 'Unknown error'));
     }
   });
 });
 
-function deleteAccount(){
-  if(confirm(`⚠️ WARNING: Are you sure you want to permanently delete your profile registry node "${loggedInUser}"? This clears all data and cannot be undone.`)){
-    db.ref('users/' + loggedInUser).remove().then(function() {
-      localStorage.removeItem('loggedInUser');
-      alert('Your profile node has been successfully removed from database paths.');
-      window.location.href = 'index.html';
-    }).catch(function(err) {
-      alert("Error finalizing account wipe structural flags.");
-    });
-  }
+function deleteAccount() {
+  if (!db || !requireLogin()) return;
+  var uid = currentUid();
+  var user = (window.firebaseAuth && firebaseAuth.currentUser) || null;
+  if (!user) { alert('Auth session not ready. Please re-login.'); return; }
+  var pw = prompt('To permanently delete your account, enter your current password to confirm:');
+  if (!pw) return;
+  if (!confirm("Permanently delete your account and profile? This cannot be undone.")) return;
+  var credential = firebase.auth.EmailAuthProvider.credential(user.email, pw);
+  user.reauthenticateWithCredential(credential).then(function () {
+    // Remove profile + username reservation, then delete the Auth user.
+    return db.ref('users/' + uid).once('value').then(function (snap) {
+      var profile = snap.val() || {};
+      var ops = [db.ref('users/' + uid).remove()];
+      if (profile.username) ops.push(db.ref('usernames/' + profile.username).remove());
+      return Promise.all(ops);
+    }).then(function () { return user.delete(); });
+  }).then(function () {
+    try { localStorage.clear(); } catch (e) {}
+    alert('Your account has been deleted.');
+    window.location.href = 'index.html';
+  }).catch(function (err) {
+    console.error(err);
+    alert("Could not delete account: " + ((err && err.message) || 'Unknown error'));
+  });
 }
 window.addEventListener('DOMContentLoaded', initSettings);
 </script>

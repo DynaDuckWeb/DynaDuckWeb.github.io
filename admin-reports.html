@@ -585,7 +585,9 @@
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="firebase-auth.js"></script>
 
 <script>
 var firebaseConfig = {
@@ -600,14 +602,13 @@ var firebaseConfig = {
 
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 var db = firebase.database();
-const loggedInUser = localStorage.getItem('loggedInUser');
+var loggedInUser = localStorage.getItem('loggedInUser');
 var allGames = {};
 var reportingGameKey = null;
 
-const ADMIN_ACCOUNTS = ['Admin'];
-
 function isAdmin() {
-  return !!loggedInUser && ADMIN_ACCOUNTS.includes(loggedInUser);
+  // Client hint only — real enforcement is the `admin` custom claim + database rules.
+  return localStorage.getItem('isAdmin') === 'true';
 }
 
 function updateHeader() {
@@ -627,20 +628,39 @@ function updateHeader() {
 
   // Show admin banner if user is admin
   const adminBanner = document.getElementById('adminBanner');
-  if (isAdmin()) {
-    adminBanner.innerHTML = `
-      <div class="admin-banner">
-        <p>🔑 Admin Mode - Access Reports Dashboard</p>
-        <a href="admin-reports.html" class="btn-admin-dashboard">📊 Dashboard</a>
-      </div>
-    `;
+  if (adminBanner) {
+    if (isAdmin()) {
+      adminBanner.textContent = '';
+      var wrap = document.createElement('div'); wrap.className = 'admin-banner';
+      var p = document.createElement('p'); p.textContent = '🔑 Admin Mode — claims verified for reports dashboard';
+      var a = document.createElement('a'); a.href = 'admin-ugc.html'; a.className = 'btn-admin-dashboard'; a.textContent = '📊 Review UGC';
+      wrap.appendChild(p); wrap.appendChild(a);
+      adminBanner.appendChild(wrap);
+      loadReportsDashboard();
+    } else {
+      adminBanner.innerHTML = '';
+    }
   }
 }
 
 function logout(){
-  localStorage.removeItem('loggedInUser');
-  localStorage.removeItem('adminSessionId');
+  try { localStorage.removeItem('loggedInUser'); localStorage.removeItem('firebaseUid'); localStorage.removeItem('firebaseEmail'); localStorage.removeItem('isAdmin'); } catch (e) {}
+  try { if (window.firebaseAuth) { firebaseAuth.signOut().finally(function(){ location.reload(); }); return; } } catch (e) {}
   location.reload();
+}
+
+function loadReportsDashboard() {
+  // Admin-only: relies on database rules (.read = admin claim). Failures are expected for non-admins.
+  var container = document.getElementById('gamesContainer');
+  db.ref('reports').limitToLast(50).once('value').then(function (snap) {
+    var reports = snap.val() || {};
+    var n = Object.keys(reports).length;
+    if (!n) return;
+    var note = document.createElement('p');
+    note.style.cssText = 'background:#fef3c7;border-left:4px solid #f59e0b;padding:10px 14px;border-radius:4px;';
+    note.textContent = '⚠️ ' + n + ' report(s) pending review. Open DevTools → Application to inspect, or manage via Admin UGC panel. Dismiss reports only after handling.';
+    if (container && container.parentNode) container.parentNode.insertBefore(note, container);
+  }).catch(function () {});
 }
 
 function loadMOTD() {
@@ -768,7 +788,8 @@ function closeReportModal() {
 }
 
 function submitReport() {
-  if (!loggedInUser || !reportingGameKey) return;
+  var uname = currentUsername(), uid = currentUid();
+  if (!uname || !uid || !reportingGameKey) return;
 
   const game = allGames[reportingGameKey];
   if (!game) {
@@ -780,11 +801,12 @@ function submitReport() {
   submitBtn.disabled = true;
 
   const report = {
-    gameKey: reportingGameKey,
-    gameTitle: game.title || '',
-    gameCreator: game.creator || '',
-    reporter: loggedInUser,
-    reason: document.getElementById('reportReason').value,
+    gameKey: String(reportingGameKey).slice(0, 100),
+    gameTitle: String(game.title || '').slice(0, 80),
+    gameCreator: String(game.creator || '').slice(0, 40),
+    reporter: uname,
+    reporterUid: uid,
+    reason: String(document.getElementById('reportReason').value || '').slice(0, 100),
     details: document.getElementById('reportDetails').value.trim().substring(0, 500),
     timestamp: Date.now()
   };
@@ -798,11 +820,24 @@ function submitReport() {
   });
 }
 
-// ---------- Friends ----------
+// ---------- Friends (UID-based; usernames are display keys) ----------
+
+function currentUid() {
+  try { if (window.firebaseAuth && firebaseAuth.currentUser) return firebaseAuth.currentUser.uid; } catch (e) {}
+  return localStorage.getItem('firebaseUid');
+}
+function currentUsername() { return localStorage.getItem('loggedInUser') || ''; }
+function getUidFromUsername(username) {
+  if (!username || /[.#$[\]/]/.test(username)) return Promise.resolve(null);
+  return db.ref('usernames/' + username).once('value').then(function (snap) {
+    return snap.exists() ? snap.val() : null;
+  });
+}
 
 function loadFriendsList() {
   const container = document.getElementById('friendsWidget');
-  if (!loggedInUser) {
+  var uid = currentUid();
+  if (!uid) {
     container.innerHTML = `<p style="font-size: 12px; color: #666; text-align: center;">Log in to add and view friends!</p>`;
     return;
   }
@@ -822,11 +857,11 @@ function loadFriendsList() {
     </ul>
   `;
 
-  db.ref('users/' + loggedInUser + '/friends').on('value', function(snapshot) {
+  db.ref('users/' + uid + '/friends').on('value', function(snapshot) {
     renderFriendsData(snapshot.val() || {});
   });
 
-  db.ref('users/' + loggedInUser + '/friendRequests').on('value', function(snapshot) {
+  db.ref('users/' + uid + '/friendRequests').on('value', function(snapshot) {
     renderRequests(snapshot.val() || {});
   });
 }
@@ -918,7 +953,9 @@ function renderRequests(requestsData) {
 
 async function sendFriendRequest() {
   const friendInput = document.getElementById('friendNameInput');
-  const friendName = friendInput.value.trim();
+  const friendName = (friendInput.value || '').trim();
+  var uid = currentUid(), uname = currentUsername();
+  if (!uid || !uname) { alert('Please log in first.'); return; }
   if (!friendName) return;
 
   if (/[.#$[\]/]/.test(friendName)) {
@@ -926,53 +963,57 @@ async function sendFriendRequest() {
     return;
   }
 
-  if (friendName.toLowerCase() === loggedInUser.toLowerCase()) {
+  if (friendName.toLowerCase() === String(uname).toLowerCase()) {
     alert("You cannot add yourself as a friend!");
     return;
   }
 
-  const targetSnap = await db.ref('users/' + friendName).once('value');
-  if (!targetSnap.val()) {
+  const targetUid = await getUidFromUsername(friendName);
+  if (!targetUid) {
     alert("That user does not exist.");
     return;
   }
 
-  const friendsSnap = await db.ref('users/' + loggedInUser + '/friends/' + friendName).once('value');
+  const friendsSnap = await db.ref('users/' + uid + '/friends/' + friendName).once('value');
   if (friendsSnap.val()) {
     alert("You are already friends with " + friendName + "!");
     return;
   }
 
-  const incomingSnap = await db.ref('users/' + loggedInUser + '/friendRequests/' + friendName).once('value');
+  const incomingSnap = await db.ref('users/' + uid + '/friendRequests/' + friendName).once('value');
   if (incomingSnap.val()) {
     acceptFriendRequest(friendName);
     return;
   }
 
-  const outgoingSnap = await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).once('value');
+  const outgoingSnap = await db.ref('users/' + uid + '/outgoingRequests/' + friendName).once('value');
   if (outgoingSnap.val()) {
     alert("Friend request already sent to " + friendName + ".");
     return;
   }
 
   const ts = Date.now();
-  await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).set(ts);
+  await db.ref('users/' + uid + '/outgoingRequests/' + friendName).set(ts);
   try {
-    await db.ref('users/' + friendName + '/friendRequests/' + loggedInUser).set(ts);
+    await db.ref('users/' + targetUid + '/friendRequests/' + uname).set(ts);
     friendInput.value = '';
     alert("Friend request sent to " + friendName + "!");
   } catch (e) {
-    await db.ref('users/' + loggedInUser + '/outgoingRequests/' + friendName).remove();
+    await db.ref('users/' + uid + '/outgoingRequests/' + friendName).remove();
     alert("Failed to send request: " + e.message);
   }
 }
 
 async function acceptFriendRequest(fromName) {
+  var uid = currentUid(), uname = currentUsername();
+  if (!uid || !uname) return;
+  var targetUid = await getUidFromUsername(fromName);
+  if (!targetUid) { alert('That user no longer exists.'); return; }
   const updates = {};
-  updates['users/' + loggedInUser + '/friends/' + fromName] = true;
-  updates['users/' + fromName + '/friends/' + loggedInUser] = true;
-  updates['users/' + loggedInUser + '/friendRequests/' + fromName] = null;
-  updates['users/' + fromName + '/outgoingRequests/' + loggedInUser] = null;
+  updates['users/' + uid + '/friends/' + fromName] = true;
+  updates['users/' + targetUid + '/friends/' + uname] = true;
+  updates['users/' + uid + '/friendRequests/' + fromName] = null;
+  updates['users/' + targetUid + '/outgoingRequests/' + uname] = null;
   try {
     await db.ref().update(updates);
     alert("You are now friends with " + fromName + "!");
@@ -982,18 +1023,27 @@ async function acceptFriendRequest(fromName) {
 }
 
 function declineFriendRequest(fromName) {
-  const updates = {};
-  updates['users/' + loggedInUser + '/friendRequests/' + fromName] = null;
-  updates['users/' + fromName + '/outgoingRequests/' + loggedInUser] = null;
-  db.ref().update(updates);
+  var uid = currentUid(), uname = currentUsername();
+  if (!uid) return;
+  getUidFromUsername(fromName).then(function (targetUid) {
+    var updates = {};
+    updates['users/' + uid + '/friendRequests/' + fromName] = null;
+    if (targetUid) updates['users/' + targetUid + '/outgoingRequests/' + uname] = null;
+    db.ref().update(updates);
+  });
 }
 
 function removeFriend(friendName) {
   if (!confirm("Remove " + friendName + " from your friends list?")) return;
-  const updates = {};
-  updates['users/' + loggedInUser + '/friends/' + friendName] = null;
-  updates['users/' + friendName + '/friends/' + loggedInUser] = null;
-  db.ref().update(updates);
+  var uid = currentUid(), uname = currentUsername();
+  if (!uid) return;
+  getUidFromUsername(friendName).then(function (targetUid) {
+    if (!targetUid) return;
+    const updates = {};
+    updates['users/' + uid + '/friends/' + friendName] = null;
+    updates['users/' + targetUid + '/friends/' + uname] = null;
+    db.ref().update(updates);
+  });
 }
 
 function filterGames() {
@@ -1048,17 +1098,18 @@ function launchGame(key) {
     return;
   }
 
-  if (!loggedInUser) {
+  var uid = currentUid(), uname = currentUsername();
+  if (!uid) {
     window.location.href = buildLaunchUrl(mapData);
     return;
   }
 
-  db.ref('users/' + loggedInUser).once('value', function(snapshot) {
+  db.ref('users/' + uid).once('value', function(snapshot) {
     const profile = snapshot.val() || {};
     const colors = profile.colors || {};
     const avatar = avatarToString(colors);
     const url = buildLaunchUrl(mapData) +
-      "&username=" + encodeURIComponent(loggedInUser) +
+      "&username=" + encodeURIComponent(uname) +
       "&avatar=" + encodeURIComponent(avatar);
     window.location.href = url;
   }, function() {

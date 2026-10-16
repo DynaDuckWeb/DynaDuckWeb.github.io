@@ -49,17 +49,28 @@
   <script src="firebase-auth.js"></script>
 
   <script>
-    var auth = firebaseAuth;
-    var db = firebaseDb;
+    function getAuth() { return window.firebaseAuth || firebase.auth(); }
+    function getDb() { return window.firebaseDb || firebase.database(); }
+    function escHtml(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
 
     function updateHeader() {
       var authDiv = document.getElementById('authButtons');
       var loggedInUser = localStorage.getItem('loggedInUser');
 
       if (loggedInUser) {
-        authDiv.innerHTML = '<span style="color:white;font-weight:bold;">Welcome, ' + loggedInUser + '!</span>' +
-          '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
-          '<button class="header-btn" onclick="logoutCurrentUser().then(function(){location.reload();})">Logout</button>';
+        authDiv.textContent = '';
+        var span = document.createElement('span');
+        span.style.cssText = 'color:white;font-weight:bold;';
+        span.textContent = 'Welcome, ' + loggedInUser + '!';
+        var a = document.createElement('a'); a.href = 'settings.html';
+        var sb = document.createElement('button'); sb.className = 'header-btn'; sb.textContent = 'Settings';
+        a.appendChild(sb);
+        var lo = document.createElement('button'); lo.className = 'header-btn'; lo.textContent = 'Logout';
+        lo.onclick = function () { getAuth().signOut().then(function () {
+          try { localStorage.removeItem('loggedInUser'); localStorage.removeItem('firebaseUid'); localStorage.removeItem('firebaseEmail'); localStorage.removeItem('isAdmin'); } catch (e) {}
+          location.reload();
+        }); };
+        authDiv.appendChild(span); authDiv.appendChild(a); authDiv.appendChild(lo);
       } else {
         authDiv.innerHTML = '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
           '<a href="login.html"><button class="header-btn">Log In</button></a>';
@@ -80,17 +91,23 @@
       }
 
       try {
+        var auth = getAuth();
+        var db = getDb();
         var cred = await auth.signInWithEmailAndPassword(email, password);
         var profileSnap = await db.ref('users/' + cred.user.uid).once('value');
         var profile = profileSnap.val() || {};
-        var username = profile.username || email.split('@')[0];
+        var username = profile.username || (cred.user.email || email).split('@')[0];
 
         localStorage.setItem('loggedInUser', username);
         localStorage.setItem('firebaseUid', cred.user.uid);
         localStorage.setItem('firebaseEmail', cred.user.email || '');
 
-        var token = await cred.user.getIdTokenResult(true);
-        localStorage.setItem('isAdmin', token.claims && token.claims.admin === true ? 'true' : 'false');
+        try {
+          var token = await cred.user.getIdTokenResult(true);
+          localStorage.setItem('isAdmin', token.claims && token.claims.admin === true ? 'true' : 'false');
+        } catch (tokErr) {
+          localStorage.setItem('isAdmin', 'false');
+        }
 
         window.location.href = 'index.html';
       } catch (error) {

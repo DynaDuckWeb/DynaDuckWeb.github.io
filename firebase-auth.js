@@ -25,41 +25,46 @@
   }
 
   function init() {
+    if (typeof firebase === 'undefined' || !firebase.auth) return;
     var config = window.__FIREBASE_CONFIG__ || fallbackConfig;
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(config);
-    }
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(config);
+      }
+    } catch (e) { /* already initialized with same/other config */ }
 
     window.firebaseAuth = firebase.auth();
-    window.firebaseDb = firebase.database();
+    try { window.firebaseDb = firebase.database(); } catch (e) { return; }
+    window.firebaseAuthReady = false;
 
     firebaseAuth.onAuthStateChanged(function (user) {
+      window.firebaseAuthReady = true;
       if (!user) {
         clearLocalSession();
         return;
       }
 
       firebaseDb.ref('users/' + user.uid).once('value').then(function (snap) {
-        var profile = snap.val() || {};
+        var profile = (snap && snap.val()) || {};
         var username = profile.username || (user.email ? user.email.split('@')[0] : 'User');
 
         setLocalSession(user, username);
 
-        user.getIdTokenResult(true).then(function (result) {
-          localStorage.setItem('isAdmin', result && result.claims && result.claims.admin === true ? 'true' : 'false');
+        user.getIdTokenResult(false).then(function (result) {
+          try { localStorage.setItem('isAdmin', result && result.claims && result.claims.admin === true ? 'true' : 'false'); } catch (e) {}
         }).catch(function () {
-          localStorage.setItem('isAdmin', 'false');
+          try { localStorage.setItem('isAdmin', 'false'); } catch (e) {}
         });
       }).catch(function () {
         setLocalSession(user, user.email ? user.email.split('@')[0] : 'User');
-        localStorage.setItem('isAdmin', 'false');
+        try { localStorage.setItem('isAdmin', 'false'); } catch (e) {}
       });
     });
 
     window.logoutCurrentUser = function () {
       clearLocalSession();
-      return firebaseAuth.signOut();
+      try { return firebaseAuth.signOut(); } catch (e) { return Promise.resolve(); }
     };
   }
 

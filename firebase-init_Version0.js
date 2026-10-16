@@ -15,6 +15,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  deleteDoc,
   runTransaction,
   serverTimestamp,
   query,
@@ -94,11 +95,14 @@ export async function changePassword(newPassword){
 export async function deleteAccountWithReauth(currentPassword){
   const user = auth.currentUser;
   if(!user) throw new Error("Not authenticated");
+  if(!currentPassword) throw new Error("Password required to confirm deletion");
   const credential = EmailAuthProvider.credential(user.email, currentPassword);
   await reauthenticateWithCredential(user, credential);
   const profile = await getProfileByUid(user.uid);
   if(profile){
-    await setDoc(doc(db, "profiles", profile.username), {}, { merge: false });
+    // Delete both the username reservation and the user doc (old code wrote {} instead of deleting).
+    await deleteDoc(doc(db, "profiles", profile.username)).catch(function(){});
   }
+  await deleteDoc(doc(db, "users", user.uid)).catch(function(){});
   await deleteUser(user);
 }

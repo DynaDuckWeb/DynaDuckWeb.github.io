@@ -338,7 +338,9 @@ nav a:hover{
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="firebase-auth.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
@@ -354,26 +356,38 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-const currentUser = localStorage.getItem("loggedInUser");
+function currentUid() {
+  try { if (window.firebaseAuth && firebaseAuth.currentUser) return firebaseAuth.currentUser.uid; } catch (e) {}
+  return localStorage.getItem("firebaseUid");
+}
+function currentUserName() { return localStorage.getItem("loggedInUser") || ""; }
+function escHtml(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
 
 function loadBalance(){
-  if(!currentUser){
+  var uid = currentUid();
+  if(!uid){
     document.getElementById("dynamiteBalance").innerText = "0";
     return;
   }
-  const balanceRef = db.ref("users/" + currentUser + "/dynamites");
-  balanceRef.on("value", snapshot => {
-    let balance = snapshot.val();
-    if(balance == null){
+  // Canonical field is "Dynamites" (capital D). Read it, migrate legacy lowercase if needed.
+  var balanceRef = db.ref("users/" + uid + "/Dynamites");
+  balanceRef.on("value", function (snapshot) {
+    var balance = snapshot.val();
+    if (balance == null) {
+      // One-time migration from legacy lowercase path.
+      db.ref("users/" + uid + "/dynamites").once("value").then(function (legacy) {
+        var v = legacy.val();
+        if (typeof v === 'number') { balanceRef.set(v); }
+        else { balanceRef.set(1000); }
+      });
       balance = 0;
-      balanceRef.set(0);
     }
     document.getElementById("dynamiteBalance").innerText = balance;
   });
 }
 
 function openRedeemModal() {
-  if (!currentUser) {
+  if (!currentUid()) {
     alert("Please log in first.");
     return;
   }
@@ -391,12 +405,15 @@ async function claimKey() {
     return;
   }
 
-  if (!currentUser) {
+  var uid = currentUid();
+  var uname = currentUserName();
+  if (!uid || !uname) {
     alert("Please log in first.");
     return;
   }
+  if (!/^[A-Z0-9-]{4,64}$/.test(codeInput)) { alert("Invalid code format."); return; }
 
-  const sanitizedKey = codeInput.replace(/[.#$\[\]]/g, "_");
+  const sanitizedKey = codeInput.replace(/[.#$\[\]/]/g, "_").slice(0, 80);
   const usedKeyRef = db.ref("used_gumroad_keys/" + sanitizedKey);
 
   try {
@@ -417,27 +434,38 @@ async function claimKey() {
     const data = await response.json();
 
     if (data.valid) {
-      const purchase = data.raw.purchase;
-      const amountToAdd = data.amount || 200;
+      const purchase = (data.raw && data.raw.purchase) || {};
+      var amountToAdd = Number(data.amount || 200);
+      if (!Number.isFinite(amountToAdd) || amountToAdd <= 0 || amountToAdd > 10000) amountToAdd = 200;
 
-      await usedKeyRef.set({
-        claimed_by: currentUser,
-        claimed_at: Date.now(),
-        email: purchase.email || "unknown",
-        amount: amountToAdd,
-        product_id: purchase.product_id || "unknown"
-      });
+      // Claim-once: transaction fails if key already exists (prevents double-claim races).
+      var claimed = false;
+      try {
+        var tx = await usedKeyRef.transaction(function (cur) {
+          if (cur !== null) return; // abort: already claimed
+          return {
+            claimed_by: uname,
+            claimed_by_uid: uid,
+            claimed_at: Date.now(),
+            email: String(purchase.email || "unknown").slice(0, 100),
+            amount: amountToAdd,
+            product_id: String(purchase.product_id || "unknown").slice(0, 100)
+          };
+        });
+        claimed = tx && tx.committed;
+      } catch (e) { claimed = false; }
+      if (!claimed) { alert("This code has already been claimed!"); return; }
 
-      const userBalanceRef = db.ref("users/" + currentUser + "/dynamites");
+      const userBalanceRef = db.ref("users/" + uid + "/Dynamites");
       userBalanceRef.transaction((currentBal) => {
-        return (currentBal || 0) + amountToAdd;
+        return (Number(currentBal) || 0) + amountToAdd;
       }, (balErr, balCommitted) => {
         if (balCommitted) {
-          alert(`Success! Credited ${amountToAdd} Dynamites to ${currentUser}.`);
+          alert("Success! Credited " + amountToAdd + " Dynamites to " + uname + ".");
           closeRedeemModal();
           document.getElementById("codeKeyInput").value = "";
         } else {
-          alert("Error updating your balance. Please contact support.");
+          alert("Error updating your balance. Please contact support with code " + sanitizedKey + ".");
         }
       });
 
@@ -452,7 +480,7 @@ async function claimKey() {
 }
 
 function buyDynamites(amount){
-  if(!currentUser){
+  if(!currentUid()){
     alert("Please log in first.");
     return;
   }
@@ -465,29 +493,21 @@ function buyDynamites(amount){
     gumroadUrl = "https://miroverse77.gumroad.com/l/mhhui";
   } else if (amount === 2000) {
     gumroadUrl = "https://miroverse77.gumroad.com/l/ympqmm";
-  }
+  } else { return; }
 
   if (gumroadUrl !== "") {
-    window.open(gumroadUrl, '_blank');
+    window.open(gumroadUrl, '_blank', 'noopener');
   }
 }
 
 function updateHeader(){
   const authDiv = document.getElementById("authButtons");
-  if(currentUser){
-    authDiv.innerHTML = `
-      <span style="color:white; font-weight:bold;">
-        Welcome, ${currentUser}!
-      </span>
-      <a href="settings.html">
-        <button class="header-btn">
-          Settings
-        </button>
-      </a>
-      <button class="header-btn" onclick="logout()">
-        Logout
-      </button>
-    `;
+  var uname = currentUserName();
+  if(uname){
+    authDiv.innerHTML =
+      '<span style="color:white; font-weight:bold;">Welcome, ' + escHtml(uname) + '!</span>' +
+      '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
+      '<button class="header-btn" onclick="logout()">Logout</button>';
   } else {
     authDiv.innerHTML = `
       <a href="signup.html">
@@ -505,7 +525,8 @@ function updateHeader(){
 }
 
 function logout(){
-  localStorage.removeItem("loggedInUser");
+  try { localStorage.removeItem("loggedInUser"); localStorage.removeItem("firebaseUid"); localStorage.removeItem("firebaseEmail"); localStorage.removeItem("isAdmin"); } catch (e) {}
+  try { if (window.firebaseAuth) { firebaseAuth.signOut().finally(function(){ location.reload(); }); return; } } catch (e) {}
   location.reload();
 }
 

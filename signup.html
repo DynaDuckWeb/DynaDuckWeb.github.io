@@ -50,8 +50,8 @@
   <script src="firebase-auth.js"></script>
 
   <script>
-    var auth = firebaseAuth;
-    var db = firebaseDb;
+    function getAuth() { return window.firebaseAuth || firebase.auth(); }
+    function getDb() { return window.firebaseDb || firebase.database(); }
 
     function normalizeForModeration(input) {
       var s = String(input || '');
@@ -120,6 +120,11 @@
       }
 
       try {
+        var db = getDb();
+        var auth = getAuth();
+        if (/[.#$[\]]/.test(username)) { alert('Username contains invalid characters.'); return; }
+        if (password.length < 6) { alert('Password must be at least 6 characters.'); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Enter a valid email.'); return; }
         var usernameTaken = await db.ref('usernames/' + username).once('value');
         if (usernameTaken.exists()) {
           alert('This username is already taken.');
@@ -129,32 +134,47 @@
         var cred = await auth.createUserWithEmailAndPassword(email, password);
         var uid = cred.user.uid;
 
-        await db.ref('usernames/' + username).set(uid);
-        await db.ref('users/' + uid).set({
-          username: username,
-          email: email,
-          joinedDate: Date.now(),
-          Dynamites: 1000,
-          inventory: { 'Starter Pack': true },
-          colors: { head: '#ffcd3a', torso: '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' },
-          equipped: {},
-          friends: {},
-          friendRequests: {},
-          outgoingRequests: {}
-        });
+        try {
+          await db.ref('usernames/' + username).set(uid);
+        } catch (e) {
+          // Roll back auth user if reservation fails (name race).
+          try { await cred.user.delete(); } catch (delErr) {}
+          throw e;
+        }
+        try {
+          await db.ref('users/' + uid).set({
+            username: username,
+            email: email,
+            joinedDate: Date.now(),
+            Dynamites: 1000,
+            inventory: { 'Starter Pack': true },
+            colors: { head: '#ffcd3a', torso: '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' },
+            equipped: {}
+          });
+        } catch (e) {
+          try { await db.ref('usernames/' + username).remove(); } catch (cleanupErr) {}
+          try { await cred.user.delete(); } catch (delErr) {}
+          throw e;
+        }
 
         localStorage.setItem('loggedInUser', username);
         localStorage.setItem('firebaseUid', uid);
         localStorage.setItem('firebaseEmail', email);
 
-        var token = await cred.user.getIdTokenResult(true);
-        localStorage.setItem('isAdmin', token.claims && token.claims.admin === true ? 'true' : 'false');
+        try {
+          var token = await cred.user.getIdTokenResult(true);
+          localStorage.setItem('isAdmin', token.claims && token.claims.admin === true ? 'true' : 'false');
+        } catch (tokErr) {
+          localStorage.setItem('isAdmin', 'false');
+        }
 
         alert('Account created successfully!');
         window.location.href = 'index.html';
       } catch (error) {
         console.error(error);
-        alert('Sign-up failed: ' + (error.message || 'Unknown error'));
+        var msg = (error && error.message) || 'Unknown error';
+        if (error && error.code === 'auth/email-already-in-use') msg = 'That email is already registered. Try logging in.';
+        alert('Sign-up failed: ' + msg);
       }
     });
   </script>

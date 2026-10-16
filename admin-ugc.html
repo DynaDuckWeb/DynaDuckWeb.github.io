@@ -199,6 +199,7 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
@@ -215,59 +216,82 @@
     }
 
     const db = firebase.database();
-    const username = localStorage.getItem('loggedInUser');
+    const auth = firebase.auth();
+    function escHtml(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+    function currentUsername() { return localStorage.getItem('loggedInUser') || ''; }
 
     function updateHeader() {
       const authDiv = document.getElementById('authButtons');
+      const username = currentUsername();
       if (username) {
-        authDiv.innerHTML = `
-          <span style="color:white;font-weight:bold;">Welcome, ${username}!</span>
-          <a href="settings.html" class="header-btn">Settings</a>
-          <button class="header-btn" onclick="logout()">Logout</button>
-        `;
+        authDiv.textContent = '';
+        var span = document.createElement('span');
+        span.style.cssText = 'color:white;font-weight:bold;';
+        span.textContent = 'Welcome, ' + username + '!';
+        var a = document.createElement('a'); a.href = 'settings.html'; a.className = 'header-btn'; a.textContent = 'Settings';
+        var b = document.createElement('button'); b.className = 'header-btn'; b.textContent = 'Logout'; b.onclick = logout;
+        authDiv.appendChild(span); authDiv.appendChild(a); authDiv.appendChild(b);
       } else {
-        authDiv.innerHTML = `
-          <a href="signup.html" class="header-btn">Sign Up</a>
-          <a href="login.html" class="header-btn">Log In</a>
-        `;
+        authDiv.innerHTML =
+          '<a href="signup.html" class="header-btn">Sign Up</a>' +
+          '<a href="login.html" class="header-btn">Log In</a>';
       }
     }
 
     function logout() {
-      localStorage.removeItem('loggedInUser');
-      localStorage.removeItem('isAdmin');
-      window.location.href = 'login.html';
+      try { localStorage.removeItem('loggedInUser'); localStorage.removeItem('firebaseUid'); localStorage.removeItem('firebaseEmail'); localStorage.removeItem('isAdmin'); } catch (e) {}
+      auth.signOut().finally(function () { window.location.href = 'login.html'; });
     }
 
     async function checkAdminAndLoad() {
       updateHeader();
 
-      if (!username) {
-        showAccessDenied("Please log in first.");
-        return;
+      var user = auth.currentUser;
+      var username = currentUsername();
+      if (!user || !username) {
+        // Wait briefly for auth restore before denying.
+        setTimeout(async function () {
+          user = auth.currentUser;
+          if (!user) { showAccessDenied("Please log in first."); return; }
+          await verifyAdmin(user);
+        }, 800);
+        // Optimistic: try token claim immediately if available.
+        if (!user) return;
       }
+      await verifyAdmin(user || auth.currentUser);
+    }
 
-      const userSnap = await db.ref("users/" + username).once("value");
-      const userData = userSnap.val() || {};
-
-      const isUserAdmin = userData.isAdmin || username.toLowerCase() === "admin";
-
-      if (!isUserAdmin) {
-        showAccessDenied("Access Denied: You do not have permission to view this page.");
-        return;
-      }
-
-      loadUgcRequests();
+    async function verifyAdmin(user) {
+      if (!user) { showAccessDenied("Please log in first."); return; }
+      try {
+        var token = await user.getIdTokenResult(true);
+        if (token.claims && token.claims.admin === true) {
+          try { localStorage.setItem('isAdmin', 'true'); } catch (e) {}
+          loadUgcRequests();
+          return;
+        }
+      } catch (e) {}
+      // Fallback for legacy setup: local flag (server rules still enforce admin writes).
+      if (localStorage.getItem('isAdmin') === 'true') { loadUgcRequests(); return; }
+      showAccessDenied("Access Denied: Admin custom claim required. (Server rules enforce this — client checks alone are not enough.)");
     }
 
     function showAccessDenied(msg) {
       const container = document.getElementById('adminContent');
-      container.innerHTML = `<div class="access-denied"><h2>${msg}</h2></div>`;
+      container.textContent = '';
+      var div = document.createElement('div'); div.className = 'access-denied';
+      var h = document.createElement('h2'); h.textContent = msg;
+      div.appendChild(h); container.appendChild(div);
     }
 
     async function loadUgcRequests() {
-      const requestsRef = db.ref("ugcSubmissions");
-      const snapshot = await requestsRef.once("value");
+      let snapshot;
+      try {
+        snapshot = await db.ref("ugcSubmissions").once("value");
+      } catch (e) {
+        showAccessDenied("Cannot load submissions (permission denied). Admin claim required.");
+        return;
+      }
       const requests = snapshot.val() || {};
 
       const listContainer = document.getElementById("requestsList");
@@ -281,67 +305,90 @@
       }
 
       keys.forEach(requestId => {
-        const item = requests[requestId];
+        if (/[.#$[\]]/.test(requestId)) return;
+        const item = requests[requestId] || {};
         
         const card = document.createElement("div");
         card.className = "request-card";
 
-        const imageOrColorPreview = item.image 
-          ? `<img src="${item.image}" class="item-preview-img" alt="${item.name}">`
-          : `<span class="item-preview-box" style="background-color: ${item.color || '#fff'}"></span>`;
+        const info = document.createElement("div");
+        info.className = "request-info";
+        function row(label, value) {
+          var div = document.createElement('div');
+          var s = document.createElement('strong'); s.textContent = label + ': ';
+          div.appendChild(s); div.appendChild(document.createTextNode(String(value == null ? 'N/A' : value)));
+          return div;
+        }
+        var nameRow = document.createElement('div');
+        var ns = document.createElement('strong'); ns.textContent = 'Item Name: ';
+        nameRow.appendChild(ns); nameRow.appendChild(document.createTextNode(String(item.name || 'Unnamed')));
+        if (typeof item.image === 'string' && /^(data:image\/|https:\/\/)/.test(item.image.trim())) {
+          var im = document.createElement('img'); im.src = item.image.trim(); im.className = 'item-preview-img'; im.alt = String(item.name || '');
+          nameRow.appendChild(im);
+        } else if (item.color) {
+          var bx = document.createElement('span'); bx.className = 'item-preview-box';
+          if (/^#[0-9a-fA-F]{6}$/.test(String(item.color))) bx.style.backgroundColor = item.color;
+          nameRow.appendChild(bx);
+        }
+        info.appendChild(nameRow);
+        info.appendChild(row('Description', item.description || 'N/A'));
+        info.appendChild(row('Type / Slot', (item.type || 'tshirt') + ' (' + (item.slot || 'torso') + ')'));
+        info.appendChild(row('Price', Number(item.price || 0) + ' Dynamites'));
+        info.appendChild(row('Creator', (item.creator || 'Unknown') + (item.creatorUid ? ' (' + String(item.creatorUid).slice(0, 8) + '…)' : '')));
+        info.appendChild(row('Status', item.status || 'pending'));
 
-        card.innerHTML = `
-          <div class="request-info">
-            <div>
-              <strong>Item Name:</strong> ${item.name} 
-              ${imageOrColorPreview}
-            </div>
-            <div><strong>Description:</strong> ${item.description || 'N/A'}</div>
-            <div><strong>Type / Slot:</strong> ${item.type || 'tshirt'} (${item.slot || 'torso'})</div>
-            <div><strong>Price:</strong> ${item.price} Dynamites</div>
-            <div><strong>Creator:</strong> ${item.creator || "Unknown"}</div>
-            <div><strong>Status:</strong> ${item.status || "pending"}</div>
-          </div>
-          <div class="actions">
-            <button class="btn-approve" onclick="approveRequest('${requestId}')">Accept</button>
-            <button class="btn-reject" onclick="rejectRequest('${requestId}')">Reject</button>
-          </div>
-        `;
+        var actions = document.createElement('div'); actions.className = 'actions';
+        var ok = document.createElement('button'); ok.className = 'btn-approve'; ok.textContent = 'Accept';
+        ok.onclick = function () { approveRequest(requestId); };
+        var no = document.createElement('button'); no.className = 'btn-reject'; no.textContent = 'Reject';
+        no.onclick = function () { rejectRequest(requestId); };
+        actions.appendChild(ok); actions.appendChild(no);
+        card.appendChild(info); card.appendChild(actions);
 
         listContainer.appendChild(card);
       });
     }
 
     async function approveRequest(requestId) {
+      if (/[.#$[\]]/.test(requestId)) return;
       const requestRef = db.ref("ugcSubmissions/" + requestId);
       const snap = await requestRef.once("value");
       const item = snap.val();
 
       if (!item) return;
+      var price = Math.max(0, Math.min(100, Number(item.price || 0)));
+      if (!item.name || String(item.name).length > 40) { alert('Invalid item name.'); return; }
 
       const newCatalogRef = db.ref("catalog").push();
-      await newCatalogRef.set({
-        name: item.name,
-        description: item.description || "",
-        type: item.type || "tshirt",
-        slot: item.slot || 'torso',
-        price: Number(item.price || 0),
-        color: item.color || null,
-        image: item.image || null,
-        creator: item.creator || "Community",
-        createdAt: item.createdAt || Date.now()
-      });
+      try {
+        await newCatalogRef.set({
+          name: String(item.name).slice(0, 40),
+          description: String(item.description || "").slice(0, 300),
+          type: "tshirt",
+          slot: "torso",
+          price: price,
+          color: null,
+          image: (typeof item.image === 'string' ? item.image.slice(0, 300000) : null),
+          creator: String(item.creator || "Community").slice(0, 40),
+          creatorUid: item.creatorUid || null,
+          status: "approved",
+          createdAt: item.createdAt || Date.now()
+        });
+      } catch (e) { alert('Approve failed (admin claim required): ' + e.message); return; }
 
       await requestRef.remove();
 
-      alert(`Approved "${item.name}"! It is now live in the catalog.`);
+      alert('Approved "' + item.name + '"! It is now live in the catalog.');
       loadUgcRequests();
     }
 
     async function rejectRequest(requestId) {
+      if (/[.#$[\]]/.test(requestId)) return;
       if (!confirm("Reject and delete this request?")) return;
 
-      await db.ref("ugcSubmissions/" + requestId).remove();
+      try {
+        await db.ref("ugcSubmissions/" + requestId).remove();
+      } catch (e) { alert('Reject failed (admin claim required): ' + e.message); return; }
       alert("Request removed.");
       loadUgcRequests();
     }

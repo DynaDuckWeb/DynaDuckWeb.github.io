@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>DynaDuck Catalog</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
 
@@ -477,7 +478,7 @@ nav a:hover {
     const firebaseConfig = {
       apiKey: "AIzaSyDtxYw55qR1wO3fw3EBivVhz4XI_H7GzvQ",
       authDomain: "dynaduck-19dbb.firebaseapp.com",
-      databaseURL: "https:dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
+      databaseURL: "https://dynaduck-19dbb-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "dynaduck-19dbb",
       storageBucket: "dynaduck-19dbb.firebasestorage.app",
       messagingSenderId: "777148453502",
@@ -489,7 +490,18 @@ nav a:hover {
     }
 
     const db = firebase.database();
-    const username = localStorage.getItem('loggedInUser');
+    const auth = firebase.auth();
+    function currentUid() {
+      return (auth.currentUser && auth.currentUser.uid) || localStorage.getItem('firebaseUid');
+    }
+    function currentUsername() {
+      return localStorage.getItem('loggedInUser') || '';
+    }
+    function escHtml(s) {
+      var d = document.createElement('div');
+      d.textContent = String(s == null ? '' : s);
+      return d.innerHTML;
+    }
 
     const defaultColors = {
         head: "#ffcd3a",
@@ -504,32 +516,34 @@ nav a:hover {
 
     function updateHeader() {
         const authDiv = document.getElementById('authButtons');
+        const username = currentUsername();
         if (username) {
-            authDiv.innerHTML = `
-                <span style="color:white;font-weight:bold;">Welcome, ${username}!</span>
-                <a href="settings.html"><button class="header-btn">Settings</button></a>
-                <button class="header-btn" onclick="logout()">Logout</button>
-            `;
+            authDiv.innerHTML =
+                '<span style="color:white;font-weight:bold;">Welcome, ' + escHtml(username) + '!</span>' +
+                '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
+                '<button class="header-btn" onclick="logout()">Logout</button>';
         } else {
-            authDiv.innerHTML = `
-                <a href="signup.html"><button class="header-btn">Sign Up</button></a>
-                <a href="login.html"><button class="header-btn">Log In</button></a>
-            `;
+            authDiv.innerHTML =
+                '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
+                '<a href="login.html"><button class="header-btn">Log In</button></a>';
         }
     }
 
     function logout() {
-        localStorage.removeItem('loggedInUser');
-        localStorage.removeItem('isAdmin');
-        window.location.href = 'login.html';
+        try { localStorage.removeItem('loggedInUser'); } catch (e) {}
+        try { localStorage.removeItem('firebaseUid'); } catch (e) {}
+        try { localStorage.removeItem('firebaseEmail'); } catch (e) {}
+        try { localStorage.removeItem('isAdmin'); } catch (e) {}
+        auth.signOut().finally(function () { window.location.href = 'login.html'; });
     }
 
     async function initApp() {
         updateHeader();
 
-        if (!username) return;
+        const uid = currentUid();
+        if (!uid) { await loadCatalog(); return; }
 
-        const userRef = db.ref("users/" + username);
+        const userRef = db.ref("users/" + uid);
 
         const snapshot = await userRef.once("value");
         const user = snapshot.val() || {};
@@ -550,7 +564,9 @@ nav a:hover {
         await loadCatalog();
         updateInventoryUI(finalUser.inventory || {}, finalUser.equipped || {});
     }
-d elsewhere (e.g. an admin/create tool)
+
+    // Catalog items are public read; writes are restricted to admins via security rules
+    // (manage items with an admin tool, not from this page).
     async function loadCatalog() {
         const catalogRef = db.ref("catalog");
         const snapshot = await catalogRef.once("value");
@@ -579,21 +595,43 @@ d elsewhere (e.g. an admin/create tool)
         }
 
         entries.forEach(([id, item]) => {
-
+            if (!item || item.status === 'rejected') return;
             const card = document.createElement("div");
             card.className = "item-card";
+            const safeName = escHtml(item.name || id);
+            const safePrice = Math.max(0, Math.min(100, Number(item.price) || 0)).toLocaleString();
+            const safeImg = (typeof item.image === 'string' && /^(data:image\/|https:\/\/)/.test(item.image.trim())) ? item.image.trim() : '';
 
-            card.innerHTML = `
-                <div class="item-box">
-                    <h4>${item.name.replace(/ /g, "<br>")}</h4>
-                </div>
-                <button class="item-btn">
-                    <span class="btn-text-buy">Buy</span>
-                    <span class="btn-text-price">${Number(item.price || 0).toLocaleString()} Dynamites</span>
-                </button>
-            `;
-
-            card.querySelector(".item-btn").onclick = () => buyItem(id, item);
+            const box = document.createElement('div');
+            box.className = 'item-box';
+            if (safeImg) {
+                const img = document.createElement('img');
+                img.src = safeImg;
+                img.alt = String(item.name || id);
+                img.style.cssText = 'width:100%;height:100%;object-fit:contain';
+                box.appendChild(img);
+            } else {
+                const h = document.createElement('h4');
+                h.innerHTML = safeName.replace(/ /g, "<br>");
+                box.appendChild(h);
+            }
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'item-name';
+            nameDiv.textContent = String(item.name || id);
+            const btn = document.createElement('button');
+            btn.className = 'item-btn';
+            const buySpan = document.createElement('span');
+            buySpan.className = 'btn-text-buy';
+            buySpan.textContent = 'Buy';
+            const priceSpan = document.createElement('span');
+            priceSpan.className = 'btn-text-price';
+            priceSpan.textContent = safePrice + ' Dynamites';
+            btn.appendChild(buySpan);
+            btn.appendChild(priceSpan);
+            btn.onclick = () => buyItem(id, item);
+            card.appendChild(box);
+            card.appendChild(nameDiv);
+            card.appendChild(btn);
 
             grid.appendChild(card);
 
@@ -612,8 +650,9 @@ d elsewhere (e.g. an admin/create tool)
     }
 
     async function buyItem(itemId, item) {
-
-        const userRef = db.ref("users/" + username);
+        const uid = currentUid();
+        if (!uid) { alert('Please log in first.'); return; }
+        const userRef = db.ref("users/" + uid);
 
         const snapshot = await userRef.once("value");
 
@@ -631,21 +670,25 @@ d elsewhere (e.g. an admin/create tool)
             await userRef.update({ Dynamites: 0 });
         }
 
-        if (user.inventory && user.inventory[item.name]) {
+        if (user.inventory && item.name && user.inventory[item.name]) {
             alert("You already own this item.");
             return;
         }
 
-        if (currentDynamites < item.price) {
+        const price = Math.max(0, Math.min(100, Number(item.price) || 0));
+        if (currentDynamites < price) {
             alert("Not enough Dynamites!");
             return;
         }
+        if (!item.name || !item.slot) { alert('Invalid item.'); return; }
+        const safeKey = String(item.name).replace(/[.#$[\]]/g, '_').slice(0, 60);
 
         await userRef.update({
-            Dynamites: currentDynamites - item.price,
-            ["inventory/" + item.name]: {
+            Dynamites: currentDynamites - price,
+            ["inventory/" + safeKey]: {
                 slot: item.slot,
-                color: item.color
+                color: item.color || null,
+                image: (typeof item.image === 'string' ? item.image.slice(0, 200000) : '')
             }
         });
 
@@ -702,8 +745,9 @@ d elsewhere (e.g. an admin/create tool)
         if (!itemData || !itemData.slot) {
             return;
         }
-
-        const userRef = db.ref("users/" + username);
+        const uid = currentUid();
+        if (!uid) { alert('Please log in first.'); return; }
+        const userRef = db.ref("users/" + uid);
         const slot = itemData.slot;
 
         if (currentlyEquipped) {
@@ -734,13 +778,18 @@ d elsewhere (e.g. an admin/create tool)
     }
 
     async function applyColor(hexColor) {
+        if (!/^#[0-9a-fA-F]{6}$/.test(hexColor || '')) return;
         const part = document.getElementById("bodyPartSelect").value;
+        const allowed = ['head', 'torso', 'l-arm', 'r-arm', 'l-leg', 'r-leg'];
+        if (allowed.indexOf(part) === -1) return;
+        const uid = currentUid();
+        if (!uid) { alert('Please log in first.'); return; }
         const el = document.getElementById("part-" + part);
         if (el) {
             el.style.backgroundColor = hexColor;
         }
 
-        const userRef = db.ref("users/" + username);
+        const userRef = db.ref("users/" + uid);
         await userRef.update({
             ["colors/" + part]: hexColor
         });

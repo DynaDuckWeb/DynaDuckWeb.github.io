@@ -88,26 +88,45 @@
   <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/nsfwjs.min.js"></script>
 
   <script>
-    var db = firebaseDb;
+    var db = (window.firebaseDb || null);
+    // Wait for firebase-auth.js init if needed.
+    function ensureDb() {
+      if (!db) {
+        try { db = window.firebaseDb || firebase.database(); } catch (e) { db = null; }
+      }
+      return db;
+    }
     var compressedImageData = '';
     var isImageSafe = true;
     var nsfwModel = null;
 
     function currentUid() {
-      return firebaseAuth && firebaseAuth.currentUser ? firebaseAuth.currentUser.uid : localStorage.getItem('firebaseUid');
+      // Require a live Auth session — never trust localStorage alone for writes.
+      try {
+        if (window.firebaseAuth && firebaseAuth.currentUser) return firebaseAuth.currentUser.uid;
+      } catch (e) {}
+      return null;
     }
 
     function currentUsername() {
       return localStorage.getItem('loggedInUser') || '';
     }
+    function escHtml(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
 
     function updateHeader() {
       var authDiv = document.getElementById('authButtons');
       var username = currentUsername();
       if (username) {
-        authDiv.innerHTML = '<span style="color:#fff;font-weight:bold;">Welcome, ' + username + '!</span>' +
-          '<a href="settings.html"><button class="header-btn">Settings</button></a>' +
-          '<button class="header-btn" onclick="logoutCurrentUser().then(function(){location.reload();})">Logout</button>';
+        authDiv.textContent = '';
+        var span = document.createElement('span');
+        span.style.cssText = 'color:#fff;font-weight:bold;';
+        span.textContent = 'Welcome, ' + username + '!';
+        var a = document.createElement('a'); a.href = 'settings.html';
+        var sb = document.createElement('button'); sb.className = 'header-btn'; sb.textContent = 'Settings';
+        a.appendChild(sb);
+        var lo = document.createElement('button'); lo.className = 'header-btn'; lo.textContent = 'Logout';
+        lo.onclick = function () { logoutCurrentUser().then(function(){location.reload();}); };
+        authDiv.appendChild(span); authDiv.appendChild(a); authDiv.appendChild(lo);
       } else {
         authDiv.innerHTML = '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
           '<a href="login.html"><button class="header-btn">Log In</button></a>';
@@ -225,9 +244,10 @@
     }
 
     function submitGame() {
+      var database = ensureDb();
       var uid = currentUid();
-      if (!uid) {
-        alert('You must be logged in to create and publish places!');
+      if (!uid || !database) {
+        alert('You must be logged in (with an active session) to publish places! Try re-logging.');
         return;
       }
 
@@ -236,8 +256,8 @@
         return;
       }
 
-      var title = document.getElementById('gameTitle').value.trim();
-      var desc = document.getElementById('gameDesc').value.trim();
+      var title = document.getElementById('gameTitle').value.trim().slice(0, 40);
+      var desc = document.getElementById('gameDesc').value.trim().slice(0, 500);
       var maxPlayers = parseInt(document.getElementById('maxPlayers').value, 10);
       var duckFileInput = document.getElementById('duckFile');
 
@@ -269,20 +289,28 @@
         return;
       }
 
+      var btn = document.getElementById('publishBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'PUBLISHING…'; }
       var duckReader = new FileReader();
       duckReader.onload = function (e) {
         saveToDatabase(title, desc, maxPlayers, e.target.result, compressedImageData);
       };
+      duckReader.onerror = function () { if (btn) { btn.disabled = false; btn.textContent = 'PUBLISH PLACE'; } alert('Could not read .duck file.'); };
       duckReader.readAsText(duckFile);
     }
 
     function saveToDatabase(title, desc, maxPlayers, mapData, thumbnailData) {
-      var newGameRef = db.ref('games').push();
+      var database = ensureDb();
+      var uid = currentUid();
+      if (!uid || !database) { alert('Session expired. Please re-login.'); return; }
+      if (typeof mapData !== 'string' || mapData.length === 0 || mapData.length > 2000000) { alert('Invalid map data.'); return; }
+      if (thumbnailData && thumbnailData.length > 300000) { alert('Thumbnail too large. Choose a smaller image.'); return; }
+      var newGameRef = database.ref('games').push();
       newGameRef.set({
         title: title,
         description: desc,
         creator: currentUsername() || 'Anonymous',
-        creatorUid: currentUid(),
+        creatorUid: uid,
         maxPlayers: maxPlayers,
         fileData: mapData,
         thumbnail: thumbnailData || '',
