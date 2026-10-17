@@ -101,7 +101,7 @@ nav a:hover { color:#11AD36; }
 
 <div class="main-container">
   <div id="notLoggedIn" class="center-message">
-    MAKE AN ACCOUNT TO ACCESS THIS PAGE :3
+    MAKE AN ACCOUNT TO ACCESS THIS PAGE
   </div>
 
   <div id="ideasContent" style="display:none;">
@@ -179,6 +179,7 @@ const bannedWords = [
   "snapchat", "roblox", "onlyfans", "kick.com", "steamcommunity", "gui", "script", "hack"
 ];
 
+
 function isBlocked(text = "") {
   if (!text) return false;
   const lower = text.toLowerCase();
@@ -186,9 +187,10 @@ function isBlocked(text = "") {
   return bannedWords.some(w => {
     const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`\\b${escaped}\\b`, 'i');
-    return regex.test(lower) || lower.includes(w);
+    return regex.test(lower);
   });
 }
+
 
 function updateHeader() {
   const user = getUser();
