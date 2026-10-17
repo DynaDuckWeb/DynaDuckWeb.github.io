@@ -26,7 +26,8 @@
     .game-creator { font-size:12px; color:#666; margin-bottom:6px; }
     .game-desc { font-size:12px; color:#444; height:32px; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px; line-height:1.3; }
     .game-info { font-size:11px; color:#777; padding-top:6px; display:flex; justify-content:space-between; }
-    .btn-play { background:#11AD36; color:white; text-align:center; padding:8px; border-radius:6px; font-weight:bold; text-decoration:none; margin-top:8px; display:block; font-size:13px; }
+    .btn-play { background:#11AD36; color:white; text-align:center; padding:8px; border-radius:6px; font-weight:bold; text-decoration:none; margin-top:8px; display:block; font-size:13px; border:none; cursor:pointer; width:100%; box-sizing:border-box; }
+    .btn-play:hover { background:#0e912d; }
     .add-friend-box { display:flex; gap:6px; margin-bottom:14px; }
     .add-friend-input { flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:12px; background:#fafafa; }
     .btn-add-friend { background:#11AD36; color:white; border:none; border-radius:6px; padding:8px 12px; font-size:12px; font-weight:bold; cursor:pointer; }
@@ -604,10 +605,11 @@
         var profile = snapshot.val() || {};
         var colors = profile.colors || {};
         var avatar = avatarToString(colors);
-        var url = buildLaunchUrl(mapData) + '&username=' + encodeURIComponent(currentUsername()) + '&avatar=' + encodeURIComponent(avatar);
+        var url = buildLaunchUrl(mapData) + '&username=' + encodeURIComponent(currentUsername()) + '&avatar=' + encodeURIComponent(avatar) + '&title=' + encodeURIComponent(game.title || 'Untitled');
         window.location.href = url;
       }, function () {
-        window.location.href = buildLaunchUrl(mapData);
+        var url = buildLaunchUrl(mapData) + '&username=' + encodeURIComponent(currentUsername()) + '&title=' + encodeURIComponent(game.title || 'Untitled');
+        window.location.href = url;
       });
     }
 
