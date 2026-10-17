@@ -83,8 +83,6 @@
 
     document.addEventListener('DOMContentLoaded', updateHeader);
 
-    // If one email maps to several usernames, show buttons and pause login until a pick.
-    // Returns: username string (picked / single / none found -> original input), null = waiting.
     async function maybeChooseAccount(db, emailInput) {
       var ekey = emailInput.replace(/\./g, ',').slice(0, 120);
       var snap;
@@ -103,7 +101,11 @@
         b.onclick = function () {
           document.getElementById('loginEmail').value = n;
           box.style.display = 'none';
-          document.getElementById('loginForm').requestSubmit();
+          if (typeof document.getElementById('loginForm').requestSubmit === 'function') {
+            document.getElementById('loginForm').requestSubmit();
+          } else {
+            document.getElementById('loginForm').dispatchEvent(new Event('submit', { cancelable: true }));
+          }
         };
         btns.appendChild(b);
       });
@@ -126,17 +128,14 @@
       try {
         var auth = getAuth();
         var db = getDb();
-        // Email input with several usernames on it? Offer a chooser first (no password check yet).
         if (loginInput.indexOf('@') !== -1) {
           var picked = await maybeChooseAccount(db, loginInput);
-          if (picked === null) return; // chooser shown, waiting for click
-          if (picked) loginInput = picked; // user picked a username, continue as username flow
+          if (picked === null) return;
+          if (picked) loginInput = picked;
         }
         var email = loginInput;
         var typedUsername = null;
         var assumedUid = null;
-        // Username login: resolve username -> uid -> email via public mappings.
-        // Usernames are case-sensitive in DB; try exact first, then case-insensitive scan (fixes "admin" vs "Admin").
         if (loginInput.indexOf('@') === -1) {
           typedUsername = loginInput;
           if (/[.#$[\]/]/.test(typedUsername)) { alert('Invalid username.'); return; }
@@ -148,7 +147,7 @@
               var lower = typedUsername.toLowerCase();
               var hit = Object.keys(all).filter(function (k) { return k.toLowerCase() === lower; })[0];
               if (hit) {
-                typedUsername = hit; // use DB-canonical casing (e.g. "Admin")
+                typedUsername = hit;
                 nameSnap = await db.ref('usernames/' + hit).once('value');
               }
             } catch (scanErr) {}
@@ -167,7 +166,6 @@
           }
         }
         var cred = await auth.signInWithEmailAndPassword(email, password);
-        // Shared-email guard: typed username A's password may actually belong to sibling account B.
         if (assumedUid && cred.user.uid !== assumedUid) {
           var actualSnap = await db.ref('users/' + cred.user.uid).once('value');
           var actualName = (actualSnap.val() || {}).username || cred.user.email;
@@ -177,7 +175,6 @@
         var profile = profileSnap.val() || {};
         var username = profile.username || typedUsername || (cred.user.email || email).split('@')[0];
 
-        // Self-repair legacy accounts (e.g. old "Admin" under users/Admin with no usernames/ entry).
         try {
           var mapRef = db.ref('usernames/' + username);
           var mapSnap = await mapRef.once('value');
@@ -186,10 +183,8 @@
           var emRef = db.ref('emails/' + ek + '/' + username);
           var emSnap = await emRef.once('value');
           if (!emSnap.exists()) { await emRef.set(cred.user.uid); }
-        } catch (repairErr) { /* rules may deny — non-fatal */ }
+        } catch (repairErr) {}
 
-        // Minimal session: username for display, uid for DB keys.
-        // Email is NOT persisted (read from Auth when needed) to avoid PII in clear-text storage.
         localStorage.setItem('loggedInUser', username);
         localStorage.setItem('firebaseUid', cred.user.uid);
         try { localStorage.removeItem('firebaseEmail'); } catch (e) {}
