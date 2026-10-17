@@ -576,10 +576,6 @@
       return parts.join(',');
     }
 
-    function buildLaunchUrl(mapData) {
-      return 'dynaduck://launch?mapData=' + encodeURIComponent(mapData);
-    }
-
     function launchGame(key) {
       if (!key || /[.#$[\]]/.test(key)) { alert('Invalid place.'); return; }
       var game = allGames[key];
@@ -595,21 +591,34 @@
       }
       recordRecent(key);
 
+      var mapBlob = new Blob([mapData], { type: 'application/octet-stream' });
+      var mapUrl = URL.createObjectURL(mapBlob);
+
+      var username = currentUsername();
+      var title = game.title || 'Untitled';
+
       if (!currentUid()) {
-        window.location.href = buildLaunchUrl(mapData);
+        var finalUrl = 'dynaduck://launch?mapUrl=' + encodeURIComponent(mapUrl) + '&title=' + encodeURIComponent(title);
+        window.location.href = finalUrl;
         return;
       }
 
-      var db = getDb(); if (!db) { window.location.href = buildLaunchUrl(mapData); return; }
+      var db = getDb();
+      if (!db) {
+        var finalUrl = 'dynaduck://launch?mapUrl=' + encodeURIComponent(mapUrl) + '&title=' + encodeURIComponent(title) + '&username=' + encodeURIComponent(username);
+        window.location.href = finalUrl;
+        return;
+      }
+
       db.ref('users/' + currentUid()).once('value', function (snapshot) {
         var profile = snapshot.val() || {};
         var colors = profile.colors || {};
         var avatar = avatarToString(colors);
-        var url = buildLaunchUrl(mapData) + '&username=' + encodeURIComponent(currentUsername()) + '&avatar=' + encodeURIComponent(avatar) + '&title=' + encodeURIComponent(game.title || 'Untitled');
-        window.location.href = url;
+        var finalUrl = 'dynaduck://launch?mapUrl=' + encodeURIComponent(mapUrl) + '&title=' + encodeURIComponent(title) + '&username=' + encodeURIComponent(username) + '&avatar=' + encodeURIComponent(avatar);
+        window.location.href = finalUrl;
       }, function () {
-        var url = buildLaunchUrl(mapData) + '&username=' + encodeURIComponent(currentUsername()) + '&title=' + encodeURIComponent(game.title || 'Untitled');
-        window.location.href = url;
+        var finalUrl = 'dynaduck://launch?mapUrl=' + encodeURIComponent(mapUrl) + '&title=' + encodeURIComponent(title) + '&username=' + encodeURIComponent(username);
+        window.location.href = finalUrl;
       });
     }
 
