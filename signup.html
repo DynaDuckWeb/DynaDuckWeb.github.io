@@ -53,6 +53,43 @@
     function getAuth() { return window.firebaseAuth || firebase.auth(); }
     function getDb() { return window.firebaseDb || firebase.database(); }
 
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9-]+\.[a-zA-Z]{2,}\/[^\s]*)/i;
+
+    const bannedWords = [
+      "fuck", "fucking", "fucked", "fucker", "shit", "shitting", "shitty", "bitch", "bitching",
+      "asshole", "bastard", "dick", "dickhead", "pussy", "cunt", "cock", "cocksucker",
+      "whore", "slut", "idiot", "dumbass", "moron", "imbecile", "trash", "dipshit", "jackass",
+      "nigga", "nigger", "fag", "faggot", "retard", "retarded", "chink", "spic", "kike", "kyke",
+      "tranny", "dyke", "gay", "lesbian", "bi", "bisexual",
+      "pula", "pulă", "pizda", "pizdă", "pizdiet", "pula-n", "muie", "futu-ti", "futu-ți", "futut",
+      "mue", "cacat", "căcat", "sugi", "sugme", "futu", "curwa", "curva", "labagiu", "handicapat",
+      "putain", "merde", "connard", "connasse", "salope", "encule", "enculé", "chienne", "pd",
+      "pedé", "pede", "pétasse", "petasse", "bite", "couille", "nique", "niquer",
+      "puta", "puto", "pendejo", "pendeja", "cabron", "cabrona", "maricon", "maricón", "verga",
+      "mierda", "joto", "chinga", "chingar", "chingado", "culero", "mamón", "mamon",
+      "scheisse", "scheiße", "arschloch", "fotze", "wixer", "wichser", "ficken", "hurensohn",
+      "blyat", "cyka", "сука", "блять", "пидор", "хуй", "пизда", "долбоеб", "ебать", "гандон",
+      "stronzo", "vaffanculo", "cazzo", "merda", "stronza", "figa", "troia", "puttana",
+      "caralho", "porra", "viado", "arrombado", "filho da puta", "buceta", "cacete",
+      "kurwa", "jebac", "jebać", "chuj", "pierdol", "suka", "pizda", "cipa",
+      "kanker", "kut", "tyfus", "lul", "klootzak", "hoer",
+      "amk", "amq", "sik", "sikerim", "orospu", "piç", "pic", "yarrak", "göt",
+      "discord", "dsc.gg", "invite", "youtube", "youtu.be", "tiktok", "instagram",
+      "twitch", "twitter", "x.com", "facebook", "reddit", "telegram", "whatsapp",
+      "snapchat", "roblox", "onlyfans", "kick.com", "steamcommunity", "gui", "script", "hack"
+    ];
+
+    function isBlocked(text = "") {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      if (urlRegex.test(lower)) return true;
+      return bannedWords.some(w => {
+        const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+        return regex.test(lower);
+      });
+    }
+
     function normalizeForModeration(input) {
       var s = String(input || '');
       s = s.replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '');
@@ -111,7 +148,6 @@
 
       var usernameRegex = /^[A-Za-z0-9_]+$/;
       var normalized = normalizeForModeration(username);
-      var bannedWords = ['gay','lesbian','bi','bisexual','nigga','nigger','fag','faggot','retard','fuck','shit','bitch','asshole','dick','pussy','cunt','idiot','trash','discord','youtube','tiktok','instagram','twitter','x.com','nazi','hitler'];
 
       if (!username || username.length < 3 || username.length > 15) {
         alert('Username must be 3 to 15 characters long.');
@@ -123,20 +159,15 @@
         return;
       }
 
-      // Reserved names removed per owner request so deleted accounts like
-      // "Admin" / "DynaDuck" can be remade. First-come first-served via usernames/.
-
-      for (var i = 0; i < bannedWords.length; i++) {
-        if (normalized.indexOf(bannedWords[i]) !== -1) {
-          alert('Username contains restricted text.');
-          return;
-        }
+      if (isBlocked(username) || isBlocked(normalized)) {
+        alert('Username contains restricted text.');
+        return;
       }
 
       try {
         var db = getDb();
         var auth = getAuth();
-        if (/[.#$[\]]/.test(username)) { alert('Username contains invalid characters.'); return; }
+        if (/[.#$[\]/]/.test(username)) { alert('Username contains invalid characters.'); return; }
         if (password.length < 6) { alert('Password must be at least 6 characters.'); return; }
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Enter a valid email.'); return; }
         var usernameTaken = await db.ref('usernames/' + username).once('value');
@@ -153,7 +184,6 @@
           await db.ref('usernames/' + username).set(uid);
           await db.ref('emails/' + ekey + '/' + username).set(uid);
         } catch (e) {
-          // Roll back auth user if reservation fails (name race).
           try { await cred.user.delete(); } catch (delErr) {}
           throw e;
         }
@@ -167,8 +197,6 @@
             colors: { head: '#ffcd3a', torso: '#e3242b', 'l-arm': '#ffcd3a', 'r-arm': '#ffcd3a', 'l-leg': '#ffcd3a', 'r-leg': '#ffcd3a' },
             equipped: {}
           });
-          // Legacy convert: if old username-keyed data exists (users/Admin), carry over
-          // the public displayName only. Never copy password / Dynamites (old values fail validation).
           try {
             var legacySnap = await db.ref('users/' + username + '/displayName').once('value');
             var legacyName = legacySnap.val();
@@ -183,8 +211,6 @@
           throw e;
         }
 
-        // Minimal session: username for display, uid for DB keys.
-        // Email is NOT persisted (read from Auth when needed) to avoid PII in clear-text storage.
         localStorage.setItem('loggedInUser', username);
         localStorage.setItem('firebaseUid', uid);
         try { localStorage.removeItem('firebaseEmail'); } catch (e) {}
