@@ -113,95 +113,80 @@
     }
 
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      document.getElementById('accountChooser').style.display = 'none';
-      document.getElementById('accountBtns').textContent = '';
+  e.preventDefault();
+  document.getElementById('accountChooser').style.display = 'none';
+  document.getElementById('accountBtns').textContent = '';
 
-      var loginInput = document.getElementById('loginEmail').value.trim();
-      var password = document.getElementById('loginPassword').value;
+  var loginInput = document.getElementById('loginEmail').value.trim();
+  var password = document.getElementById('loginPassword').value;
 
-      if (!loginInput || !password) {
-        alert('Please enter your username/email and password.');
+  if (!loginInput || !password) {
+    alert('Please enter your username/email and password.');
+    return;
+  }
+
+  try {
+    var auth = getAuth();
+    var db = getDb();
+
+    if (loginInput.indexOf('@') !== -1) {
+      var picked = await maybeChooseAccount(db, loginInput);
+      if (picked === null) return;
+      if (picked) loginInput = picked;
+    }
+
+    var email = loginInput;
+    var typedUsername = null;
+    var assumedUid = null;
+
+    if (loginInput.indexOf('@') === -1) {
+      typedUsername = loginInput;
+      if (/[.#$[\]/]/.test(typedUsername)) { alert('Invalid username characters.'); return; }
+      
+      var nameSnap = await db.ref('usernames/' + typedUsername).once('value');
+      if (!nameSnap.exists()) {
+        alert('Username "' + loginInput + '" does not exist.');
         return;
       }
 
-      try {
-        var auth = getAuth();
-        var db = getDb();
-        if (loginInput.indexOf('@') !== -1) {
-          var picked = await maybeChooseAccount(db, loginInput);
-          if (picked === null) return;
-          if (picked) loginInput = picked;
-        }
-        var email = loginInput;
-        var typedUsername = null;
-        var assumedUid = null;
-        if (loginInput.indexOf('@') === -1) {
-          typedUsername = loginInput;
-          if (/[.#$[\]/]/.test(typedUsername)) { alert('Invalid username.'); return; }
-          var nameSnap = await db.ref('usernames/' + typedUsername).once('value');
-          if (!nameSnap.exists()) {
-            try {
-              var allSnap = await db.ref('usernames').once('value');
-              var all = allSnap.val() || {};
-              var lower = typedUsername.toLowerCase();
-              var hit = Object.keys(all).filter(function (k) { return k.toLowerCase() === lower; })[0];
-              if (hit) {
-                typedUsername = hit;
-                nameSnap = await db.ref('usernames/' + hit).once('value');
-              }
-            } catch (scanErr) {}
-          }
-          if (!nameSnap.exists()) {
-            alert('Username "' + loginInput + '" not found in Firebase (checked usernames/' + loginInput + '). Open Firebase site → Realtime Database → Data → check if usernames/' + loginInput + ' exists. If this is legacy "Admin", log in with its EMAIL once — mapping will self-repair.');
-            return;
-          }
-          var uid = nameSnap.val();
-          assumedUid = uid;
-          var userSnap = await db.ref('users/' + uid + '/email').once('value');
-          email = userSnap.val() || typedUsername;
-          if (email === typedUsername && email.indexOf('@') === -1) {
-            alert('Could not resolve email for that username. Try logging in with email.');
-            return;
-          }
-        }
-        var cred = await auth.signInWithEmailAndPassword(email, password);
-        if (assumedUid && cred.user.uid !== assumedUid) {
-          var actualSnap = await db.ref('users/' + cred.user.uid).once('value');
-          var actualName = (actualSnap.val() || {}).username || cred.user.email;
-          alert('That password belongs to "' + actualName + '", not "' + typedUsername + '". Logged into "' + actualName + '" instead — pick the right account next time.');
-        }
-        var profileSnap = await db.ref('users/' + cred.user.uid).once('value');
-        var profile = profileSnap.val() || {};
-        var username = profile.username || typedUsername || (cred.user.email || email).split('@')[0];
+      var uid = nameSnap.val();
+      assumedUid = uid;
+      var userSnap = await db.ref('users/' + uid + '/email').once('value');
+      email = userSnap.val();
 
-        try {
-          var mapRef = db.ref('usernames/' + username);
-          var mapSnap = await mapRef.once('value');
-          if (!mapSnap.exists()) { await mapRef.set(cred.user.uid); }
-          var ek = (cred.user.email || email).replace(/\./g, ',').slice(0, 120);
-          var emRef = db.ref('emails/' + ek + '/' + username);
-          var emSnap = await emRef.once('value');
-          if (!emSnap.exists()) { await emRef.set(cred.user.uid); }
-        } catch (repairErr) {}
-
-        localStorage.setItem('loggedInUser', username);
-        localStorage.setItem('firebaseUid', cred.user.uid);
-        try { localStorage.removeItem('firebaseEmail'); } catch (e) {}
-
-        try {
-          var token = await cred.user.getIdTokenResult(true);
-          localStorage.setItem('isAdmin', token.claims && token.claims.admin === true ? 'true' : 'false');
-        } catch (tokErr) {
-          localStorage.setItem('isAdmin', 'false');
-        }
-
-        window.location.href = 'index.html';
-      } catch (error) {
-        console.error(error);
-        alert('Login failed: ' + (error.message || 'Unknown error'));
+      if (!email || email.indexOf('@') === -1) {
+        alert('Could not resolve a valid email address for that username.');
+        return;
       }
-    });
+    } else {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+    }
+
+    var cred = await auth.signInWithEmailAndPassword(email, password);
+    
+    if (assumedUid && cred.user.uid !== assumedUid) {
+      var actualSnap = await db.ref('users/' + cred.user.uid).once('value');
+      var actualName = (actualSnap.val() || {}).username || cred.user.email;
+      alert('That password belongs to "' + actualName + '", not "' + typedUsername + '".');
+    }
+
+    var profileSnap = await db.ref('users/' + cred.user.uid).once('value');
+    var profile = profileSnap.val() || {};
+    var username = profile.username || typedUsername || cred.user.email.split('@')[0];
+
+    localStorage.setItem('loggedInUser', username);
+    localStorage.setItem('firebaseUid', cred.user.uid);
+    try { localStorage.removeItem('firebaseEmail'); } catch (e) {}
+
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error(error);
+    alert('Login failed: ' + (error.message || 'Unknown error'));
+  }
+});
   </script>
 
   <script src="search.js"></script>
