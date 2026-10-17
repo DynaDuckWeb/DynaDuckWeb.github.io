@@ -6,26 +6,26 @@
   <title>Create - DynaDuck</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: Arial, Helvetica, sans-serif; background: #e3e3e3; color: #000; margin: 0; }
-    main { width: 780px; margin: 25px auto; background: #fff; border: 3px solid #666; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .page-title { font-size:26px; font-weight:bold; color:#111; border-bottom:3px solid #11AD36; padding-bottom:6px; margin-top:0; margin-bottom:20px; }
-    .studio-banner { background:#e8f5e9; border:2px solid #11AD36; border-radius:6px; padding:15px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center; }
-    .studio-banner h3 { margin:0 0 4px 0; color:#0b6b21; font-size:18px; }
-    .studio-banner p { margin:0; font-size:13px; color:#444; }
-    .btn-download { background:#11AD36; color:white; border:2px solid #0b6b21; padding:10px 18px; border-radius:4px; font-weight:bold; font-size:14px; cursor:pointer; text-decoration:none; display:inline-block; }
-    .btn-download:hover { background:#0e912d; }
-    .form-panel { border:2px solid #ccc; background:#fdfdfd; padding:20px; border-radius:6px; }
-    .form-panel h2 { margin-top:0; font-size:20px; border-bottom:1px solid #ccc; padding-bottom:8px; margin-bottom:18px; }
-    .form-row { margin-bottom:16px; display:flex; flex-direction:column; gap:5px; }
-    .form-row label { font-weight:bold; font-size:13px; color:#222; }
-    .input-field { width:100%; padding:8px; border:2px solid #999; border-radius:4px; font-size:14px; box-sizing:border-box; font-family:inherit; background:#fff; }
-    .input-field:focus { outline:none; border-color:#11AD36; }
-    .file-input-box { background:#f0f0f0; border:2px dashed #a0a0a0; padding:12px; border-radius:4px; }
-    .image-preview-container { margin-top:8px; display:none; }
-    .image-preview-container img { max-width:200px; max-height:150px; border:2px solid #000; border-radius:4px; display:block; margin-top:5px; }
-    .scan-status { font-size:12px; font-weight:bold; margin-top:4px; color:#555; }
-    .btn-publish { background:#28a745; color:white; border:3px solid #1e7e34; border-radius:6px; width:100%; padding:14px; font-size:18px; font-weight:bold; cursor:pointer; margin-top:15px; box-sizing:border-box; }
-    .btn-publish:hover { background:#218838; }
+    body { font-family: Arial, Helvetica, sans-serif; background: #f4f5f7; color: #172b4d; margin: 0; }
+    main { width: 780px; margin: 25px auto; background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .page-title { font-size: 24px; font-weight: bold; color: #111; margin-top: 0; margin-bottom: 20px; }
+    .studio-banner { background: #f0fdf4; border-left: 4px solid #11AD36; border-radius: 4px; padding: 14px 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .studio-banner h3 { margin: 0 0 4px 0; color: #11AD36; font-size: 16px; }
+    .studio-banner p { margin: 0; font-size: 13px; color: #444; }
+    .btn-download { background: #11AD36; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-download:hover { background: #0e912d; }
+    .form-panel { background: #fff; padding: 0; }
+    .form-panel h2 { margin-top: 0; font-size: 18px; color: #111; margin-bottom: 16px; }
+    .form-row { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .form-row label { font-weight: bold; font-size: 13px; color: #333; }
+    .input-field { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; font-family: inherit; background: #fafafa; }
+    .input-field:focus { outline: none; border-color: #11AD36; background: #fff; }
+    .file-input-box { background: #fafafa; border: 1px dashed #ccc; padding: 12px; border-radius: 6px; }
+    .image-preview-container { margin-top: 8px; display: none; }
+    .image-preview-container img { max-width: 200px; max-height: 150px; border: 1px solid #ccc; border-radius: 6px; display: block; margin-top: 5px; }
+    .scan-status { font-size: 12px; font-weight: bold; margin-top: 4px; color: #555; }
+    .btn-publish { background: #11AD36; color: white; border: none; border-radius: 6px; width: 100%; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; box-sizing: border-box; }
+    .btn-publish:hover { background: #0e912d; }
   </style>
 </head>
 <body>
@@ -53,7 +53,10 @@
         <h3>DynaDuck Engine Studio</h3>
         <p>Build and compile custom levels offline, then upload them here for everyone to play.</p>
       </div>
-      <a href="DynaDuckSetup.exe" download class="btn-download">Download Studio (.exe)</a>
+      <div>
+        <a href="DynaDuckSetup.exe" download class="btn-download" style="margin-bottom:6px; display:block; text-align:center;">Download Studio (.exe)</a>
+        <a href="DynaDuck" download class="btn-download" style="background:#333; display:block; text-align:center;">Download Linux Version</a>
+      </div>
     </div>
 
     <div class="form-panel">
@@ -88,8 +91,44 @@
   <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.0/dist/nsfwjs.min.js"></script>
 
   <script>
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9-]+\.[a-zA-Z]{2,}\/[^\s]*)/i;
+
+    const bannedWords = [
+      "fuck", "fucking", "fucked", "fucker", "shit", "shitting", "shitty", "bitch", "bitching",
+      "asshole", "bastard", "dick", "dickhead", "pussy", "cunt", "cock", "cocksucker",
+      "whore", "slut", "idiot", "dumbass", "moron", "imbecile", "trash", "dipshit", "jackass",
+      "nigga", "nigger", "fag", "faggot", "retard", "retarded", "chink", "spic", "kike", "kyke",
+      "tranny", "dyke", "gay", "lesbian", "bi", "bisexual",
+      "pula", "pulă", "pizda", "pizdă", "pizdiet", "pula-n", "muie", "futu-ti", "futu-ți", "futut",
+      "mue", "cacat", "căcat", "sugi", "sugme", "futu", "curwa", "curva", "labagiu", "handicapat",
+      "putain", "merde", "connard", "connasse", "salope", "encule", "enculé", "chienne", "pd",
+      "pedé", "pede", "pétasse", "petasse", "bite", "couille", "nique", "niquer",
+      "puta", "puto", "pendejo", "pendeja", "cabron", "cabrona", "maricon", "maricón", "verga",
+      "mierda", "joto", "chinga", "chingar", "chingado", "culero", "mamón", "mamon",
+      "scheisse", "scheiße", "arschloch", "fotze", "wixer", "wichser", "ficken", "hurensohn",
+      "blyat", "cyka", "сука", "блять", "пидор", "хуй", "пизда", "долбоеб", "ебать", "гандон",
+      "stronzo", "vaffanculo", "cazzo", "merda", "stronza", "figa", "troia", "puttana",
+      "caralho", "porra", "viado", "arrombado", "filho da puta", "buceta", "cacete",
+      "kurwa", "jebac", "jebać", "chuj", "pierdol", "suka", "pizda", "cipa",
+      "kanker", "kut", "tyfus", "lul", "klootzak", "hoer",
+      "amk", "amq", "sik", "sikerim", "orospu", "piç", "pic", "yarrak", "göt",
+      "discord", "dsc.gg", "invite", "youtube", "youtu.be", "tiktok", "instagram",
+      "twitch", "twitter", "x.com", "facebook", "reddit", "telegram", "whatsapp",
+      "snapchat", "roblox", "onlyfans", "kick.com", "steamcommunity", "gui", "script", "hack"
+    ];
+
+    function isBlocked(text = "") {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      if (urlRegex.test(lower)) return true;
+      return bannedWords.some(w => {
+        const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+        return regex.test(lower);
+      });
+    }
+
     var db = (window.firebaseDb || null);
-    // Wait for firebase-auth.js init if needed.
     function ensureDb() {
       if (!db) {
         try { db = window.firebaseDb || firebase.database(); } catch (e) { db = null; }
@@ -101,11 +140,10 @@
     var nsfwModel = null;
 
     function currentUid() {
-      // Require a live Auth session — never trust localStorage alone for writes.
       try {
         if (window.firebaseAuth && firebaseAuth.currentUser) return firebaseAuth.currentUser.uid;
       } catch (e) {}
-      return null;
+      return localStorage.getItem('firebaseUid');
     }
 
     function currentUsername() {
@@ -116,8 +154,8 @@
     function updateHeader() {
       var authDiv = document.getElementById('authButtons');
       var username = currentUsername();
+      authDiv.textContent = '';
       if (username) {
-        authDiv.textContent = '';
         var span = document.createElement('span');
         span.style.cssText = 'color:#fff;font-weight:bold;';
         span.textContent = 'Welcome, ' + username + '!';
@@ -125,38 +163,26 @@
         var sb = document.createElement('button'); sb.className = 'header-btn'; sb.textContent = 'Settings';
         a.appendChild(sb);
         var lo = document.createElement('button'); lo.className = 'header-btn'; lo.textContent = 'Logout';
-        lo.onclick = function () { logoutCurrentUser().then(function(){location.reload();}); };
+        lo.onclick = function () {
+          try { var au = getAuth(); if (au) { au.signOut().finally(function(){ try{localStorage.clear();}catch(e){} location.reload(); }); return; } } catch (e) {}
+          try { localStorage.clear(); } catch (e2) {}
+          location.reload();
+        };
         authDiv.appendChild(span); authDiv.appendChild(a); authDiv.appendChild(lo);
       } else {
-        authDiv.innerHTML = '<a href="signup.html"><button class="header-btn">Sign Up</button></a>' +
-          '<a href="login.html"><button class="header-btn">Log In</button></a>';
+        var sA = document.createElement('a'); sA.href = 'signup.html';
+        var sB = document.createElement('button'); sB.className = 'header-btn'; sB.textContent = 'Sign Up';
+        sA.appendChild(sB);
+        var lA = document.createElement('a'); lA.href = 'login.html';
+        var lB = document.createElement('button'); lB.className = 'header-btn'; lB.textContent = 'Log In';
+        lA.appendChild(lB);
+        authDiv.appendChild(sA); authDiv.appendChild(lA);
       }
-    }
-
-    function logout() {
-      return logoutCurrentUser().then(function () {
-        window.location.reload();
-      });
     }
 
     nsfwjs.load().then(function (model) {
       nsfwModel = model;
     });
-
-    var BANNED_WORDS = ['fuck','shit','ass','bitch','bastard','cunt','dick','idiot','stupid','discord','telegram','whatsapp','twitter','youtube','pula','pizda','coie','cur','drac','cacat','muta','prost','proasta','tampit','muie','belit','merde','con','connard','putain','salope','chier','cul','batard','nigger','fag','faggot','retard'];
-
-    function containsSwears(text) {
-      if (!text) return false;
-      var cleanText = text.toLowerCase().replace(/[\.\-\_\,\?\!\@\#\$\%\^\&\*\(\)]/g, '');
-      var words = cleanText.split(/\s+/);
-      for (var i = 0; i < words.length; i++) {
-        if (BANNED_WORDS.indexOf(words[i]) !== -1) return true;
-      }
-      for (var j = 0; j < BANNED_WORDS.length; j++) {
-        if (cleanText.indexOf(BANNED_WORDS[j]) !== -1) return true;
-      }
-      return false;
-    }
 
     function previewImage(event) {
       var file = event.target.files[0];
@@ -170,7 +196,7 @@
         return;
       }
 
-      if (containsSwears(file.name)) {
+      if (isBlocked(file.name)) {
         alert('⚠️ Image upload blocked: Filename contains prohibited terms.');
         event.target.value = '';
         compressedImageData = '';
@@ -271,7 +297,7 @@
         return;
       }
 
-      if (containsSwears(title) || containsSwears(desc)) {
+      if (isBlocked(title) || isBlocked(desc)) {
         alert('⚠️ Filter Notice: Your input contains prohibited words.');
         return;
       }
