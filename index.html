@@ -104,6 +104,43 @@
   <script src="firebase-auth.js"></script>
 
   <script>
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9-]+\.[a-zA-Z]{2,}\/[^\s]*)/i;
+
+    const bannedWords = [
+      "fuck", "fucking", "fucked", "fucker", "shit", "shitting", "shitty", "bitch", "bitching",
+      "asshole", "bastard", "dick", "dickhead", "pussy", "cunt", "cock", "cocksucker",
+      "whore", "slut", "idiot", "dumbass", "moron", "imbecile", "trash", "dipshit", "jackass",
+      "nigga", "nigger", "fag", "faggot", "retard", "retarded", "chink", "spic", "kike", "kyke",
+      "tranny", "dyke", "gay", "lesbian", "bi", "bisexual",
+      "pula", "pulă", "pizda", "pizdă", "pizdiet", "pula-n", "muie", "futu-ti", "futu-ți", "futut",
+      "mue", "cacat", "căcat", "sugi", "sugme", "futu", "curwa", "curva", "labagiu", "handicapat",
+      "putain", "merde", "connard", "connasse", "salope", "encule", "enculé", "chienne", "pd",
+      "pedé", "pede", "pétasse", "petasse", "bite", "couille", "nique", "niquer",
+      "puta", "puto", "pendejo", "pendeja", "cabron", "cabrona", "maricon", "maricón", "verga",
+      "mierda", "joto", "chinga", "chingar", "chingado", "culero", "mamón", "mamon",
+      "scheisse", "scheiße", "arschloch", "fotze", "wixer", "wichser", "ficken", "hurensohn",
+      "blyat", "cyka", "сука", "блять", "пидор", "хуй", "пизда", "долбоеб", "ебать", "гандон",
+      "stronzo", "vaffanculo", "cazzo", "merda", "stronza", "figa", "troia", "puttana",
+      "caralho", "porra", "viado", "arrombado", "filho da puta", "buceta", "cacete",
+      "kurwa", "jebac", "jebać", "chuj", "pierdol", "suka", "pizda", "cipa",
+      "kanker", "kut", "tyfus", "lul", "klootzak", "hoer",
+      "amk", "amq", "sik", "sikerim", "orospu", "piç", "pic", "yarrak", "göt",
+      "discord", "dsc.gg", "invite", "youtube", "youtu.be", "tiktok", "instagram",
+      "twitch", "twitter", "x.com", "facebook", "reddit", "telegram", "whatsapp",
+      "snapchat", "roblox", "onlyfans", "kick.com", "steamcommunity", "gui", "script", "hack"
+    ];
+
+    function isBlocked(text = "") {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      if (urlRegex.test(lower)) return true;
+      return bannedWords.some(w => {
+        const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+        return regex.test(lower);
+      });
+    }
+
     function getDb() { return window.firebaseDb || (typeof firebase !== 'undefined' ? firebase.database() : null); }
     function getAuth() { return window.firebaseAuth || (typeof firebase !== 'undefined' ? firebase.auth() : null); }
     var allGames = {};
@@ -121,7 +158,6 @@
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
-    // Strict thumbnail allowlist: https + raster base64 only (no http, no svg).
     function safeThumbSrc(v) {
       if (typeof v !== 'string') return 'photo.png';
       var s = v.trim();
@@ -174,7 +210,6 @@
 
     function loadGames() {
       var db = getDb(); if (!db) return;
-      // limitToLast(50) + once (not .on) to avoid re-downloading huge fileData blobs / API-spam blocks.
       Promise.all([
         db.ref('games').limitToLast(50).once('value').catch(function () { return { val: function () { return {}; } }; }),
         loadFavState()
@@ -215,20 +250,16 @@
 
     function renderSections(gamesObj) {
       gamesObj = gamesObj || {};
-      // New: by timestamp desc.
       var byNew = Object.keys(gamesObj).filter(function (k) { return gamesObj[k]; })
         .sort(function (a, b) { return (gamesObj[b].timestamp || 0) - (gamesObj[a].timestamp || 0); }).slice(0, 8);
       renderGrid(document.getElementById('newGrid'), byNew, gamesObj, 'No games yet.');
-      // Most Favorited: by favCounts desc, fallback to New order.
       var byFav = Object.keys(gamesObj).filter(function (k) { return gamesObj[k]; })
         .sort(function (a, b) { return (favCounts[b] || 0) - (favCounts[a] || 0) || ((gamesObj[b].timestamp || 0) - (gamesObj[a].timestamp || 0)); }).slice(0, 8);
       renderGrid(document.getElementById('topFavGrid'), byFav, gamesObj, 'No favorites yet — be the first!');
-      // Favorites: my starred games.
       var favIds = Object.keys(myFavorites || {}).filter(function (k) { return gamesObj[k]; });
       var favSec = document.getElementById('favSection');
       if (favSec) favSec.style.display = favIds.length ? '' : 'none';
       renderGrid(document.getElementById('favGrid'), favIds.reverse(), gamesObj, '');
-      // Continue Playing: recent IDs that still exist.
       var recent = getRecent().filter(function (k) { return gamesObj[k]; }).slice(0, 8);
       var contSec = document.getElementById('continueSection');
       if (contSec) contSec.style.display = recent.length ? '' : 'none';
@@ -296,7 +327,6 @@
       var uid = currentUid(), db = getDb();
       myFavorites = {}; favCounts = {};
       var jobs = [];
-      // Public counts (small numbers, cheap).
       if (db) jobs.push(db.ref('gameStats').once('value').then(function (s) {
         var v = s.val() || {};
         Object.keys(v).forEach(function (k) { favCounts[k] = Number((v[k] || {}).favCount) || 0; });
@@ -416,6 +446,11 @@
 
       if (/[.#$\[\]/]/.test(friendName)) {
         alert('That name contains invalid characters.');
+        return;
+      }
+
+      if (isBlocked(friendName)) {
+        alert('That name contains restricted text.');
         return;
       }
 
